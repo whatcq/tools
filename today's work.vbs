@@ -1,6 +1,7 @@
-'!!!注意运行时需要将本文件保存为ANSI编码
+'important!!!注意运行时需要将本文件保存为ANSI编码
+'一个简单的提醒脚本（like番茄工作法） by Cqiu @2010-1-12
+
 '2012-1-14 Cqiu
-'+启动确认
 '+时间可配置
 '+任务中提醒(新进程:2013-5-23)
 '+分月建数据
@@ -16,42 +17,20 @@ ForAppending=8
 Dim dataFile
 dataFile=".\todayWorks_"&Year(Date())&"_"&Month(Date())&".txt"
 Dim SC 'splitChar
-SC=" "
-
-'==============================
-'启动确认
-'==============================
-'Dim startConfirm
-'startConfirm=false'true'
-'If startConfirm = True Then
-'	Dim start
-'	If MsgBox ("启动《任务驱动》？",vbYesNo,"莫等闲，白了少年头！")=vbNo Then
-'		WScript.Quit
-'	End If
-'End If
+SC=";"
 
 '==============================
 '主体程序
 '==============================
-Dim taskTime,perAlertTime,b4ExpireAlertTime,thisTask,leftTime, defaultTask,newTask,result,br,sleepTime
+Dim taskTime,perAlertTime,b4ExpireAlertTime,thisTask,leftTime, defaultTask,newTask,status,br,sleepTime
 taskTime=20 ' 1个番茄时间
 perAlertTime=5
-b4ExpireAlertTime=0 'todo
+b4ExpireAlertTime=0 '结束前多少分最后一次提示
 leftTime=0
-'set fso=wscript.createobject("scripting.filesystemobject")
-defaultTask="休息一下"
-result="===========" '新开始
+defaultTask="思考一下"
+status="===========" '新开始
 br= Chr(13) & Chr(10) & Chr(13) & Chr(10) & "===================" & Chr(13) & Chr(10) & Chr(13) & Chr(10)
-While True
 
-	'提醒
-	If leftTime>0 Then
-		'result=MsgBox ( br & thisTask & br ,vbOKOnly,Time & ": working..." & leftTime)
-		'Wscript.Echo  br & thisTask & br ,vbOKOnly,Time & ": working..." & leftTime
-		Set WshShell = WScript.CreateObject("WScript.Shell") 
-		WshShell.Run "wscript alert.vbs """& thisTask &""" """& leftTime &""""
-		Set WshShell = Nothing
-		result="working"
 '=======alert.vbs========
 'thisTask= wscript.arguments(0)
 'leftTime= wscript.arguments(1)
@@ -59,44 +38,81 @@ While True
 'br= Chr(13) & Chr(10) & Chr(13) & Chr(10) & "===================" & Chr(13) & Chr(10) & Chr(13) & Chr(10)
 'MsgBox  br & thisTask & Chr(9) &  "剩余:"&leftTime&"min"  & br ,vbOKOnly,Time & ": working..."
 '=======/alert.vbs========
+
+' this adds the IIf() function to VBScript
+Function IIf(i,j,k)
+  If i Then IIf = j Else IIf = k
+End Function
+
+function Is_Int(a_str)
+   if not isnumeric(a_str) or len(str) > 5 then
+      Is_Int = false
+      exit function
+   elseif len(str) < 5 then
+      Is_Int = true
+      exit function
+   end if
+   if cint(left(a_str , 4)) > 3276 then
+      Is_Int = false
+      exit function
+   elseif cint(left(a_str , 4)) = 3276 and cint(right(a_str , 1)) > 7 then
+      Is_Int = false
+      exit function
+   else
+      Is_Int = true
+      exit function
+   end if
+end function
+
+While True
+
+	'提醒
+	If leftTime>0 Then
+		'提醒是单独的，调用其他进程而不用MsgBox，以免中断计时
+		Set WshShell = WScript.CreateObject("WScript.Shell") 
+		WshShell.Run "wscript alert.vbs """& thisTask & IIf(sleepTime = leftTime,"!!","") &""" """& leftTime &""""
+		Set WshShell = Nothing
+		status="working"
 	'没有任务则创建
 	ElseIf thisTask="" Then
 		Dim taskInfo
-		newTask=InputBox("下一个任务是：", Time & "-下一个任务",defaultTask&" "&taskTime&" "&perAlertTime&" "&b4ExpireAlertTime)
+		newTask=InputBox("下一个任务是：", Time & "-下一个任务",_
+			defaultTask &SC& taskTime &SC& perAlertTime & IIf(b4ExpireAlertTime>0,SC& b4ExpireAlertTime,""))
+		'输入为空 或 点击取消 直接退出
 		If newTask="" Then
 			WScript.Quit
 		End If
 		taskInfo=Split(newTask,SC)
 		thisTask=taskInfo(0)
 		If UBound(taskInfo)>0 Then
-			If taskInfo(1) <> "" Then
+			If Is_Int(taskInfo(1)) Then
 				taskTime=CInt(taskInfo(1))
 			End If
 		End If
 		leftTime=taskTime
 		If UBound(taskInfo)>1 Then
-			If taskInfo(2) <> "" Then
+			If Is_Int(taskInfo(2)) Then
 				perAlertTime=CInt(taskInfo(2))
 			End If
 		End If
 		If UBound(taskInfo)>2 Then
-			If taskInfo(3) <> "" Then
+			If Is_Int(taskInfo(3)) Then
 				b4ExpireAlertTime=CInt(taskInfo(3))
 			End If
 		End If
 	'完成结果
 	Else
-		result=MsgBox ("是否已完成？" & br & thisTask & br,vbYesNoCancel,Time & "上一任务：")
-		Select Case result
+		status=MsgBox ("是否已完成？" & br & thisTask & br,vbYesNoCancel,Time & "上一任务：")
+		Select Case status
 			Case vbYes
-				result="已完成"
+				status="已完成"
 				defaultTask=thisTask
 			Case vbNo
-				result="未完成"
+				status="未完成"
 				defaultTask=thisTask
 			Case Else 'vbCancel
-				result="已取消"
-				defaultTask="锻炼"
+				status="已取消"
+				defaultTask="锻炼/休息"
 		End Select
 		leftTime=0
 		thisTask=""
@@ -104,10 +120,10 @@ While True
 
 	If thisTask<>"" Then
 		'保存新任务
-		If result<>"working" Then
+		If status<>"working" Then
 			Set fso=WScript.createobject("scripting.filesystemobject")
 			Set f=fso.openTextFile(dataFile,ForAppending,true)
-			f.writeLine SC & result & Time
+			f.writeLine SC & status & Time
 			f.write Now & SC & newTask
 			f.Close
 			Set fso=Nothing
@@ -118,6 +134,14 @@ While True
 			sleepTime=leftTime
 		Else
 			sleepTime=perAlertTime
+		End If
+		'b4ExpireAlertTime overwrite sleepTime
+		If taskTime>b4ExpireAlertTime And b4ExpireAlertTime>0 Then
+			If leftTime<=b4ExpireAlertTime Then
+				sleepTime = leftTime
+			ElseIf leftTime>b4ExpireAlertTime And leftTime-b4ExpireAlertTime <= sleepTime Then
+				sleepTime = leftTime-b4ExpireAlertTime
+			End If
 		End If
 
 		'leftTime

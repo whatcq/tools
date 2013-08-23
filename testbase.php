@@ -117,7 +117,7 @@ function $(str) {
 	<div>
 	<div style="position:relative;">
 		<span style="margin-left:200px;width:18px;overflow:hidden;">
-			<select style="width:218px;margin-left:-200px;" onchange="eval('this.parentNode.nextSibling'+(-[1,]?'.nextSibling':'')+'.value=this.value');">
+			<select style="width:218px;margin-left:-200px;" onchange="eval('this.parentNode.nextSibling'+(!top.execScript?'.nextSibling':'')+'.value=this.value');">
 				<?php
 				foreach (glob("{$path}*.php") as $php_filename) {
 					$php_filename = basename($php_filename, '.php');
