@@ -1,11 +1,12 @@
 'important!!!注意运行时需要将本文件保存为ANSI编码
+'
 '一个简单的提醒脚本（like番茄工作法） by Cqiu @2010-1-12
-
+'
 '2012-1-14 Cqiu
 '+时间可配置
-'+任务中提醒(新进程:2013-5-23)
 '+分月建数据
-
+'+任务中提醒(新进程:2013-5-23)
+'TODO:+提醒方式：声音、...
 '这种死循环还有点考人呢！2013-5-22
 
 '==============================
@@ -16,16 +17,19 @@ ForAppending=8
 '数据文件
 Dim dataFile
 dataFile=".\todayWorks_"&Year(Date())&"_"&Month(Date())&".txt"
-Dim SC 'splitChar
-SC=";"
+'输入格式："task*time perAlertTime b4ExpireAlertTime"
+Dim SC,SC1 'splitChar
+SC="*"
+SC1=" "
+
 
 '==============================
 '主体程序
 '==============================
 Dim taskTime,perAlertTime,b4ExpireAlertTime,thisTask,leftTime, defaultTask,newTask,status,br,sleepTime
 taskTime=20 ' 1个番茄时间
-perAlertTime=5
-b4ExpireAlertTime=0 '结束前多少分最后一次提示
+perAlertTime=7
+b4ExpireAlertTime= '结束前多少分最后一次提示
 leftTime=0
 defaultTask="思考一下"
 status="===========" '新开始
@@ -64,40 +68,49 @@ function Is_Int(a_str)
    end if
 end function
 
+Dim taskInfo,timeSet
+
 While True
 
 	'提醒
 	If leftTime>0 Then
 		'提醒是单独的，调用其他进程而不用MsgBox，以免中断计时
 		Set WshShell = WScript.CreateObject("WScript.Shell") 
-		WshShell.Run "wscript alert.vbs """& thisTask & IIf(sleepTime = leftTime,"!!","") &""" """& leftTime &""""
+		WshShell.Run "wscript alert.vbs """& thisTask & IIf(sleepTime = leftTime,"***","") &""" """& leftTime &""""
 		Set WshShell = Nothing
 		status="working"
 	'没有任务则创建
 	ElseIf thisTask="" Then
-		Dim taskInfo
-		newTask=InputBox("下一个任务是：", Time & "-下一个任务",_
-			defaultTask &SC& taskTime &SC& perAlertTime & IIf(b4ExpireAlertTime>0,SC& b4ExpireAlertTime,""))
+		newTask=InputBox("下一个`番茄`是：", Time & "-下一个任务",_
+			defaultTask &SC& taskTime &SC1& perAlertTime & IIf(b4ExpireAlertTime>0,SC1& b4ExpireAlertTime,""))
 		'输入为空 或 点击取消 直接退出
 		If newTask="" Then
 			WScript.Quit
 		End If
 		taskInfo=Split(newTask,SC)
 		thisTask=taskInfo(0)
+
 		If UBound(taskInfo)>0 Then
-			If Is_Int(taskInfo(1)) Then
-				taskTime=CInt(taskInfo(1))
-			End If
-		End If
-		leftTime=taskTime
-		If UBound(taskInfo)>1 Then
-			If Is_Int(taskInfo(2)) Then
-				perAlertTime=CInt(taskInfo(2))
-			End If
-		End If
-		If UBound(taskInfo)>2 Then
-			If Is_Int(taskInfo(3)) Then
-				b4ExpireAlertTime=CInt(taskInfo(3))
+			If taskInfo(1)<>"" Then
+				timeSet=Split(taskInfo(1),SC1)
+
+				If Is_Int(timeSet(0)) Then
+					taskTime=CInt(timeSet(0))
+				End If
+				leftTime=taskTime
+
+				If UBound(timeSet)>0 Then
+					If Is_Int(timeSet(1)) Then
+						perAlertTime=CInt(timeSet(1))
+					End If
+				End If
+
+				If UBound(timeSet)>1 Then
+					If Is_Int(timeSet(2)) Then
+						b4ExpireAlertTime=CInt(timeSet(2))
+					End If
+				End If
+
 			End If
 		End If
 	'完成结果
@@ -123,7 +136,7 @@ While True
 		If status<>"working" Then
 			Set fso=WScript.createobject("scripting.filesystemobject")
 			Set f=fso.openTextFile(dataFile,ForAppending,true)
-			f.writeLine SC & status & Time
+			f.writeLine SC & status & SC & Time
 			f.write Now & SC & newTask
 			f.Close
 			Set fso=Nothing
