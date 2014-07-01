@@ -28,8 +28,8 @@ SC1=" "
 '==============================
 Dim taskTime,perAlertTime,b4ExpireAlertTime,thisTask,leftTime, defaultTask,newTask,status,br,sleepTime
 taskTime=20 ' 1个番茄时间
-perAlertTime=7
-b4ExpireAlertTime= '结束前多少分最后一次提示
+perAlertTime=8
+b4ExpireAlertTime=5 '结束前多少分最后一次提示
 leftTime=0
 defaultTask="思考一下"
 status="===========" '新开始
