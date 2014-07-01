@@ -97,7 +97,6 @@ While True
 				If Is_Int(timeSet(0)) Then
 					taskTime=CInt(timeSet(0))
 				End If
-				leftTime=taskTime
 
 				If UBound(timeSet)>0 Then
 					If Is_Int(timeSet(1)) Then
@@ -113,6 +112,8 @@ While True
 
 			End If
 		End If
+		
+		leftTime=taskTime
 	'完成结果
 	Else
 		status=MsgBox ("是否已完成？" & br & thisTask & br,vbYesNoCancel,Time & "上一任务：")
