@@ -6,6 +6,7 @@ Cqiu's script tools
 - set_local_vhost.php -- a tool to quick set local vhost
 - autoF5.ahk  -- hot key to auto reload bowser, for development
 - md.php -- markdown reader
+- for-tpl -- make code with template;plugin for sublime(at last!!)
 
 
 markdown reader by ?p=[filePath]
