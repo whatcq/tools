@@ -6,7 +6,7 @@
  */
 
 if (isset($_GET['src'])) {
-    readfile($_GET['src']);
+    readfile(preg_replace('#\?.*#', '', $_GET['src']));
     exit;
 }
 
