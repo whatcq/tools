@@ -8,7 +8,7 @@ Cqiu's script tools
 - md.php -- markdown reader
 - for-tpl.py -- make code with template;plugin for sublime(at last!!)
 - for-tpl.js -- make code with template;plugin for Editplus
-
+- hackerVisions -- simple script to hacker visions
 
 markdown reader by ?p=[filePath]
 
