@@ -38,8 +38,9 @@ if (is_file($p)) {
 if ($content) {
     $path = dirname($p) . DIRECTORY_SEPARATOR;
     $content = $parsedown->text($content);
-    $content = preg_replace('# src="(?!(https?://))(.*)"#i', ' src="?src=' . $path . '\$2"', $content);
-    $content = preg_replace('# href="(?!(https?://))(.*\.md)"#i', ' href="?p=' . $path . '\$2"', $content);
+    $content = preg_replace('#<img src="(?!((https?:)?//))(.*)"#i', '<img src="?src=' . $path . '\$3"', $content);
+    $content = preg_replace('#<a href="(?!(https?://))(.*\.md)"#i', '<a href="?p=' . $path . '\$2"', $content);
+    $content = preg_replace('#<a href="&lt;(.*\.md)>"#i', '<a href="?p=' . $path . '\$1"', $content);
 } else {
     $content = $html;
 }
