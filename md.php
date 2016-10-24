@@ -14,7 +14,7 @@ include 'parsedown/Parsedown.php';
 
 $parsedown = new Parsedown();
 
-$p = $_GET['p'] ?? null;
+$p = isset($_GET['p']) ? $_GET['p'] : null;
 
 if (is_file($p)) {
     $content = file_get_contents($p);
