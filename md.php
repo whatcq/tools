@@ -27,7 +27,7 @@ if (is_file($p)) {
         foreach (glob($p . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
             $html .= '<li><a href="?p=' . $dir . '">' . $dir . '<a></li>';
         }
-        foreach (glob($p . DIRECTORY_SEPARATOR . '*.md') as $file) {
+        foreach (glob($p . DIRECTORY_SEPARATOR . '*.{md,markdown}', GLOB_BRACE) as $file) {
             $html .= '<li><a href="?p=' . $file . '">' . $file . '<a></li>';
         }
     }
