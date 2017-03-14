@@ -26,12 +26,13 @@ SC1=" "
 '==============================
 '主体程序
 '==============================
-Dim taskTime,perAlertTime,b4ExpireAlertTime,thisTask,leftTime, defaultTask,newTask,status,br,sleepTime
+Dim taskTime,perAlertTime,b4ExpireAlertTime,thisTask,leftTime, defaultTask,newTask,status,br,sleepTime,overTime
 taskTime=20 ' 1个番茄时间
 perAlertTime=8
 b4ExpireAlertTime=5 '结束前多少分最后一次提示
 leftTime=0
-defaultTask="思考一下"
+overTime=Time
+defaultTask="before die"
 status="===========" '新开始
 br= Chr(13) & Chr(10) & Chr(13) & Chr(10) & "===================" & Chr(13) & Chr(10) & Chr(13) & Chr(10)
 
@@ -81,7 +82,7 @@ While True
 		status="working"
 	'没有任务则创建
 	ElseIf thisTask="" Then
-		newTask=InputBox("下一个`番茄`是：", Time & "-下一个任务",_
+		newTask=InputBox("下一个`番茄`是：", Time & "-下一个番茄",_
 			defaultTask &SC& taskTime &SC1& perAlertTime & IIf(b4ExpireAlertTime>0,SC1& b4ExpireAlertTime,""))
 		'输入为空 或 点击取消 直接退出
 		If newTask="" Then
@@ -130,6 +131,7 @@ While True
 		End Select
 		leftTime=0
 		thisTask=""
+		overTime=Time
 	End If
 
 	If thisTask<>"" Then
@@ -137,7 +139,7 @@ While True
 		If status<>"working" Then
 			Set fso=WScript.createobject("scripting.filesystemobject")
 			Set f=fso.openTextFile(dataFile,ForAppending,true)
-			f.writeLine SC & status & SC & Time
+			f.writeLine SC & status & SC & overTime
 			f.write Now & SC & newTask
 			f.Close
 			Set fso=Nothing
