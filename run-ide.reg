@@ -1,0 +1,8 @@
+REGEDIT4
+
+[HKEY_CLASSES_ROOT\ide]
+@="URL:ide Protocol"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\ide\shell\open\command]
+@="wscript \"D:\\mysoft\\run-ide.js\" \"%1\""
