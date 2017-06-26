@@ -17,7 +17,7 @@ date_default_timezone_set('Asia/Chongqing');
 function s_array(&$array) {
 	return is_array($array) ? array_map('s_array', $array) : stripslashes($array);
 }
-set_magic_quotes_runtime(0);
+if(function_exists('set_magic_quotes_runtime'))set_magic_quotes_runtime(0);
 if(get_magic_quotes_gpc()) {
 	$_REQUEST = s_array($_REQUEST);
 }
