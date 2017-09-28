@@ -28,7 +28,8 @@ while (1) {
         if (IS_WIN)
             echo @iconv('UTF-8', 'GBK', `php $file`);
         else
-            echo `php $file`;
+			$dir = dirname($file);
+            echo `cd $dir && php $file`;
         $sign = $_sign;
     }
     sleep(2);
