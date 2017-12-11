@@ -17,10 +17,6 @@ if (isset($_GET['src'])) {
     exit;
 }
 
-include 'parsedown/Parsedown.php';
-
-$parsedown = new Parsedown();
-
 //$p = isset($_GET['p']) ? $_GET['p'] : null;
 if (isset($_GET['p'])) {
     $p = $_GET['p'];
@@ -55,6 +51,9 @@ if (is_file($p)) {
     $html = 'File not found!';
 }
 if ($content) {
+    include 'parsedown/Parsedown.php';
+    $parsedown = new Parsedown();
+
     $path = dirname($p) . DIRECTORY_SEPARATOR;
     $content = $parsedown->text($content);
     $content = preg_replace('#<img src="(?!((https?:)?//))(.*)"#i', '<img src="?src=' . $path . '\$3"', $content);
