@@ -33,7 +33,7 @@ function mdList($p)
         $html .= '<li><a href="?p=' . $dir . '">' . basename($dir) . '</a></li>';
     }
     foreach (glob($p . DIRECTORY_SEPARATOR . '*.{md,markdown}', GLOB_BRACE) as $file) {
-        $html .= '<li' . ($file == $GLOBALS['p'] ? ' class="title"' : '') . '><a href="?p=' . $file . '">' . basename($file) . '</a></li>';
+        $html .= '<li class="md ' . ($file == $GLOBALS['p'] ? ' title' : '') . '"><a href="?p=' . $file . '">' . basename($file) . '</a></li>';
     }
     return $html;
 }
@@ -104,13 +104,27 @@ if ($content) {
             margin: 0;
             padding: 0;
             list-style: none;
+            overflow: auto;
+        }
+        .sidebar-nav::-webkit-scrollbar {
+            width: 10px;
+            height: 1px;
+        }
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+             -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+            background: #535353;
+        }
+        .sidebar-nav::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+            border-radius: 10px;
+            background: #EDEDED;
         }
 
         .sidebar-nav li {
-            text-indent: 20px;
-            line-height: 40px;
+            text-indent: 10px;
+            line-height: 30px;
         }
-
         .sidebar-nav li a {
             display: block;
             text-decoration: none;
@@ -131,6 +145,14 @@ if ($content) {
             color: #000;
         }
 
+        .sidebar-nav li a:before {
+            color: #1f9b4c;
+            content: '◇'
+        }
+        .sidebar-nav li.md a:before {
+            color: #1f9b4c;
+            content: '▶'
+        }
     </style>
 </head>
 <body>
