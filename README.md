@@ -10,6 +10,7 @@ Cqiu's script tools
 - for-tpl.js -- make code with template;plugin for Editplus
 - hackerVisions -- simple script to hacker visions
 - php-analysis -- simple script to analysis runtime php code
+- deploy.php -- remote deploy command script
 
 markdown reader by ?p=[filePath]
 
