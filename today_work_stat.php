@@ -44,6 +44,7 @@ header("Content-type:text/html;charset=gbk");
     .line-blue{
     }
 </style>
+<h3 name="top">today's works</h3>
 <?php
 $dir='D:\mysoft\fuer';
 $stat = $statEstimate = [];
@@ -172,9 +173,11 @@ var myLineChart = new Chart(ctx, {
 });
 
 var links = document.getElementsByTagName('a');
-var anchors = [], n = links.length;
+var anchors = [<?php if(isset($_GET['date']))echo "'<a href=\"?\">È«²¿</a>', ";
+?>'<a href="#top" style="margin-left: 100px;font-size: 20px;">&#8679;</a>'], n = links.length;
 for(var i=0; i<n; i++){
     anchors.push('<li><a href="#'+links[i].name+'">'+links[i].innerText+'</a></li>');
 }
+
 document.getElementById('dashboard').innerHTML = anchors.join('');
 </script>
