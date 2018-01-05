@@ -92,18 +92,15 @@ foreach($files as $file) {
             $timeSpent = round((strtotime($endTime) - strtotime(explode(' ', $startTime.' 00:00:00')[1]))/60,0);
             $timeOverStep = $timeSpent - $timeEstimate;
             $timeOverStepTotal += $timeOverStep;
-            if($timeOverStep){
-                $chaoStyle = 'red';
-            }else{
-                $chaoStyle = 'green';
-            }
+            $chaoStyle = $timeOverStep ? 'red' : 'green';
             $rate = '';
         }
+        $statusClass = $status=='Î´Íê³É' ? 'red' : 'green';
         echo<<<EOF
         <div class="line-$chaoStyle">
             <span class="time">$startTime</span>
             <span class="task">$task</span>
-            <span class="">$status</span>
+            <span class="$statusClass">$status</span>
             <span class="min">$timeEstimate</span>
             <span class="min2">$timeSpent</span>
             <span class="$chaoStyle">$timeOverStep</span>
