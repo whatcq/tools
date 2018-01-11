@@ -76,6 +76,7 @@ foreach($files as $file) {
         //echo ' ';
         //echo $st = (explode(' ', $startTime.' 00:00:00')[1]);
         $timeEstimate = intval($timeEstimate);
+        //当日统计
         if($status[0]==='='){
             $timeSpent = gmstrftime("%H:%M", $timeEstimateTotal * 60);
             $timeOverStep = gmstrftime("%H:%M", $timeOverStepTotal * 60);
@@ -172,12 +173,12 @@ var myLineChart = new Chart(ctx, {
     options: options
 });
 
+//生成索引锚链接
 var links = document.getElementsByTagName('a');
 var anchors = [<?php if(isset($_GET['date']))echo "'<a href=\"?\">全部</a>', ";
 ?>'<a href="#top" style="margin-left: 100px;font-size: 20px;">&#8679;</a>'], n = links.length;
 for(var i=0; i<n; i++){
     anchors.push('<li><a href="#'+links[i].name+'">'+links[i].innerText+'</a></li>');
 }
-
 document.getElementById('dashboard').innerHTML = anchors.join('');
 </script>

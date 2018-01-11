@@ -10,6 +10,8 @@
  * RewriteRule (.+\.(markdown|mdown|md|mkd))$ ['PHP_SELF']
  * RewriteRule (.+\.(markdown|mdown|md|mkd)\-text)$ ['PHP_SELF'] [L]
  * #RewriteRule (.+\.(markdown|mdown|md|mkd))$ ['PHP_SELF']?p=['DOCUMENT_ROOT']/$1
+ *
+ * IndexIgnore .??* *~ *# HEADER* README.html readme.txt RCS CVS *,v *,t
  */
 
 if (isset($_GET['src'])) {
@@ -28,7 +30,8 @@ if (isset($_GET['p'])) {
 
 function mdList($p)
 {
-    $html = '<li class="title"><a href="?p=' . dirname($p) . '">' . basename($p) . ' \</a></li>';
+    $html = '<li class="title"><a href="./.">' . basename($p) . ' \</a></li>'
+        .'<li class="title"><a href="?p=' . dirname($p) . '">..</a></li>';
     foreach (glob($p . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
         $html .= '<li><a href="?p=' . $dir . '">' . basename($dir) . '</a></li>';
     }
@@ -147,11 +150,11 @@ if ($content) {
 
         .sidebar-nav li a:before {
             color: #1f9b4c;
-            content: '◇'
+            content: '◇ '
         }
         .sidebar-nav li.md a:before {
             color: #1f9b4c;
-            content: '▶'
+            content: '▶ '
         }
     </style>
 </head>
