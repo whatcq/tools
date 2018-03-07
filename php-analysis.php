@@ -20,7 +20,11 @@ register_shutdown_function(function () {
         'files'     => get_included_files(),
         //'constants' => get_defined_constants(),
         'functions' => get_defined_functions()['user'],
-        'classes'   => get_declared_classes(),
+        //'classes'   => get_declared_classes(),
+        'get'   => $_GET,
+        'post'   => $_POST,
+        //'server'   => $_SERVER,
+
     ];
     echo '<pre>';
     print_r($stats);
