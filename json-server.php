@@ -15,7 +15,7 @@
 // DELETE /todo/1
 
 // bash和cmd的区别：引号、转义字符==
-// curl -X POST http://127.0.0.1/test/cqiu-tools/json-server.php?object=todo -H 'Content-Type: application/json' -d '{"item":"json-server in php", "date":"2018-11-23"}'
+// curl -X POST http://127.0.0.1/test/cqiu-tools/json-server.php?object=todo\&id=0 -H 'Content-Type: application/json' -d '{"item":"json-server in php", "date":"2018-11-23"}'
 // curl -X POST http://127.0.0.1/test/cqiu-tools/json-server.php?object=todo -H 'Content-Type: application/json;charset=gbk' -d '{"item":"大学城 海哥 跆拳道", "date":"2018-11-24"}'
 // curl http://127.0.0.1/test/cqiu-tools/json-server.php?object=todo\&id=1
 // curl -X DELETE http://127.0.0.1/test/cqiu-tools/json-server.php?object=todo\&id=1
@@ -39,9 +39,8 @@ var_dump($object, $id);
 $input = file_get_contents('php://input');
 $encode = mb_detect_encoding($input, array("ASCII", 'UTF-8', "GB2312", "GBK", 'BIG5'));
 $input = mb_convert_encoding($input, 'UTF-8', $encode);
-
 $post = json_decode($input, true);
-print_r($post);
+// print_r($post);
 
 $data = json_decode(file_get_contents($dataFile), true);
 switch ($_SERVER['REQUEST_METHOD']) {
@@ -64,8 +63,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
         }
 
         isset($data[$object][$id])
-        ? ($data = array_merge($data[$object][$id], $post))
-        : ($data[$object][] = $post);
+        ? ($data[$object][$id] = array_merge($data[$object][$id], $post))
+        : (is_null($id)
+            ? ($data[$object][] = $post)
+            : ($data[$object][$id] = $post)
+        );
 
         file_put_contents($dataFile, json_encode($data));
         response($post);
