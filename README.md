@@ -11,6 +11,7 @@ Cqiu's script tools
 - hackerVisions -- simple script to hacker visions
 - php-analysis -- simple script to analysis runtime php code
 - deploy.php -- remote deploy command script
+- json-server.php demo:RESTful /typicode/json-server in php
 
 markdown reader by ?p=[filePath]
 
