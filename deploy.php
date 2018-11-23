@@ -11,7 +11,7 @@ $file = '/data/app/git_pull.msg';
 // 后台进程，收到消息就更新代码
 // $ nohup php deploy.php &
 if (PHP_SAPI === "cli") {
-    `touch $file && chmod 0777 $file`;
+    `touch $file && chmod 0777 $file`; //用户权限问题，因此cli需要先运行
     $log_file = '/data/app/project-dir/deploy.log';
     while (1) {
         $folders = trim(file_get_contents($file));
@@ -22,7 +22,7 @@ if (PHP_SAPI === "cli") {
             }
             `date >> $log_file && echo > $file`;
         }
-        sleep(1);//s
+        sleep(3);//s
     }
     exit;
 }
@@ -36,5 +36,5 @@ if (isset($_SERVER['QUERY_STRING']) && $folder = $_SERVER['QUERY_STRING']) {
         echo 'allow folders:', implode('<li>', $deployFolders);
     }
 } else {
-    file_put_contents($file, implode(PHP_EOL, $deployFolders)) && print 'all ok!';
+    file_put_contents($file, implode(PHP_EOL, $deployFolders) . PHP_EOL) && print 'all ok!';
 }

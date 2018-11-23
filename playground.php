@@ -36,12 +36,19 @@ if(get_magic_quotes_gpc()) {
 }
 
 
-$path = 'testbase/';
+$path = basename(__FILE__, '.php') . '/';
 $this_dir = dirname(__FILE__).DIRECTORY_SEPARATOR;
 $filename='test';
-$source='&lt;?php'."\n/*".date('Y-m-d')."\n*/
-header(\"Content-type:text/html;charset=utf-8\");
-include 'common.func.php';\n";
+$source='&lt;?php
+/*'.date('Y-m-d').'
+*/
+header("Content-type:text/html;charset=utf-8");
+include \'common.func.php\';
+
+var_dump(
+
+);
+';
 if(isset($_REQUEST['filename'])) {
 	$filename=$_REQUEST['filename'];
 	$file=$this_dir.$path.$filename.'.php';
