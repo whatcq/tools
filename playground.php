@@ -87,7 +87,7 @@ elseif($act==='open_it_with_editplus'){
 //	$WshShell = new COM("WScript.Shell"); 
 //	$a = $WshShell->Run("cmd /C start  \"$file\" ", 3, true); 
 //	var_dump($a);
-	echo '<body onload="document.getElementById(\'tt\').focus();"><input id="tt" type="text" value="',(strtr($file,'/','\\')),'" onfocus="this.select();window.clipboardData.setData(\'text\', this.value);" size="50" />已复制';
+	echo '<body onload="document.getElementById(\'tt\').focus();"><input id="tt" type="text" value="',(strtr($file,'/','\\')),'" onfocus="this.select();typeof window.clipboardData===\'object\' ? window.clipboardData.setData(\'text\', this.value):document.execCommand(\'copy\');" size="50" />&lt;=复制';
 	exit;
 }
 
