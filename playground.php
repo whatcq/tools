@@ -57,6 +57,7 @@ if(isset($_REQUEST['filename'])) {
 $act = isset($_REQUEST['act'])?$_REQUEST['act']:'';
 
 if($act==='save_run') {
+	//exit($act);
 	$file = $path.$_REQUEST['filename'].'.php';
 	$source = preg_replace('/((\$\w+)\s?=.*)#(\r?\n)/', "\$1var_dump(\$2);\$3", $_REQUEST['source']);
 	file_put_contents($file, $source);
@@ -150,9 +151,9 @@ function $(str) {
 		<input type="text" name="filename" id="filename" value="<?php echo $filename;?>" 
 			style="width:200px;position:absolute;left:0px;top:1px;" />
 
-		<button onclick="openfile.location='?act=open_it_with_editplus&filename='+$('filename').value;" title="Open it with Editplus">Source</button>
-		<button onclick="location='?filename='+$('filename').value;" title="Load this file=>">Load it</button>
-		<button onclick="iframe.location='<?php echo $path;?>'+$('filename').value+'.php';" title="Run this file=>">Run</button>
+		<button onclick="openfile.location='?act=open_it_with_editplus&filename='+$('filename').value;return false;" title="Open it with Editplus">Source</button>
+		<button onclick="location='?filename='+$('filename').value;return false;" title="Load this file=>">Load it</button>
+		<button onclick="iframe.location='<?php echo $path;?>'+$('filename').value+'.php';console.log($('filename').value);return false;" title="Run this file=>">Run</button>
         <span title="赋值语句后加上#会打印出结果">?</span>
 		
 		<?php if(isset($msg))echo $msg;?>
