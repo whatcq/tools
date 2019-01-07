@@ -6,6 +6,9 @@
  */
 
 define('IS_WIN', (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? true : false);
+define('IS_GBK', (strlen('жпнд') === 4) ? true : false);
+var_dump(IS_WIN, IS_GBK);
+exit;
 
 if ($argc < 2) {
     start:
@@ -23,13 +26,16 @@ $sign = 0;
 while (1) {
     $_sign = md5_file($file);
     if ($_sign !== $sign) {
-        `cls`;
-        echo date('H:i:s'), "\n--------------\n";
-        if (IS_WIN)
+        if (IS_WIN) {
+            `cls`;
+            echo date('H:i:s'), "\n--------------\n";
             echo @iconv('UTF-8', 'GBK', `php $file`);
-        else
-			$dir = dirname($file);
+        } else {
+            `clear`;
+            echo date('H:i:s'), "\n--------------\n";
+            $dir = dirname($file);
             echo `cd $dir && php $file`;
+        }
         $sign = $_sign;
     }
     sleep(2);
