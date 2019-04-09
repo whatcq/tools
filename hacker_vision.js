@@ -26,6 +26,6 @@
         var head = document.getElementsByTagName('head')[0];
         head.appendChild(style);
     }
-    loadCssCode('html:not(*:-webkit-full-screen) body, html:not(*:-webkit-full-screen) #cye-workaround-body {-webkit-filter: contrast(91%) brightness(84%) invert(1);}');
+    loadCssCode('html:not(*:-webkit-full-screen) body, html:not(*:-webkit-full-screen) {-webkit-filter: contrast(91%) brightness(84%) invert(1);background: rgb(9, 9, 9) !important;}');
 
 })();

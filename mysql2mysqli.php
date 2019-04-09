@@ -37,6 +37,10 @@ function mysql_error() {
 	global $_connection;
 	return mysqli_error($_connection);
 }
+function mysql_close() {
+	global $_connection;
+	return mysqli_close($_connection);
+}
 return;
 
 //test------------------
