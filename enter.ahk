@@ -1,3 +1,4 @@
+; WARNING: 坑：文件需要是windows换行，git中弄成了UNIX！！！
 
 ;# Win(Windows 徽标键) 
 ;! Alt 
