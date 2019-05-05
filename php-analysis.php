@@ -175,6 +175,13 @@ li.trace-info{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
         }
         parseInt(history[0]) && open.click();
         tab_tit[history[1]].click();
+
+        document.onkeydown = function (event) {
+            var a = window.event.keyCode;
+            if ((a === 81) && (event.ctrlKey)) {//Ctrl+q
+                open.click();
+            }
+        };
     })();
 </script>
     <?php
