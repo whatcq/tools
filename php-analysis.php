@@ -11,7 +11,12 @@
  * Date: 2017-10-28
  */
 !empty($_COOKIE['_t']) && $_GET['_t'] = $_COOKIE['_t'];
-if (!isset($_GET['_t']) || (isset($_SERVER['HTTP_REQUEST_TYPE']) && $_SERVER['HTTP_REQUEST_TYPE'] === 'ajax')) {return;}
+if (!isset($_GET['_t'])
+    || (isset($_SERVER['HTTP_REQUEST_TYPE']) && $_SERVER['HTTP_REQUEST_TYPE'] === 'ajax')
+    || array_search('XMLHttpRequest', getallheaders()) === 'X-Requested-With'
+) {
+    return;
+}
 
 /**
  * 打印4测试
@@ -101,16 +106,18 @@ li.trace-info{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
                         } ?>><?= $name ?></label>
                 <?php } ?>
             </div>
-            <?php foreach ($traces as $info) { ?>
+            <?php foreach ($traces as $key => $info) { ?>
                 <div style="display:none;">
                     <ol style="padding: 0; margin:0">
                         <?php
                         if (is_array($info)) {
                             foreach ($info as $k => $val) {
                                 echo '<li class="trace-info">',
-                                (/*is_numeric($k) ? '' :*/$k . ' : '),
-                                htmlentities(print_r($val, true), ENT_COMPAT, 'utf-8'),
-                                '</li>';
+                                (/*is_numeric($k) ? '' :*/$k . ' : ');
+                                if($key==='vars')echo '<pre>';
+                                echo htmlentities(print_r($val, true), ENT_COMPAT, 'utf-8');
+                                if($key==='vars')echo '</pre>';
+                                echo '</li>';
                             }
                         } else {
                             echo $info;
@@ -174,7 +181,7 @@ li.trace-info{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
             })(i)
         }
         parseInt(history[0]) && open.click();
-        tab_tit[history[1]].click();
+        if (typeof tab_tit[history[1]] !== 'undefined') tab_tit[history[1]].click();
 
         document.onkeydown = function (event) {
             var a = window.event.keyCode;
