@@ -42,10 +42,8 @@ function _log()
     preg_match('#\((.*)\)#i', $files[$caller['file']][$caller['line'] - 1], $params);
 
     $logs[$caller['file'] . ': ' . $caller['line'] . ": " . $params[1]] = func_num_args() > 1
-        ? print_r(func_get_args(), 1)
-        : (($v = func_get_arg(0)) && !is_array($v) && !is_object($v)
-            ? htmlentities($v)
-            : print_r($v, 1));
+        ? var_export(func_get_args(), 1)
+        : var_export(func_get_arg(0), 1);
 }
 
 register_shutdown_function(function () {
