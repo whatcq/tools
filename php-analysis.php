@@ -81,6 +81,7 @@ register_shutdown_function(function () {
 #debugBar_tab_tit{height:30px;padding:6px 12px 0;border-bottom:1px solid #ececec;border-top:1px solid #ececec;font-size:16px}
 span.trace-title{color:#000;padding-right:12px;height:30px;line-height:30px;display:inline-block;margin-right:3px;cursor:pointer;font-weight:700}
 li.trace-info{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
+li.trace-info pre{font-family: 'Courier New'}
 #debugBar_tab_cont{padding:0;overflow:auto;height:212px;line-height:24px}
 #debugBar_close{padding:0;display:none;text-align:right;height:15px;position:absolute;top:10px;right:12px;cursor:pointer}
 #debugBar_open{padding:0;height:30px;float:right;text-align:right;overflow:hidden;position:fixed;bottom:0;right:0;color:#000;line-height:30px;cursor:pointer}
@@ -126,7 +127,7 @@ li.trace-info{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
             <?php } ?>
         </div>
     </div>
-    <div id="debugBar_close"><span>✕</span></div>
+    <div id="debugBar_close"><span title="ctrl+q  显示/隐藏面板&#10;alt+,  增高面板&#10;alt+.  缩小面板">✕</span></div>
 </div>
 <div id="debugBar_open">
     <div style="background:#232323;color:#FFF;padding:0 6px;float:right;line-height:30px;font-size:14px"><?php echo $runtime; ?></div>
@@ -184,7 +185,19 @@ li.trace-info{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
         document.onkeydown = function (event) {
             var a = window.event.keyCode;
             if ((a === 81) && (event.ctrlKey)) {//Ctrl+q
-                open.click();
+                if(open.style.display === 'block')open.click();
+                else close.click();
+                return;
+            }
+            if ((a === 188) && (event.altKey)) {//alt+,
+                $id('debugBar_tab').style.height = ($id('debugBar_tab').clientHeight + 100) + 'px';
+                $id('debugBar_tab_cont').style.height = ($id('debugBar_tab_cont').clientHeight + 100) + 'px';
+                return;
+            }
+            if ((a === 190) && (event.altKey)) {//alt+.
+                $id('debugBar_tab').style.height = ($id('debugBar_tab').clientHeight - 100) + 'px';
+                $id('debugBar_tab_cont').style.height = ($id('debugBar_tab_cont').clientHeight - 100) + 'px';
+                return;
             }
         };
     })();
