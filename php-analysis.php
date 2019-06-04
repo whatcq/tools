@@ -69,6 +69,7 @@ register_shutdown_function(function () {
     strpos($_GET['_t'], 'p') === false ? $_settings['p'] = 0 : $traces['post'] = $_POST;
     strpos($_GET['_t'], 's') === false ? $_settings['s'] = 0 : $traces['server'] = $_SERVER;
     ($logs = _log()) && $traces['vars'] = $logs;
+    !empty($GLOBALS['_']) && $traces['vars2'] = $GLOBALS['_'];
     // echo '<pre>';
     // print_r($traces);
     // echo '</pre>';
@@ -130,7 +131,7 @@ li.trace-info pre{font-family: 'Courier New'}
     <div id="debugBar_close"><span title="ctrl+q  显示/隐藏面板&#10;alt+,  增高面板&#10;alt+.  缩小面板">✕</span></div>
 </div>
 <div id="debugBar_open">
-    <div style="background:#232323;color:#FFF;padding:0 6px;float:right;line-height:30px;font-size:14px"><?php echo $runtime; ?></div>
+    <div style="background:#2ba230;color:#FFF;padding:0 6px 0 0;float:right;line-height:30px;font-size:14px"><?php echo $runtime; ?></div>
     <span style="background: #2ba230; display: inline-block; color: #fff; font-size: 27px; border-top-left-radius: 8px; padding: 0 3px;">☯</span>
 </div>
 
