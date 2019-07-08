@@ -1,17 +1,6 @@
 <?php
-function getClientIp()
-{
-    if ($ip = getenv("HTTP_CLIENT_IP") && strcasecmp($ip, "127.0.0.1"));
-    else if ($ip = getenv("HTTP_X_FORWARDED_FOR") && strcasecmp($ip, "127.0.0.1"));
-    else if ($ip = getenv("REMOTE_ADDR", true) && strcasecmp($ip, "127.0.0.1"));
-    else if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], "127.0.0.1"))
-        $ip = $_SERVER['REMOTE_ADDR'];
-    else
-        $ip = "127.0.0.1";
-    return ($ip);
-}
-$ip = getClientIp();
-if($ip !== '127.0.0.1' && $ip !=='::1')die('403'.getClientIp());
+$ip = $_SERVER['REMOTE_ADDR'];
+if($ip !== '127.0.0.1' && $ip !=='::1')die('403' . $ip);
 /*
 Author: Cqiu <gdaymate@126.com>
 Created: 2010-7-26
