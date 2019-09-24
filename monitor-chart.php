@@ -32,7 +32,7 @@ if (isset($_REQUEST['data'])) {
 <html>
 <head>
     <meta charset="utf-8">
-    <link rel="icon" href="https://static.jianshukeji.com/highcharts/images/favicon.ico">
+    <link rel="shortcut icon" href="https://tool.lu/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         /* css 代码  */
@@ -59,10 +59,7 @@ if (isset($_REQUEST['data'])) {
         , time = (new Date()).getTime()
         , i;
     for (i = -60; i <= 0; i += 1) {
-        fillData.push([
-            time + i * 1000,
-            0
-        ]);
+        fillData.push([time + i * 1000, 0]);
     }
 
     function activeLastPointToolip(chart) {
@@ -94,7 +91,7 @@ if (isset($_REQUEST['data'])) {
                                 k++;
                             }
                         }
-                        activeLastPointToolip(chart);
+                        //activeLastPointToolip(chart);
                     }, 1000);
                     /*
                     var series = this.series[0],
@@ -147,6 +144,15 @@ if (isset($_REQUEST['data'])) {
     });
 
     var timer = null;
+
+    $.ajaxSetup({
+        timeout: 2000, // 2s
+        complete: function (XMLHttpRequest, textStatus) {
+            if (textStatus == 'timeout') {
+                console.log('timeout')
+            }
+        }
+    });
 
     $('#on_off').click(function () {
         var o = $(this);
