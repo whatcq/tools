@@ -22,6 +22,7 @@ if (isset($_REQUEST['data'])) {
         //'max_children_reached' => 0
     ];
 
+    // 注意：相对ajax方案，这个是单线程阻塞的！时间准确性还没有对上，目前有延迟问题。
     $ctx = stream_context_create([
         'http' => [
             'timeout' => 2,

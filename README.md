@@ -1,17 +1,22 @@
 Cqiu's script tools
 ===
 
-- testbase.php -- php playground for newer on local
+- playground.php -- php playground for newer on local
 - today's work.vbs -- task alerter for daily work
+- today_work_stat.php
 - set_local_vhost.php -- a tool to quick set local vhost
 - autoF5.ahk  -- hot key to auto reload bowser, for development
 - md.php -- markdown reader
 - for-tpl.py -- make code with template;plugin for sublime(at last!!)
 - for-tpl.js -- make code with template;plugin for Editplus
 - hackerVisions -- simple script to hacker visions
-- php-analysis -- simple script to analysis runtime php code
+- php-analysis -- simple script to analysis runtime php code(debugBar)
 - deploy.php -- remote deploy command script
 - json-server.php demo:RESTful /typicode/json-server in php
+- monitor-chart display dynamic data chart for php-fpm status or sth else.
+- mempad merge
+- minipad2 data reader
+- life 900 months!
 
 markdown reader by ?p=[filePath]
 
