@@ -78,9 +78,15 @@ if (isset($_REQUEST['data'])) {
 
                     setInterval(function () {
                         var result = dataQueue.shift();
-                        if (!result) return;
-                        var k = 0;
                         var time = (new Date()).getTime();
+                        //如果没有数据，时间线会拉得很长，点不可看
+                        if (!result) {
+                            for (var i in series) {
+                                series[i].addPoint([time, 0], true, true);
+                            }
+                            return;
+                        }
+                        var k = 0;
                         for (var i in result) {
                             if (i !== 'start_time') {
                                 //console.log(i, result[i] * 1);
