@@ -69,7 +69,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
             : ($data[$object][$id] = $post)
         );
 
-        file_put_contents($dataFile, json_encode($data));
+        file_put_contents($dataFile, json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
         response($post);
     case 'DELETE':
         if (isset($data[$object][$id])) {

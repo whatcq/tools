@@ -10,7 +10,7 @@ $data = explode("\r\n", utf16_to_utf8(file_get_contents($fileIdx)));
 $version = array_shift($data);
 array_shift($data); //empty line
 
-$_id = 16;//9;//
+$_id = 32;//16;//9;//
 
 $idx = [];
 $offset = 0;
@@ -45,7 +45,7 @@ foreach ($p as $line) {
 
 //var_dump($idx[$_id]);exit;
 //$dat = utf16_to_utf8(file_get_contents($fileDat));
-exit;
+//exit;
 $dat = file_get_contents($fileDat, null, null, $idx[$_id]['offset'] * 2, $idx[$_id]['length'] * 2);
 var_dump(
     $idx[$_id]
@@ -107,7 +107,7 @@ function utf16_to_utf8($str)
     $str = substr($str, 2);
     $len = strlen($str);
     $dec = '';
-    /*if ($be) {
+    if ($be) {
         for ($i = 0; $i < $len; $i += 2) {
             $c = ord($str[$i]) << 8 | ord($str[$i + 1]);
             if ($c >= 0x0001 && $c <= 0x007F) {
@@ -136,19 +136,6 @@ function utf16_to_utf8($str)
             }
         }
 
-    }*/
-    for ($i = 0; $i < $len; $i += 2) {
-        $c = ($be) ? ord($str[$i]) << 8 | ord($str[$i + 1]) : ord($str[$i + 1]) << 8 | ord($str[$i]);
-        if ($c >= 0x0001 && $c <= 0x007F) {
-            $dec .= chr($c);
-        } else if ($c > 0x07FF) {
-            $dec .= chr(0xE0 | (($c >> 12) & 0x0F));
-            $dec .= chr(0x80 | (($c >> 6) & 0x3F));
-            $dec .= chr(0x80 | (($c >> 0) & 0x3F));
-        } else {
-            $dec .= chr(0xC0 | (($c >> 6) & 0x1F));
-            $dec .= chr(0x80 | (($c >> 0) & 0x3F));
-        }
     }
     return $dec;
 }
