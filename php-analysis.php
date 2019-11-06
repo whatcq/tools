@@ -80,7 +80,7 @@ register_shutdown_function(function () {
 #debugBar{padding:0;position:fixed;bottom:0;right:0;font-size:14px;width:100%;z-index:999999;color:#000;text-align:left;font-family:'微软雅黑',serif}
 #debugBar_tab{padding:0;display:none;background:white;margin:0;height:250px}
 #debugBar_tab_tit{height:30px;padding:6px 12px 0;border-bottom:1px solid #ececec;border-top:1px solid #ececec;font-size:16px}
-span.trace-title{color:#000;padding-right:12px;height:30px;line-height:30px;display:inline-block;margin-right:3px;cursor:pointer;font-weight:700}
+span.trace-title{color:#000;padding-right:12px;height:20px;line-height:20px;display:inline-block;margin-right:3px;cursor:pointer;font-weight:700}
 li.trace-info{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
 li.trace-info pre{font-family: 'Courier New'}
 #debugBar_tab_cont{padding:0;overflow:auto;height:212px;line-height:24px}
@@ -88,6 +88,8 @@ li.trace-info pre{font-family: 'Courier New'}
 #debugBar_open{padding:0;height:30px;float:right;text-align:right;overflow:hidden;position:fixed;bottom:0;right:0;color:#000;line-height:30px;cursor:pointer}
 .setting label{display:block;width:100px;margin-left:20px}
 .setting input{margin:0 3px}
+#debugBarSetting u{margin: 5px;padding: 3px 5px;background: #78e778;border-radius: 5px;}
+#debugBarSetting u.off{text-decoration: none;text-underline: none;background: #d2d6de}
 </style>
 <div id="debugBar">
     <div id="debugBar_tab">
@@ -98,12 +100,10 @@ li.trace-info pre{font-family: 'Courier New'}
             <?php } ?>
         </div>
         <div id="debugBar_tab_cont">
-            <div style="display:none;" class="setting">
+            <div style="display:none;" id="debugBarSetting">
                 <?php foreach ($settings as $key => $name) { ?>
-                    <label><input type="checkbox" onclick="trigger(this)"
-                                  data-key="<?= $key ?>"<?php if ($_settings[$key]) {
-                            echo ' checked';
-                        } ?>><?= $name ?></label>
+                    <u data-key="<?= $key?>" class="<?= $_settings[$key] ? '' : 'off'?>"><?= $name ?></u>
+
                 <?php } ?>
             </div>
             <?php foreach ($traces as $key => $info) { ?>
@@ -114,9 +114,9 @@ li.trace-info pre{font-family: 'Courier New'}
                             foreach ($info as $k => $val) {
                                 echo '<li class="trace-info">',
                                 (/*is_numeric($k) ? '' :*/$k . ' : ');
-                                if($key==='vars')echo '<pre>';
+                                if ($key === 'vars')echo '<pre>';
                                 echo htmlentities(print_r($val, true), ENT_COMPAT, 'utf-8');
-                                if($key==='vars')echo '</pre>';
+                                if ($key === 'vars')echo '</pre>';
                                 echo '</li>';
                             }
                         } else {
@@ -136,17 +136,25 @@ li.trace-info pre{font-family: 'Courier New'}
 </div>
 
 <script type="text/javascript">
-    function trigger(obj) {
-        var key = obj.getAttribute('data-key')
-            , cookie = document.cookie.match(/_t=(\w+)/)
-            , _t = (cookie && typeof cookie[1] !== 'undefined') ? cookie[1] : '_';
-        document.cookie = '_t=' + (obj.checked ? _t + key : (key === '_' ? '' : _t.replace(new RegExp(key, 'g'), '')));
-    }
-
     (function () {
+
+        Array.prototype.forEach.call(document.getElementById('debugBarSetting').children, function (obj, index) {
+            obj.onclick = function () {
+                obj.classList.toggle('off')
+                var key = obj.getAttribute('data-key')
+                    , cookie = document.cookie.match(/_t=(\w+)/)
+                    , _t = (cookie && typeof cookie[1] !== 'undefined') ? cookie[1] : '_';
+                document.cookie = '_t=' + (!obj.classList.contains('off')
+                        ? _t + key
+                        : (key === '_' ? '' : _t.replace(new RegExp(key, 'g'), ''))
+                );
+
+            }
+        });
+
         var $id = function(id){return document.getElementById(id)}
-            , tab_tit = $id('debugBar_tab_tit').getElementsByTagName('span')
-            , tab_cont = $id('debugBar_tab_cont').getElementsByTagName('div')
+            , tab_tit = $id('debugBar_tab_tit').children
+            , tab_cont = $id('debugBar_tab_cont').children
             , open = $id('debugBar_open')
             , close = $id('debugBar_close').children[0]
             , trace = $id('debugBar_tab')
