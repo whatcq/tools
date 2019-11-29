@@ -15,9 +15,9 @@ isset($_REQUEST['test']) && die(file_get_contents($file, false, null, 11));
 if (isset($_REQUEST['post'])) {
 	parse_str(file_get_contents("php://input"), $data);
 	file_put_contents($file, "\n" . json_encode([
-			'from' => $data['user'],
+			'from' => htmlspecialchars($data['user']),
 			//'to' => $data['to'],
-			'msg' => $data['msg']
+			'msg' => htmlspecialchars($data['msg']);
 			]), FILE_APPEND);
 	header("content:application/json;chartset=uft-8");
 	exit(json_encode([
@@ -49,6 +49,9 @@ if (isset($_REQUEST['data'])) {
 }
 
 ?>
+<!DOCTYPE HTML>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Chatroom</title>
 <script>
 window.onload=function(){
@@ -76,5 +79,5 @@ window.onload=function(){
 };
 </script>
 
-<input id='input' style="width:80%" onkeydown="if(event.keyCode == 13){bt.click()}"/>
+<input id='input' style="width:70%" onkeydown="if(event.keyCode == 13){bt.click()}"/>
 <input type='button' value="send" label="send" id="bt"/>
