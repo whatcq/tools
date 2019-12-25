@@ -20,7 +20,7 @@
 // curl http://127.0.0.1/test/cqiu-tools/json-server.php?object=todo\&id=1
 // curl -X DELETE http://127.0.0.1/test/cqiu-tools/json-server.php?object=todo\&id=1
 
-header('Content:application/json;charset=utf-8');
+header('Content-Type:application/json;charset=utf-8');
 
 $dataFile = 'db.json';
 
