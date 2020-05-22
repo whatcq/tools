@@ -29,12 +29,17 @@ if (PHP_SAPI === "cli") {
 //================
 // git web hook: http://domain.etc/deploy.php?project-dir/aa
 $deployFolders = ['project-dir', 'project-dir/aa', 'project-dir/bb'];
+is_file($file) or die('msg file not exist!')
 if (isset($_SERVER['QUERY_STRING']) && $folder = $_SERVER['QUERY_STRING']) {
     if (in_array($folder, $deployFolders)) {
-        echo `echo "$folder\n" >> $file && echo ok!`;
+        file_put_contents($file, $folder . PHP_EOL) 
+        && print "$folder ok!" 
+        or die('write failed!');
     } else {
         echo 'allow folders:', implode('<li>', $deployFolders);
     }
 } else {
-    file_put_contents($file, implode(PHP_EOL, $deployFolders) . PHP_EOL) && print 'all ok!';
+    file_put_contents($file, implode(PHP_EOL, $deployFolders) . PHP_EOL)
+     && print 'all ok!' 
+     or die('write failed!');
 }
