@@ -12,6 +12,7 @@ pre{margin:0;}
 $sqls = [
 	'.' => 'SHOW DATABASES',
 	'#' => 'SHOW TABLES',
+	'#*' => ':SHOW TABLES',
 	'#user%' => ':tables like',
 	'-%user_id' => ':tables having the column',
 	'u' => ':user data limit 30',
@@ -30,6 +31,10 @@ function parse($q) {
 		return [$sqls[$q]];
 	}
 
+	if ($q === '#*') {
+		return ['SELECT TABLE_NAME,TABLE_COMMENT,TABLE_ROWS n,AVG_ROW_LENGTH l,INDEX_LENGTH idx,AUTO_INCREMENT i,TABLE_COLLATION,CREATE_TIME,UPDATE_TIME,TABLE_TYPE type,ENGINE e,ROW_FORMAT FROM information_schema.`TABLES` where TABLE_SCHEMA=?s', DB_NAME];
+	}
+
 	// table alias
 	$tables = [
 		'u' => 'user',
@@ -44,8 +49,7 @@ function parse($q) {
 
 	if ($q[0] === '-') {
 		return [
-			'SELECT TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME FROM information_schema.columns'
-			. ' WHERE TABLE_SCHEMA=?s AND COLUMN_NAME LIKE ?s',
+			'SELECT TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME FROM information_schema.columns WHERE TABLE_SCHEMA=?s AND COLUMN_NAME LIKE ?s',
 			DB_NAME,
 			substr($q, 1),
 		];
