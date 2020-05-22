@@ -4,8 +4,9 @@ a{display: inline-block; padding: 2px 5px;background: #c6dfff;border-radius: 3px
 label{clear:left; width: 130px;display: inline-block;color: gray;font-style: italic;}
 tr:nth-child(odd){background-color: #f2f2f2;}
 tr:nth-child(even),li:nth-child(even) {background-color: #fafafa;}
+pre{margin:0;}
 </style>
-<form style="display: inline-block;"><input name="q" value="<?php echo $q = $_REQUEST['q'] ?>" onload="this.focus();"></form>
+<form style="display: inline-block;margin-bottom: 0;"><input name="q" value="<?php echo $q = $_REQUEST['q'] ?>" onload="this.focus();"></form>
 <?php
 // common sqls
 $sqls = [
