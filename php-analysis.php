@@ -198,14 +198,16 @@ li.trace-info pre{font-family: 'Courier New'}
                 else close.click();
                 return;
             }
+            var h = $id('debugBar_tab').clientHeight
+                ,ht = $id('debugBar_tab_tit').clientHeight - 6;
             if ((a === 188) && (event.altKey)) {//alt+,
-                $id('debugBar_tab').style.height = ($id('debugBar_tab').clientHeight + 100) + 'px';
-                $id('debugBar_tab_cont').style.height = ($id('debugBar_tab_cont').clientHeight + 100) + 'px';
+                $id('debugBar_tab').style.height = (h + 100) + 'px';
+                $id('debugBar_tab_cont').style.height = (h + 100 - ht) + 'px';
                 return;
             }
             if ((a === 190) && (event.altKey)) {//alt+.
-                $id('debugBar_tab').style.height = ($id('debugBar_tab').clientHeight - 100) + 'px';
-                $id('debugBar_tab_cont').style.height = ($id('debugBar_tab_cont').clientHeight - 100) + 'px';
+                $id('debugBar_tab').style.height = (h - 100) + 'px';
+                $id('debugBar_tab_cont').style.height = (h - 100 - ht) + 'px';
                 return;
             }
         };
