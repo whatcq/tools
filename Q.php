@@ -1,13 +1,21 @@
 <title>Quick Query</title>
-<style type="text/css">label{clear:left; width: 130px;display: inline-block;color: gray;font-style: italic;}</style>
-<form><input name="q" value="<?php echo $q = $_REQUEST['q'] ?>" onload="this.focus();"></form>
+<style type="text/css">
+a{display: inline-block; padding: 2px 5px;background: #c6dfff;border-radius: 3px;}
+label{clear:left; width: 130px;display: inline-block;color: gray;font-style: italic;}
+tr:nth-child(odd){background-color: #f2f2f2;}
+tr:nth-child(even),li:nth-child(even) {background-color: #fafafa;}
+</style>
+<form style="display: inline-block;"><input name="q" value="<?php echo $q = $_REQUEST['q'] ?>" onload="this.focus();"></form>
 <?php
 // common sqls
 $sqls = [
 	'.' => 'SHOW DATABASES',
 	'#' => 'SHOW TABLES',
-	'#user%' => null, //tables
-	'-user_id%' => null, //tables having the column
+	'#user%' => ':tables like',
+	'-%user_id' => ':tables having the column',
+	'u' => ':user data limit 30',
+	'u#' => ':count user data',
+	'u#2' => ':query user data',
 ];
 foreach ($sqls as $_q => $sql) {
 	echo " <a href=\"?q=", urlencode($_q), "\" title=\"$sql\">$_q</a>";
@@ -16,7 +24,7 @@ foreach ($sqls as $_q => $sql) {
 //解析请求，返回sql+params
 function parse($q) {
 	global $sqls;
-	if (!empty($sqls[$q])) {
+	if (!empty($sqls[$q]) && $sqls[$q][0] !== ':') {
 		return [$sqls[$q]];
 	}
 
@@ -51,7 +59,7 @@ function parse($q) {
 		$sql .= ' WHERE id=?i';
 		$params = [$id];
 	} elseif (is_null($id)) {
-		$sql = "SELECT * FROM $table LIMIT 100";
+		$sql = "SELECT * FROM $table LIMIT 30";
 	} else {
 		$sql = "SELECT COUNT(*) FROM $table";
 	}
@@ -74,7 +82,7 @@ function render($data) {
 		}
 		return;
 	}
-	echo '<table border="1">';
+	echo '<table border="0" cellpadding="3">';
 	echo '<tr bgcolor="#dddddd">';
 	foreach (current($data) as $key => $null) {
 		echo "<th>$key</th>";
