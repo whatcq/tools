@@ -19,6 +19,7 @@ $sqls = [
 	'u#' => ':count user data',
 	'u#2' => ':query user data',
 	'u#*' => ':table structure',
+	'u#~' => ':PROCEDURE ANALYSE',
 ];
 foreach ($sqls as $_q => $sql) {
 	echo " <a href=\"?q=", urlencode($_q), "\" title=\"$sql\">$_q</a>";
@@ -62,11 +63,14 @@ function parse($q) {
 	$params = [];
 	if ($id) {
 		if ($id === '*') {
+			return ["SHOW FULL FIELDS FROM $table"];
 			return [
 				'SELECT COLUMN_NAME,COLUMN_COMMENT,COLUMN_DEFAULT default_,IS_NULLABLE nul,DATA_TYPE,CHARACTER_MAXIMUM_LENGTH m,CHARACTER_OCTET_LENGTH n,COLUMN_KEY,EXTRA FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=?s AND TABLE_NAME=?s', //,CHARACTER_SET_NAME c,COLLATION_NAME,COLUMN_TYPE
 				DB_NAME,
 				$table,
 			];
+		} elseif ($id === '~') {
+			return ["SELECT * FROM $table PROCEDURE ANALYSE(1, 10)"];
 		}
 		$sql = "SELECT * FROM $table";
 		$sql .= ' WHERE id=?i';
@@ -82,6 +86,10 @@ function parse($q) {
 
 // 显示不同的结果
 function render($data) {
+	if (empty($data)) {
+		echo '无数据';
+		return;
+	}
 	if (count($data) === 1) {
 		$data = current($data);
 		if (count($data) === 1) {
