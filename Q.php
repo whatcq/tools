@@ -17,10 +17,19 @@ tr:nth-child(even),li:nth-child(even) {background-color: #fafafa;}
 pre{margin:0;}
 i{font-size:60%;color:gray;}
 </style>
+<script type="text/javascript">
+function $(str) {
+	return document.getElementById(str);
+}
+window.onload = function() {
+    $('q').focus();
+};
+</script>
 <form style="display: inline-block;margin-bottom: 0;">
 	<div style="position:relative;">
 		<span style="margin-left:200px;width:18px;overflow:hidden;">
-			<select style="width:218px;margin-left:-200px;height: 22px;" onchange="eval('this.parentNode.nextSibling'+(!top.execScript?'.nextSibling':'')+'.value=this.value');">
+			<select style="width:218px;margin-left:-200px;height: 25px;"
+			 onchange="$('q').value=this.value;$('q').focus()">
 <?php
 $w = parse('#');
 $r = call_user_func_array('DB::q', $w);
@@ -33,7 +42,7 @@ foreach ($d as $_table) {
 			</select>
 		</span>
 		<input type="text" name="q" id="q" value="<?php echo $q; ?>"
-			style="width:200px;position:absolute;left:0px;top:2px;height: 21px;" onload="this.focus();" />
+			style="width:200px;position:absolute;left:2px;top:2px;height: 21px;border:0;" />
 		<input type="submit" value="Go" />
 	</div>
 </form>
@@ -90,6 +99,10 @@ function parse($q) {
 
 	if (isset($tables[$table])) {
 		$table = $tables[$table];
+	}
+
+	if (!preg_match('/^[a-zA-Z\$_][a-zA-Z\d_]*$/i', $table)) {
+		throw new Exception("Error table name", 1);
 	}
 
 	$params = [];
