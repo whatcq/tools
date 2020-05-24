@@ -5,6 +5,7 @@ label{clear:left; width: 130px;display: inline-block;color: gray;font-style: ita
 tr:nth-child(odd){background-color: #f2f2f2;}
 tr:nth-child(even),li:nth-child(even) {background-color: #fafafa;}
 pre{margin:0;}
+i{font-size:60%;color:gray;}
 </style>
 <form style="display: inline-block;margin-bottom: 0;"><input name="q" value="<?php echo $q = $_REQUEST['q'] ?>" onload="this.focus();"></form>
 <?php
@@ -97,6 +98,7 @@ function render($data) {
 		} else {
 			echo '<ol>';
 			foreach ($data as $key => $value) {
+				is_null($value) && $value = '<i>&lt;null></i>';
 				echo "<li><label>$key</label>$value</li>";
 			}
 			echo '</ol>';
@@ -112,6 +114,7 @@ function render($data) {
 	foreach ($data as $_key => $_data) {
 		echo '<tr>';
 		foreach ($_data as $key => $value) {
+			is_null($value) && $value = '<i>&lt;null></i>';
 			echo "<td>$value</td>";
 		}
 		echo '</tr>';
