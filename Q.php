@@ -78,6 +78,7 @@ foreach ($shows as $_show) {
 <?php
 // common sqls
 $sqls = [
+	'#*' => ':tables info',
 	'#user%' => ':tables like',
 	'-%user_id' => ':tables having the column',
 	'u' => ':user data limit 30',
@@ -92,11 +93,6 @@ foreach ($sqls as $_q => $sql) {
 
 //解析请求，返回sql+params
 function parse($q) {
-	global $sqls;
-	if (!empty($sqls[$q]) && $sqls[$q][0] !== ':') {
-		return [$sqls[$q]];
-	}
-
 	if ($q === '#*') {
 		return ['SELECT TABLE_NAME,TABLE_COMMENT,TABLE_ROWS n,AVG_ROW_LENGTH l,INDEX_LENGTH idx,AUTO_INCREMENT i,TABLE_COLLATION,CREATE_TIME,UPDATE_TIME,TABLE_TYPE type,ENGINE e,ROW_FORMAT FROM information_schema.`TABLES` where TABLE_SCHEMA=?s', DB_NAME];
 	}
