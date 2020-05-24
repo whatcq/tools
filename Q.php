@@ -7,6 +7,27 @@ define('DB_PASS', 'root');
 require 'lib/DB.php';
 
 $q = isset($_REQUEST['q']) ? $_REQUEST['q'] : null;
+$show = isset($_REQUEST['show']) ? $_REQUEST['show'] : null;
+
+$shows = [
+	'TABLES',
+	'DATABASES',
+	'STATUS',
+	'PROFILES',
+	'PROCESSLIST',
+	'VARIABLES',
+	'GRANTS',
+	'PRIVILEGES',
+	'GLOBAL VARIABLES',
+	'SLAVE HOSTS',
+	'SLAVE STATUS',
+	'RELAYLOG EVENTS limit 10',
+	'EVENTS',
+	'CHARACTER SET',
+	'MASTER STATUS',
+	'MASTER LOGS',
+	'BINARY LOGS',
+];
 ?>
 <title>Quick Query</title>
 <style type="text/css">
@@ -29,7 +50,7 @@ window.onload = function() {
 	<div style="position:relative;">
 		<span style="margin-left:200px;width:18px;overflow:hidden;">
 			<select style="width:218px;margin-left:-200px;height: 25px;"
-			 onchange="$('q').value=this.value;$('q').focus()">
+			 onchange="$('q').value=this.value;$('q').focus();$('show').value=''">
 <?php
 $w = parse('#');
 $r = call_user_func_array('DB::q', $w);
@@ -43,15 +64,20 @@ foreach ($d as $_table) {
 		</span>
 		<input type="text" name="q" id="q" value="<?php echo $q; ?>"
 			style="width:200px;position:absolute;left:2px;top:2px;height: 21px;border:0;" />
+		<select name="show" id="show" style="height: 25px;" onchange="this.form.submit()">
+			<option value="">-- show --</option>
+<?php
+foreach ($shows as $_show) {
+	echo "<option value=\"$_show\"", ($show === $_show ? ' selected' : ''), "> $_show </option>\n";
+}
+?>
+		</select>
 		<input type="submit" value="Go" />
 	</div>
 </form>
 <?php
 // common sqls
 $sqls = [
-	'.' => 'SHOW DATABASES',
-	'#' => 'SHOW TABLES',
-	'#*' => ':SHOW TABLES',
 	'#user%' => ':tables like',
 	'-%user_id' => ':tables having the column',
 	'u' => ':user data limit 30',
@@ -166,12 +192,16 @@ function render($data) {
 	echo '</table>';
 }
 
-if ($q) {
-	// parse
-	$w = parse($q);
-	var_dump($w);
-	// execute
-	$r = call_user_func_array('DB::q', $w);
+if ($show || $q) {
+	if (in_array($show, $shows)) {
+		$r = DB::q('SHOW ' . $show);
+	} else {
+		// parse
+		$w = parse($q);
+		var_dump($w);
+		// execute
+		$r = call_user_func_array('DB::q', $w);
+	}
 	$d = $r->fetchAll(PDO::FETCH_ASSOC);
 
 	echo '<hr />';
