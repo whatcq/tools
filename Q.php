@@ -1,3 +1,13 @@
+<?php
+define('DB_HOST', '127.0.0.1');
+define('DB_NAME', 'mdwl');
+define('DB_USER', 'root');
+define('DB_PASS', 'root');
+
+require 'lib/DB.php';
+
+$q = isset($_REQUEST['q']) ? $_REQUEST['q'] : null;
+?>
 <title>Quick Query</title>
 <style type="text/css">
 a{display: inline-block; padding: 2px 5px;background: #c6dfff;border-radius: 3px;}
@@ -7,7 +17,26 @@ tr:nth-child(even),li:nth-child(even) {background-color: #fafafa;}
 pre{margin:0;}
 i{font-size:60%;color:gray;}
 </style>
-<form style="display: inline-block;margin-bottom: 0;"><input name="q" value="<?php echo $q = $_REQUEST['q'] ?>" onload="this.focus();"></form>
+<form style="display: inline-block;margin-bottom: 0;">
+	<div style="position:relative;">
+		<span style="margin-left:200px;width:18px;overflow:hidden;">
+			<select style="width:218px;margin-left:-200px;height: 22px;" onchange="eval('this.parentNode.nextSibling'+(!top.execScript?'.nextSibling':'')+'.value=this.value');">
+<?php
+$w = parse('#');
+$r = call_user_func_array('DB::q', $w);
+$d = $r->fetchAll(PDO::FETCH_COLUMN);
+
+foreach ($d as $_table) {
+	echo "<option value=\"$_table\"> $_table </option>\n";
+}
+?>
+			</select>
+		</span>
+		<input type="text" name="q" id="q" value="<?php echo $q; ?>"
+			style="width:200px;position:absolute;left:0px;top:2px;height: 21px;" onload="this.focus();" />
+		<input type="submit" value="Go" />
+	</div>
+</form>
 <?php
 // common sqls
 $sqls = [
@@ -43,7 +72,9 @@ function parse($q) {
 		'o' => 'order',
 	];
 
-	list($table, $id) = explode('#', $q);
+	$tmp = explode('#', $q);
+	$table = $tmp[0];
+	$id = isset($tmp[1]) ? $tmp[1] : null;
 
 	if (!$table) {
 		return ['SHOW TABLES LIKE ?s', $id];
@@ -123,13 +154,6 @@ function render($data) {
 }
 
 if ($q) {
-	define('DB_HOST', '127.0.0.1');
-	define('DB_NAME', 'mdwl');
-	define('DB_USER', 'root');
-	define('DB_PASS', 'root');
-
-	require 'lib/DB.php';
-
 	// parse
 	$w = parse($q);
 	var_dump($w);
