@@ -35,6 +35,7 @@ a{display: inline-block; padding: 2px 5px;background: #c6dfff;border-radius: 3px
 label{clear:left; width: 130px;display: inline-block;color: gray;font-style: italic;}
 tr:nth-child(odd){background-color: #f2f2f2;}
 tr:nth-child(even),li:nth-child(even) {background-color: #fafafa;}
+tr:hover{background: #c3e9cb;}
 pre{margin:0;}
 i{font-size:60%;color:gray;}
 </style>
