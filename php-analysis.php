@@ -79,7 +79,7 @@ register_shutdown_function(function () {
 <style>
 #debugBar{padding:0;position:fixed;bottom:0;right:0;font-size:14px;width:100%;z-index:999999;color:#000;text-align:left;font-family:'微软雅黑',serif}
 #debugBar_tab{padding:0;display:none;background:white;margin:0;height:250px}
-#debugBar_tab_tit{height:30px;padding:6px 12px 0;border-bottom:1px solid #ececec;border-top:1px solid #ececec;font-size:16px}
+#debugBar_tab_tit{height:30px;padding:6px 12px 0;border-bottom:1px solid #ececec;border-top:1px solid #ececec;font-size:16px;flex-grow: 1;cursor: n-resize;}
 span.trace-title{color:#000;padding-right:12px;height:20px;line-height:20px;display:inline-block;margin-right:3px;cursor:pointer;font-weight:700}
 li.trace-info{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
 li.trace-info pre{font-family: 'Courier New'}
@@ -153,8 +153,10 @@ li.trace-info pre{font-family: 'Courier New'}
         });
 
         var $id = function(id){return document.getElementById(id)}
-            , tab_tit = $id('debugBar_tab_tit').children
-            , tab_cont = $id('debugBar_tab_cont').children
+            , dom_tab_tit = $id('debugBar_tab_tit')
+            , tab_tit = dom_tab_tit.children
+            , dom_tab_cont = $id('debugBar_tab_cont')
+            , tab_cont = dom_tab_cont.children
             , open = $id('debugBar_open')
             , close = $id('debugBar_close').children[0]
             , trace = $id('debugBar_tab')
@@ -198,19 +200,35 @@ li.trace-info pre{font-family: 'Courier New'}
                 else close.click();
                 return;
             }
-            var h = $id('debugBar_tab').clientHeight
-                ,ht = $id('debugBar_tab_tit').clientHeight - 6;
+            var h = trace.clientHeight
+                ,ht = dom_tab_tit.clientHeight - 6;
             if ((a === 188) && (event.altKey)) {//alt+,
-                $id('debugBar_tab').style.height = (h + 100) + 'px';
-                $id('debugBar_tab_cont').style.height = (h + 100 - ht) + 'px';
+                trace.style.height = (h + 100) + 'px';
+                dom_tab_cont.style.height = (h + 100 - ht) + 'px';
                 return;
             }
             if ((a === 190) && (event.altKey)) {//alt+.
-                $id('debugBar_tab').style.height = (h - 100) + 'px';
-                $id('debugBar_tab_cont').style.height = (h - 100 - ht) + 'px';
+                trace.style.height = (h - 100) + 'px';
+                dom_tab_cont.style.height = (h - 100 - ht) + 'px';
                 return;
             }
         };
+
+        dom_tab_tit.onmousedown = function (e) {
+            var panelTopOrigin = trace.offsetTop;
+            var tempHeight = e.clientY - panelTopOrigin;
+            document.onmousemove = function (e) {
+                e.preventDefault();
+                var h = document.body.offsetHeight - e.clientY + 30
+                  ,ht = dom_tab_tit.clientHeight - 6;
+                trace.style.height = h + 'px';
+                dom_tab_cont.style.height = (h - ht) + 'px';
+            };
+            document.onmouseup = function (e) {
+                document.onmousemove = null;
+            };
+        };
+
     })();
 </script>
     <?php
