@@ -13,6 +13,7 @@ Cqiu's script tools
 - Q/DB -- simple quick query
 - watch -- simple watch file and execute sth.
 - run-ide -- 浏览器打开IDE
+- file_server -- simple by php-cli
 
 ### personal
 - today's work.vbs -- task alerter for daily work
