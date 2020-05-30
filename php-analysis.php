@@ -58,7 +58,7 @@ register_shutdown_function(function () {
         's' => 'server',
     ];
     $runtime = number_format(1000 * (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'])) . '<small>ms</small>';
-    $memory = sprintf('%.3f MB', memory_get_peak_usage() / 1048576);
+    $memory = sprintf('%.3f', memory_get_peak_usage() / 1048576);
     $traces = [];
     strpos($_GET['_t'], '_') === false && $_settings['_'] = 0;
     strpos($_GET['_t'], 'x') === false && ($traces['files'] = get_included_files()) && $_settings['x'] = 0;
@@ -77,6 +77,7 @@ register_shutdown_function(function () {
     //@todo 优化一下下面的前端实现代码
     ?>
 <style>
+small{font-size: 60%}
 #debugBar{padding:0;position:fixed;bottom:0;right:0;font-size:14px;width:100%;z-index:999999;color:#000;text-align:left;font-family:'微软雅黑',serif}
 #debugBar_tab{padding:0;display:none;background:white;margin:0;height:250px}
 #debugBar_tab_tit{height:30px;padding:6px 12px 0;border-bottom:1px solid #ececec;border-top:1px solid #ececec;font-size:16px;flex-grow: 1;cursor: n-resize;}
@@ -94,7 +95,7 @@ li.trace-info pre{font-family: 'Courier New'}
 <div id="debugBar">
     <div id="debugBar_tab">
         <div id="debugBar_tab_tit">
-            <span class="trace-title"><?= $runtime, ' | ', $memory?></span>
+            <span class="trace-title"><?= $runtime, ' - ', $memory?><small>MB</small></span>
             <?php foreach ($traces as $key => $value) { ?>
                 <span class="trace-title"><?php echo $key ?></span>
             <?php } ?>
@@ -215,8 +216,6 @@ li.trace-info pre{font-family: 'Courier New'}
         };
 
         dom_tab_tit.onmousedown = function (e) {
-            var panelTopOrigin = trace.offsetTop;
-            var tempHeight = e.clientY - panelTopOrigin;
             document.onmousemove = function (e) {
                 e.preventDefault();
                 var h = document.body.offsetHeight - e.clientY + 30
