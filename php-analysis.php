@@ -81,7 +81,7 @@ small{font-size: 60%}
 #debugBar{padding:0;position:fixed;bottom:0;right:0;font-size:14px;width:100%;z-index:999999;color:#000;text-align:left;font-family:'微软雅黑',serif}
 #debugBar_tab{padding:0;display:none;background:white;margin:0;height:250px}
 #debugBar_tab_tit{height:30px;padding:6px 12px 0;border-bottom:1px solid #ececec;border-top:1px solid #ececec;font-size:16px;flex-grow: 1;cursor: n-resize;}
-span.trace-title{color:#000;padding-right:12px;height:20px;line-height:20px;display:inline-block;margin-right:3px;cursor:pointer;font-weight:700}
+span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:20px;line-height:20px;display:inline-block;margin-right:3px;cursor:pointer;font-weight:700}
 li.trace-info{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
 li.trace-info pre{font-family: 'Courier New'}
 #debugBar_tab_cont{padding:0;overflow:auto;height:212px;line-height:24px}
