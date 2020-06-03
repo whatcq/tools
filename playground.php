@@ -185,13 +185,13 @@ function show_ln()
 }
 </script>
 <?php else:?>
-<link rel="stylesheet" href="testbase/CodeMirror-2.33/lib/codemirror.css">
-<script src="testbase/CodeMirror-2.33/lib/codemirror.js"></script>
-<script src="testbase/CodeMirror-2.33/mode/xml/xml.js"></script>
-<script src="testbase/CodeMirror-2.33/mode/javascript/javascript.js"></script>
-<script src="testbase/CodeMirror-2.33/mode/css/css.js"></script>
-<script src="testbase/CodeMirror-2.33/mode/clike/clike.js"></script>
-<script src="testbase/CodeMirror-2.33/mode/php/php.js"></script>
+<link href="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/codemirror.min.css" rel="stylesheet">
+<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/codemirror.min.js"></script>
+<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/xml/xml.min.js"></script>
+<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/javascript/javascript.min.js"></script>
+<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/css/css.min.js"></script>
+<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/clike/clike.min.js"></script>
+<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/php/php.min.js"></script> -->
 <script>
 	var editor = CodeMirror.fromTextArea($("source"), {
 		lineNumbers: true,
@@ -204,6 +204,10 @@ function show_ln()
 	});
 </script>
 <style type="text/css">
+.CodeMirror {
+  border: 1px solid #eee;
+  height: auto;
+}
 .CodeMirror-scroll {
 	height: 600px;
 	width: 700px;
