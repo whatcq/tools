@@ -1,6 +1,6 @@
 <?php
 $ip = $_SERVER['REMOTE_ADDR'];
-if($ip !== '127.0.0.1' && $ip !=='::1')die('403' . $ip);
+if($ip !== '127.0.0.1' && $ip !=='::1')die('403-' . $ip);
 /*
 Author: Cqiu <gdaymate@126.com>
 Created: 2010-7-26
@@ -191,15 +191,28 @@ function show_ln()
 <script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/javascript/javascript.min.js"></script>
 <script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/css/css.min.js"></script>
 <script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/clike/clike.min.js"></script>
-<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/php/php.min.js"></script> -->
+<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/php/php.min.js"></script>
+<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/addon/comment/comment.js"></script>
+<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/keymap/sublime.min.js"></script>
 <script>
+  var value = "// The bindings defined specifically in the Sublime Text mode\nvar bindings = {\n";
+  var map = CodeMirror.keyMap.sublime;
+  for (var key in map) {
+    var val = map[key];
+    if (key != "fallthrough" && val != "..." && (!/find/.test(val) || /findUnder/.test(val)))
+      value += "  \"" + key + "\": \"" + val + "\",\n";
+  }
+  value += "}\n\n// The implementation of joinLines\n";
+  value += CodeMirror.commands.joinLines.toString().replace(/^function\s*\(/, "function joinLines(").replace(/\n  /g, "\n") + "\n";
 	var editor = CodeMirror.fromTextArea($("source"), {
+		value: value,
 		lineNumbers: true,
 		matchBrackets: true,
-		mode: "application/x-httpd-php",
-		indentUnit: 4,
+		mode: "php",
+		indentUnit: 2,
 		indentWithTabs: true,
 		enterMode: "keep",
+		keyMap: 'sublime',
 		tabMode: "shift"
 	});
 </script>
