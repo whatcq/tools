@@ -109,6 +109,28 @@ body,html{
 	padding:0;
 	overflow:hidden;
 }
+#txt_ln{
+	height:600px;
+	font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;
+	background-color:#838383;
+	color:#F3F3F3;
+	border:none;
+	text-align:right;
+	overflow:hidden;
+	scrolling:no;
+	padding-right:0;
+	font-size:16px;
+	max-width:30px;
+}
+#source{
+	width:600px;
+	height:600px;
+	font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;
+	font-size:16px;
+}
+.area_0{
+	height: 800px !important;
+}
 </style>
 <script type="text/javascript">
 function $(str) {
@@ -152,9 +174,9 @@ function $(str) {
 	<table width="100%" cellspacing="0">
 		<tr>
 <?php if($textarea):?>
-			<td style="width:28px;"><textarea id="txt_ln" rows="40" cols="4" style="height:600px;font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;background-color:#838383;color:#F3F3F3;border:none;text-align:right;overflow:hidden;scrolling:no;padding-right:0;font-size:16px;max-width:30px;" readonly="true"><?php echo implode("\n",range(1,31))."\n";?></textarea></td>
-<?php endif;?>
-			<td valign="top"><textarea name="source" id="source" rows="40" cols="80"  onscroll="show_ln()" wrap="off" style="width:600px;height:600px;font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;font-size:16px;"><?php echo str_replace('</textarea>','&lt;/textarea>',$source);?></textarea></td>
+			<td style="width:28px;"><textarea id="txt_ln" rows="40" cols="4" style="" readonly="true"><?php echo implode("\n",range(1,31))."\n";?></textarea></td>
+<?php endif; //@todo fix codemirror area height ?>
+			<td valign="top"><textarea name="source" id="source" <?= $textarea?'onscroll="show_ln()" rows="40" cols="80"':'class="area_0"' ?> wrap="off"><?php echo str_replace('</textarea>','&lt;/textarea>',$source);?></textarea></td>
 		</tr>
 	</table>
 	<input type="submit" value="Run" style="width:80px;height:40px;">
@@ -227,6 +249,7 @@ function show_ln()
 }
 .codemirror,.codemirror pre{
 	font-family: Consolas, 'Lucida Console',  Monaco, 'Courier New', Courier, monospace;
+	font-size: 12px;
 }
 </style>
 <?php endif;?>
