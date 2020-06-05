@@ -1,4 +1,8 @@
 <?php
+/**
+ * Simple redis query tool
+ * @author Cqiu 2020-6-5
+ */
 
 ### commands data list
 if (isset($_GET['redis_commands'])) {
@@ -99,7 +103,6 @@ window.onload = function() {
     });
     $('#cmd').change(function(){
     	var v=$(this).val();
-    	console.log(v)
     	if(v.length>1 && v.indexOf(' ')<0){
     		$('#commands-container li').hide();
     		$('#commands-container li[data-name*='+v+']').show();

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class DB (https://github.com/nikic/DB)
  * Simple database wrapper for PDO
@@ -7,7 +6,7 @@
  * DB::q(
  * 'SELECT * FROM user WHERE group = ?s AND points > ?i AND id IN ?a',
  * 'user', 7000, [2, 3] //           ^^              ^^           ^^
- * )
+ * )->fetchAll(PDO::FETCH_ASSOC)
  */
 class DB
 {

@@ -11,6 +11,7 @@ Cqiu's script tools
 - set_local_vhost.php -- a tool to quick set local vhost
 - monitor-chart display dynamic data chart for php-fpm status or sth else.
 - Q/DB -- simple quick query
+- Q/redis -- simple redis query tool
 - watch -- simple watch file and execute sth.
 - run-ide -- 浏览器打开IDE
 - file_server -- simple by php-cli
