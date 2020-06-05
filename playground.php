@@ -207,15 +207,15 @@ function show_ln()
 }
 </script>
 <?php else:?>
-<link href="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/codemirror.min.css" rel="stylesheet">
-<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/codemirror.min.js"></script>
-<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/xml/xml.min.js"></script>
-<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/javascript/javascript.min.js"></script>
-<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/css/css.min.js"></script>
-<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/clike/clike.min.js"></script>
-<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/php/php.min.js"></script>
-<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/addon/comment/comment.js"></script>
-<script src="//cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/keymap/sublime.min.js"></script>
+<link href="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/codemirror.min.css" rel="stylesheet">
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/codemirror.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/xml/xml.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/javascript/javascript.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/css/css.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/clike/clike.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/php/php.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/addon/comment/comment.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/keymap/sublime.min.js"></script>
 <script>
   var value = "// The bindings defined specifically in the Sublime Text mode\nvar bindings = {\n";
   var map = CodeMirror.keyMap.sublime;
