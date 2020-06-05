@@ -48,9 +48,11 @@ tr:nth-child(even),li:nth-child(even) {background-color: #fafafa;}
 tr:hover,li:hover{background: #c3e9cb;}
 pre{margin:0;}
 i{font-size:60%;color:gray;}
+#result{min-height: 20px;max-height: 200px;padding: 10px; background: #f1f0f0; border-radius: 5px;}
 #commands-container{max-height: 300px;overflow: auto;border: 1px solid #eee;}
-#commands-container li{display: none;}
+#commands-container li{display: none;color:#a3a3a3;}
 .command{color:blue;}
+.isWrite{color:red;}
 .args{color: green;}
 .summary{float:right;color:gray;}
 </style>
@@ -58,10 +60,11 @@ i{font-size:60%;color:gray;}
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script type="text/javascript">
 function renderRedisCommands(){
-	var container=$('#commands-container');
+	var container=$('#commands-container'), isWrite;
 	for(var i in commands){
+		isWrite = /(add|pop|push|set|move|incr)/.test(commands[i][1]) ? 'isWrite':'';
 		container.append(`<li data-group='${commands[i][0]}' data-name='${commands[i][1]}'>
-                <span class='command'>
+                <span class='command ${isWrite}'>
                   ${commands[i][1]}
                   <span class='args'>${commands[i][2]}</span>
                 </span>
@@ -92,22 +95,25 @@ function filterGroup(group){
 	$('#commands-container li[data-group='+group+']').show();
 }
 </script>
+<div id="result"></div>
 <select style="height:25px" onchange="filterGroup($(this).val())">
 	<option value=''>All</option>
+<optgroup label="常用">
+	<option value='generic'>Keys 键</option>
+	<option value='string'>Strings 字符串</option>
+	<option value='list'>Lists 列表</option>
+	<option value='hash'>Hashes 哈希</option>
+	<option value='set'>Sets 集合</option>
+	<option value='sorted_set'>Sorted Sets 有序集合</option>
+</optgroup>
+	<option value='hyperloglog'>HyperLogLog</option>
+	<option value='geo'>Geo</option>
+	<option value='pubsub'>Pub/Sub</option>
 	<option value='cluster'>Cluster</option>
 	<option value='connection'>Connection</option>
-	<option value='geo'>Geo</option>
-	<option value='hash'>Hashes</option>
-	<option value='hyperloglog'>HyperLogLog</option>
-	<option value='generic'>Keys</option>
-	<option value='list'>Lists</option>
-	<option value='pubsub'>Pub/Sub</option>
 	<option value='scripting'>Scripting</option>
 	<option value='server'>Server</option>
-	<option value='set'>Sets</option>
-	<option value='sorted_set'>Sorted Sets</option>
 	<option value='stream'>Streams</option>
-	<option value='string'>Strings</option>
 	<option value='transactions'>Transactions</option>
 </select>
 
@@ -132,4 +138,3 @@ foreach ($shows as $_show) {
 	</div>
 </form>
 <div id="commands-container"></div>
-<div id="result"></div>
