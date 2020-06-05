@@ -54,10 +54,11 @@ i{font-size:60%;color:gray;}
 #result{min-height: 20px;max-height: 200px;padding: 10px; background: #f1f0f0; border-radius: 5px;overflow: auto;}
 #commands-container{max-height: 300px;overflow: auto;border: 1px solid #eee;}
 #commands-container li{display: none;color:#a3a3a3;}
+.group{background: #597684; border-radius: 5px; font-size: 12px; color: #d5d5d5; padding: 0 3px; }
 .command{color:blue;}
 .isWrite{color:red;}
 .args{color: green;}
-.summary{float:right;color:gray;}
+.summary{float:right;color:gray;min-width: 600px;display: inline-block;}
 </style>
 <script src="?redis_commands"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -67,6 +68,7 @@ function renderRedisCommands(){
 	for(var i in commands){
 		isWrite = /(add|pop|push|set|move|incr)/.test(commands[i][1]) ? 'isWrite':'';
 		container.append(`<li data-group='${commands[i][0]}' data-name='${commands[i][1]}'>
+				<span class='group'>${commands[i][0]}</span>
                 <span class='command ${isWrite}'>
                   ${commands[i][1]}
                   <span class='args'>${commands[i][2]}</span>
