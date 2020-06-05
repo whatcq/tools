@@ -14,10 +14,10 @@ if (isset($_GET['redis_commands'])) {
 }
 
 ### query
-require 'lib/RedisClient.php';
-
 $q = isset($_REQUEST['q']) ? $_REQUEST['q'] : null;
 if (isset($_REQUEST['q'])) {
+	require 'lib/RedisClient.php';
+
 	$client = new RedisClient('127.0.0.1', 6379);
 	echo '<pre>';
 	$res = $client->exec($q);
@@ -34,7 +34,7 @@ if (isset($_REQUEST['q'])) {
 $shows = [
 	'info',
 	'dbsize',
-	'slowlog',
+	'slowlog get',
 	'lastsave',
 	'time',
 	'client list',
