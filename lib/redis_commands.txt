@@ -1,0 +1,258 @@
+server|acl load||Reload the ACLs from the configured ACL file
+server|acl save||Save the current ACL rules in the configured ACL file
+server|acl list||List the current ACL rules in ACL config file format
+server|acl users||List the username of all the configured ACL rules
+server|acl getuser|username|Get the rules for a specific ACL user
+server|acl setuser|username,[rule [rule ...]]|Modify or create the rules for a specific ACL user
+server|acl deluser|username [username ...]|Remove the specified ACL users and the associated rules
+server|acl cat|[categoryname]|List the ACL categories or the commands inside a category
+server|acl genpass|[bits]|Generate a pseudorandom secure password to use for ACL users
+server|acl whoami||Return the name of the user associated to the current connection
+server|acl log|[count or RESET]|List latest events denied because of ACLs in place
+server|acl help||Show helpful text about the different subcommands
+string|append|key,value|Append a value to a key
+connection|auth|password|Authenticate to the server
+server|bgrewriteaof||Asynchronously rewrite the append-only file
+server|bgsave|[SCHEDULE]|Asynchronously save the dataset to disk
+string|bitcount|key,[start end]|Count set bits in a string
+string|bitfield|key,[GET type offset],[SET type offset value],[INCRBY type offset increment],[OVERFLOW WRAP|SAT|FAIL]|Perform arbitrary bitfield integer operations on strings
+string|bitop|operation,destkey,key [key ...]|Perform bitwise operations between strings
+string|bitpos|key,bit,[start],[end]|Find first bit set or clear in a string
+list|blpop|key [key ...],timeout|Remove and get the first element in a list, or block until one is available
+list|brpop|key [key ...],timeout|Remove and get the last element in a list, or block until one is available
+list|brpoplpush|source,destination,timeout|Pop an element from a list, push it to another list and return it; or block until one is available
+sorted_set|bzpopmin|key [key ...],timeout|Remove and return the member with the lowest score from one or more sorted sets, or block until one is available
+sorted_set|bzpopmax|key [key ...],timeout|Remove and return the member with the highest score from one or more sorted sets, or block until one is available
+connection|client caching|YES|NO|Instruct the server about tracking or not keys in the next request
+connection|client id||Returns the client ID for the current connection
+connection|client kill|[ip:port],[ID client-id],[TYPE normal|master|slave|pubsub],[ADDR ip:port],[SKIPME yes/no]|Kill the connection of a client
+connection|client list|[TYPE normal|master|replica|pubsub]|Get the list of client connections
+connection|client getname||Get the current connection name
+connection|client getredir||Get tracking notifications redirection client ID if any
+connection|client pause|timeout|Stop processing commands from clients for some time
+connection|client reply|ON|OFF|SKIP|Instruct the server whether to reply to commands
+connection|client setname|connection-name|Set the current connection name
+connection|client tracking|ON|OFF,[REDIRECT client-id],[PREFIX prefix [PREFIX prefix ...]],[BCAST],[OPTIN],[OPTOUT],[NOLOOP]|Enable or disable server assisted client side caching support
+connection|client unblock|client-id,[TIMEOUT|ERROR]|Unblock a client blocked in a blocking command from a different connection
+cluster|cluster addslots|slot [slot ...]|Assign new hash slots to receiving node
+cluster|cluster bumpepoch||Advance the cluster config epoch
+cluster|cluster count-failure-reports|node-id|Return the number of failure reports active for a given node
+cluster|cluster countkeysinslot|slot|Return the number of local keys in the specified hash slot
+cluster|cluster delslots|slot [slot ...]|Set hash slots as unbound in receiving node
+cluster|cluster failover|[FORCE|TAKEOVER]|Forces a replica to perform a manual failover of its master.
+cluster|cluster flushslots||Delete a node's own slots information
+cluster|cluster forget|node-id|Remove a node from the nodes table
+cluster|cluster getkeysinslot|slot,count|Return local key names in the specified hash slot
+cluster|cluster info||Provides info about Redis Cluster node state
+cluster|cluster keyslot|key|Returns the hash slot of the specified key
+cluster|cluster meet|ip,port|Force a node cluster to handshake with another node
+cluster|cluster myid||Return the node id
+cluster|cluster nodes||Get Cluster config for the node
+cluster|cluster replicate|node-id|Reconfigure a node as a replica of the specified master node
+cluster|cluster reset|[HARD|SOFT]|Reset a Redis Cluster node
+cluster|cluster saveconfig||Forces the node to save cluster state on disk
+cluster|cluster set-config-epoch|config-epoch|Set the configuration epoch in a new node
+cluster|cluster setslot|slot,IMPORTING|MIGRATING|STABLE|NODE,[node-id]|Bind a hash slot to a specific node
+cluster|cluster slaves|node-id|List replica nodes of the specified master node
+cluster|cluster replicas|node-id|List replica nodes of the specified master node
+cluster|cluster slots||Get array of Cluster slot to node mappings
+server|command||Get array of Redis command details
+server|command count||Get total number of Redis commands
+server|command getkeys||Extract keys given a full Redis command
+server|command info|command-name [command-name ...]|Get array of specific Redis command details
+server|config get|parameter|Get the value of a configuration parameter
+server|config rewrite||Rewrite the configuration file with the in memory configuration
+server|config set|parameter,value|Set a configuration parameter to the given value
+server|config resetstat||Reset the stats returned by INFO
+server|dbsize||Return the number of keys in the selected database
+server|debug object|key|Get debugging information about a key
+server|debug segfault||Make the server crash
+string|decr|key|Decrement the integer value of a key by one
+string|decrby|key,decrement|Decrement the integer value of a key by the given number
+generic|del|key [key ...]|Delete a key
+transactions|discard||Discard all commands issued after MULTI
+generic|dump|key|Return a serialized version of the value stored at the specified key.
+connection|echo|message|Echo the given string
+scripting|eval|script,numkeys,key [key ...],arg [arg ...]|Execute a Lua script server side
+scripting|evalsha|sha1,numkeys,key [key ...],arg [arg ...]|Execute a Lua script server side
+transactions|exec||Execute all commands issued after MULTI
+generic|exists|key [key ...]|Determine if a key exists
+generic|expire|key,seconds|Set a key's time to live in seconds
+generic|expireat|key,timestamp|Set the expiration for a key as a UNIX timestamp
+server|flushall|[ASYNC]|Remove all keys from all databases
+server|flushdb|[ASYNC]|Remove all keys from the current database
+geo|geoadd|key,longitude latitude member [longitude latitude member ...]|Add one or more geospatial items in the geospatial index represented using a sorted set
+geo|geohash|key,member [member ...]|Returns members of a geospatial index as standard geohash strings
+geo|geopos|key,member [member ...]|Returns longitude and latitude of members of a geospatial index
+geo|geodist|key,member1,member2,[m|km|ft|mi]|Returns the distance between two members of a geospatial index
+geo|georadius|key,longitude,latitude,radius,m|km|ft|mi,[WITHCOORD],[WITHDIST],[WITHHASH],[COUNT count],[ASC|DESC],[STORE key],[STOREDIST key]|Query a sorted set representing a geospatial index to fetch members matching a given maximum distance from a point
+geo|georadiusbymember|key,member,radius,m|km|ft|mi,[WITHCOORD],[WITHDIST],[WITHHASH],[COUNT count],[ASC|DESC],[STORE key],[STOREDIST key]|Query a sorted set representing a geospatial index to fetch members matching a given maximum distance from a member
+string|get|key|Get the value of a key
+string|getbit|key,offset|Returns the bit value at offset in the string value stored at key
+string|getrange|key,start,end|Get a substring of the string stored at a key
+string|getset|key,value|Set the string value of a key and return its old value
+hash|hdel|key,field [field ...]|Delete one or more hash fields
+connection|hello|protover,[AUTH username password],[SETNAME clientname]|switch Redis protocol
+hash|hexists|key,field|Determine if a hash field exists
+hash|hget|key,field|Get the value of a hash field
+hash|hgetall|key|Get all the fields and values in a hash
+hash|hincrby|key,field,increment|Increment the integer value of a hash field by the given number
+hash|hincrbyfloat|key,field,increment|Increment the float value of a hash field by the given amount
+hash|hkeys|key|Get all the fields in a hash
+hash|hlen|key|Get the number of fields in a hash
+hash|hmget|key,field [field ...]|Get the values of all the given hash fields
+hash|hmset|key,field value [field value ...]|Set multiple hash fields to multiple values
+hash|hset|key,field value [field value ...]|Set the string value of a hash field
+hash|hsetnx|key,field,value|Set the value of a hash field, only if the field does not exist
+hash|hstrlen|key,field|Get the length of the value of a hash field
+hash|hvals|key|Get all the values in a hash
+string|incr|key|Increment the integer value of a key by one
+string|incrby|key,increment|Increment the integer value of a key by the given amount
+string|incrbyfloat|key,increment|Increment the float value of a key by the given amount
+server|info|[section]|Get information and statistics about the server
+server|lolwut|[VERSION version]|Display some computer art and the Redis version
+generic|keys|pattern|Find all keys matching the given pattern
+server|lastsave||Get the UNIX time stamp of the last successful save to disk
+list|lindex|key,index|Get an element from a list by its index
+list|linsert|key,BEFORE|AFTER,pivot,element|Insert an element before or after another element in a list
+list|llen|key|Get the length of a list
+list|lpop|key|Remove and get the first element in a list
+list|lpush|key,element [element ...]|Prepend one or multiple elements to a list
+list|lpushx|key,element [element ...]|Prepend an element to a list, only if the list exists
+list|lrange|key,start,stop|Get a range of elements from a list
+list|lrem|key,count,element|Remove elements from a list
+list|lset|key,index,element|Set the value of an element in a list by its index
+list|ltrim|key,start,stop|Trim a list to the specified range
+server|memory doctor||Outputs memory problems report
+server|memory help||Show helpful text about the different subcommands
+server|memory malloc-stats||Show allocator internal stats
+server|memory purge||Ask the allocator to release memory
+server|memory stats||Show memory usage details
+server|memory usage|key,[SAMPLES count]|Estimate the memory usage of a key
+string|mget|key [key ...]|Get the values of all the given keys
+generic|migrate|host,port,key|"",destination-db,timeout,[COPY],[REPLACE],[AUTH password],[KEYS key [key ...]]|Atomically transfer a key from a Redis instance to another one.
+server|module list||List all modules loaded by the server
+server|module load|path,[ arg [arg ...]]|Load a module
+server|module unload|name|Unload a module
+server|monitor||Listen for all requests received by the server in real time
+generic|move|key,db|Move a key to another database
+string|mset|key value [key value ...]|Set multiple keys to multiple values
+string|msetnx|key value [key value ...]|Set multiple keys to multiple values, only if none of the keys exist
+transactions|multi||Mark the start of a transaction block
+generic|object|subcommand,[arguments [arguments ...]]|Inspect the internals of Redis objects
+generic|persist|key|Remove the expiration from a key
+generic|pexpire|key,milliseconds|Set a key's time to live in milliseconds
+generic|pexpireat|key,milliseconds-timestamp|Set the expiration for a key as a UNIX timestamp specified in milliseconds
+hyperloglog|pfadd|key,element [element ...]|Adds the specified elements to the specified HyperLogLog.
+hyperloglog|pfcount|key [key ...]|Return the approximated cardinality of the set(s) observed by the HyperLogLog at key(s).
+hyperloglog|pfmerge|destkey,sourcekey [sourcekey ...]|Merge N different HyperLogLogs into a single one.
+connection|ping|[message]|Ping the server
+string|psetex|key,milliseconds,value|Set the value and expiration in milliseconds of a key
+pubsub|psubscribe|pattern [pattern ...]|Listen for messages published to channels matching the given patterns
+pubsub|pubsub|subcommand,[argument [argument ...]]|Inspect the state of the Pub/Sub subsystem
+generic|pttl|key|Get the time to live for a key in milliseconds
+pubsub|publish|channel,message|Post a message to a channel
+pubsub|punsubscribe|[pattern [pattern ...]]|Stop listening for messages posted to channels matching the given patterns
+connection|quit||Close the connection
+generic|randomkey||Return a random key from the keyspace
+cluster|readonly||Enables read queries for a connection to a cluster replica node
+cluster|readwrite||Disables read queries for a connection to a cluster replica node
+generic|rename|key,newkey|Rename a key
+generic|renamenx|key,newkey|Rename a key, only if the new key does not exist
+generic|restore|key,ttl,serialized-value,[REPLACE],[ABSTTL],[IDLETIME seconds],[FREQ frequency]|Create a key using the provided serialized value, previously obtained using DUMP.
+server|role||Return the role of the instance in the context of replication
+list|rpop|key|Remove and get the last element in a list
+list|rpoplpush|source,destination|Remove the last element in a list, prepend it to another list and return it
+list|rpush|key,element [element ...]|Append one or multiple elements to a list
+list|rpushx|key,element [element ...]|Append an element to a list, only if the list exists
+set|sadd|key,member [member ...]|Add one or more members to a set
+server|save||Synchronously save the dataset to disk
+set|scard|key|Get the number of members in a set
+scripting|script debug|YES|SYNC|NO|Set the debug mode for executed scripts.
+scripting|script exists|sha1 [sha1 ...]|Check existence of scripts in the script cache.
+scripting|script flush||Remove all the scripts from the script cache.
+scripting|script kill||Kill the script currently in execution.
+scripting|script load|script|Load the specified Lua script into the script cache.
+set|sdiff|key [key ...]|Subtract multiple sets
+set|sdiffstore|destination,key [key ...]|Subtract multiple sets and store the resulting set in a key
+connection|select|index|Change the selected database for the current connection
+string|set|key,value,[EX seconds|PX milliseconds],[NX|XX],[KEEPTTL]|Set the string value of a key
+string|setbit|key,offset,value|Sets or clears the bit at offset in the string value stored at key
+string|setex|key,seconds,value|Set the value and expiration of a key
+string|setnx|key,value|Set the value of a key, only if the key does not exist
+string|setrange|key,offset,value|Overwrite part of a string at key starting at the specified offset
+server|shutdown|[NOSAVE|SAVE]|Synchronously save the dataset to disk and then shut down the server
+set|sinter|key [key ...]|Intersect multiple sets
+set|sinterstore|destination,key [key ...]|Intersect multiple sets and store the resulting set in a key
+set|sismember|key,member|Determine if a given value is a member of a set
+server|slaveof|host,port|Make the server a replica of another instance, or promote it as master. Deprecated starting with Redis 5. Use REPLICAOF instead.
+server|replicaof|host,port|Make the server a replica of another instance, or promote it as master.
+server|slowlog|subcommand,[argument]|Manages the Redis slow queries log
+set|smembers|key|Get all the members in a set
+set|smove|source,destination,member|Move a member from one set to another
+generic|sort|key,[BY pattern],[LIMIT offset count],[GET pattern [GET pattern ...]],[ASC|DESC],[ALPHA],[STORE destination]|Sort the elements in a list, set or sorted set
+set|spop|key,[count]|Remove and return one or multiple random members from a set
+set|srandmember|key,[count]|Get one or multiple random members from a set
+set|srem|key,member [member ...]|Remove one or more members from a set
+string|stralgo|LCS,algo-specific-argument [algo-specific-argument ...]|Run algorithms (currently LCS) against strings
+string|strlen|key|Get the length of the value stored in a key
+pubsub|subscribe|channel [channel ...]|Listen for messages published to the given channels
+set|sunion|key [key ...]|Add multiple sets
+set|sunionstore|destination,key [key ...]|Add multiple sets and store the resulting set in a key
+server|swapdb|index1,index2|Swaps two Redis databases
+server|sync||Internal command used for replication
+server|psync|replicationid,offset|Internal command used for replication
+server|time||Return the current server time
+generic|touch|key [key ...]|Alters the last access time of a key(s). Returns the number of existing keys specified.
+generic|ttl|key|Get the time to live for a key
+generic|type|key|Determine the type stored at key
+pubsub|unsubscribe|[channel [channel ...]]|Stop listening for messages posted to the given channels
+generic|unlink|key [key ...]|Delete a key asynchronously in another thread. Otherwise it is just as DEL, but non blocking.
+transactions|unwatch||Forget about all watched keys
+generic|wait|numreplicas,timeout|Wait for the synchronous replication of all the write commands sent in the context of the current connection
+transactions|watch|key [key ...]|Watch the given keys to determine execution of the MULTI/EXEC block
+sorted_set|zadd|key,[NX|XX],[CH],[INCR],score member [score member ...]|Add one or more members to a sorted set, or update its score if it already exists
+sorted_set|zcard|key|Get the number of members in a sorted set
+sorted_set|zcount|key,min,max|Count the members in a sorted set with scores within the given values
+sorted_set|zincrby|key,increment,member|Increment the score of a member in a sorted set
+sorted_set|zinterstore|destination,numkeys,key [key ...],[WEIGHTS weight [weight ...]],[AGGREGATE SUM|MIN|MAX]|Intersect multiple sorted sets and store the resulting sorted set in a new key
+sorted_set|zlexcount|key,min,max|Count the number of members in a sorted set between a given lexicographical range
+sorted_set|zpopmax|key,[count]|Remove and return members with the highest scores in a sorted set
+sorted_set|zpopmin|key,[count]|Remove and return members with the lowest scores in a sorted set
+sorted_set|zrange|key,start,stop,[WITHSCORES]|Return a range of members in a sorted set, by index
+sorted_set|zrangebylex|key,min,max,[LIMIT offset count]|Return a range of members in a sorted set, by lexicographical range
+sorted_set|zrevrangebylex|key,max,min,[LIMIT offset count]|Return a range of members in a sorted set, by lexicographical range, ordered from higher to lower strings.
+sorted_set|zrangebyscore|key,min,max,[WITHSCORES],[LIMIT offset count]|Return a range of members in a sorted set, by score
+sorted_set|zrank|key,member|Determine the index of a member in a sorted set
+sorted_set|zrem|key,member [member ...]|Remove one or more members from a sorted set
+sorted_set|zremrangebylex|key,min,max|Remove all members in a sorted set between the given lexicographical range
+sorted_set|zremrangebyrank|key,start,stop|Remove all members in a sorted set within the given indexes
+sorted_set|zremrangebyscore|key,min,max|Remove all members in a sorted set within the given scores
+sorted_set|zrevrange|key,start,stop,[WITHSCORES]|Return a range of members in a sorted set, by index, with scores ordered from high to low
+sorted_set|zrevrangebyscore|key,max,min,[WITHSCORES],[LIMIT offset count]|Return a range of members in a sorted set, by score, with scores ordered from high to low
+sorted_set|zrevrank|key,member|Determine the index of a member in a sorted set, with scores ordered from high to low
+sorted_set|zscore|key,member|Get the score associated with the given member in a sorted set
+sorted_set|zunionstore|destination,numkeys,key [key ...],[WEIGHTS weight [weight ...]],[AGGREGATE SUM|MIN|MAX]|Add multiple sorted sets and store the resulting sorted set in a new key
+generic|scan|cursor,[MATCH pattern],[COUNT count],[TYPE type]|Incrementally iterate the keys space
+set|sscan|key,cursor,[MATCH pattern],[COUNT count]|Incrementally iterate Set elements
+hash|hscan|key,cursor,[MATCH pattern],[COUNT count]|Incrementally iterate hash fields and associated values
+sorted_set|zscan|key,cursor,[MATCH pattern],[COUNT count]|Incrementally iterate sorted sets elements and associated scores
+stream|xinfo|[CONSUMERS key groupname],[GROUPS key],[STREAM key],[HELP]|Get information on streams and consumer groups
+stream|xadd|key,ID,field value [field value ...]|Appends a new entry to a stream
+stream|xtrim|key,MAXLEN,[~],count|Trims the stream to (approximately if '~' is passed) a certain size
+stream|xdel|key,ID [ID ...]|Removes the specified entries from the stream. Returns the number of items actually deleted, that may be different from the number of IDs passed in case certain IDs do not exist.
+stream|xrange|key,start,end,[COUNT count]|Return a range of elements in a stream, with IDs matching the specified IDs interval
+stream|xrevrange|key,end,start,[COUNT count]|Return a range of elements in a stream, with IDs matching the specified IDs interval, in reverse order (from greater to smaller IDs) compared to XRANGE
+stream|xlen|key|Return the number of entires in a stream
+stream|xread|[COUNT count],[BLOCK milliseconds],STREAMS,key [key ...],id [id ...]|Return never seen elements in multiple streams, with IDs greater than the ones reported by the caller for each stream. Can block.
+stream|xgroup|[CREATE key groupname id-or-$],[SETID key groupname id-or-$],[DESTROY key groupname],[DELCONSUMER key groupname consumername]|Create, destroy, and manage consumer groups.
+stream|xreadgroup|GROUP group consumer,[COUNT count],[BLOCK milliseconds],[NOACK],STREAMS,key [key ...],ID [ID ...]|Return new entries from a stream using a consumer group, or access the history of the pending entries for a given consumer. Can block.
+stream|xack|key,group,ID [ID ...]|Marks a pending message as correctly processed, effectively removing it from the pending entries list of the consumer group. Return value of the command is the number of messages successfully acknowledged, that is, the IDs we were actually able to resolve in the PEL.
+stream|xclaim|key,group,consumer,min-idle-time,ID [ID ...],[IDLE ms],[TIME ms-unix-time],[RETRYCOUNT count],[FORCE],[JUSTID]|Changes (or acquires) ownership of a message in a consumer group, as if the message was delivered to the specified consumer.
+stream|xpending|key,group,[start end count],[consumer]|Return information and entries from a stream consumer group pending entries list, that are messages fetched but never acknowledged.
+server|latency doctor||Return a human readable latency analysis report.
+server|latency graph|event|Return a latency graph for the event.
+server|latency history|event|Return timestamp-latency samples for the event.
+server|latency latest||Return the latest latency samples for all events.
+server|latency reset|[event]|Reset latency data for one or more events.
+server|latency help||Show helpful text about the different subcommands.
