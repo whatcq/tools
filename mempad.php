@@ -184,7 +184,7 @@ class mempad
         $level = 1;
         while ($pp) {
 
-            while (list($title, $value) = each($pp[$level])) {
+            foreach($pp[$level] as $title => $value) {
 
                 $data .= SP . chr($level) . $title . SP;
 
@@ -198,7 +198,7 @@ class mempad
                     unset($pp[$level][$title]['content']);
                 }
 
-                if ($pp[$level][$title]) {
+                if (!empty($pp[$level][$title])) {
                     uksort($pp[$level][$title], function ($m, $n) {
                         $monTh = array(
                             '01' => '一月',
@@ -262,7 +262,7 @@ class mempadManager extends mempad
 }
 
 mempadManager::merge([
-    'G:\www\test\mempad_php\cqiu_diary - bak.lsf',
-    'G:\www\test\mempad_php\cqiu_diary.lsf',
-], 'G:\www\test\mempad_php\cqiu_diary_merge.lsf');
+    'D:\mysoft\mempad\days_all.lsf',
+    'D:\mysoft\fuer\txz.lst',
+], 'D:\mysoft\mempad\202003merged.lst');
 
