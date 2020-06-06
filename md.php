@@ -54,7 +54,7 @@ if (is_file($p)) {
     $html = 'File not found!';
 }
 if ($content) {
-    include 'parsedown/Parsedown.php';
+    include 'lib/Parsedown.php';
     $parsedown = new Parsedown();
 
     $path = dirname($p) . DIRECTORY_SEPARATOR;
@@ -72,7 +72,7 @@ if ($content) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
     <title><?= basename($p) ?></title>
-    <link rel="stylesheet" href="<?= dirname($_SERVER['PHP_SELF']) ?>/github-markdown-css/github-markdown.css">
+    <link rel="stylesheet" href="<?= dirname($_SERVER['PHP_SELF']) ?>/lib/github-markdown.css">
     <style>
         body {
             margin: 0;

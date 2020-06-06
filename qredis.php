@@ -107,7 +107,7 @@ window.onload = function() {
     	var v=$(this).val();
     	if(v.length>1 && v.indexOf(' ')<0){
     		$('#commands-container li').hide();
-    		$('#commands-container li[data-name*='+v+']').show();
+    		$('#commands-container li[data-name*="'+v+'"]').show();
     	}
     });
 };
