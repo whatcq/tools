@@ -1,6 +1,6 @@
 <?php
 $ip = $_SERVER['REMOTE_ADDR'];
-if($ip !== '127.0.0.1' && $ip !=='::1')die('403' . $ip);
+if($ip !== '127.0.0.1' && $ip !=='::1')die('403-' . $ip);
 /*
 Author: Cqiu <gdaymate@126.com>
 Created: 2010-7-26
@@ -109,6 +109,28 @@ body,html{
 	padding:0;
 	overflow:hidden;
 }
+#txt_ln{
+	height:600px;
+	font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;
+	background-color:#838383;
+	color:#F3F3F3;
+	border:none;
+	text-align:right;
+	overflow:hidden;
+	scrolling:no;
+	padding-right:0;
+	font-size:16px;
+	max-width:30px;
+}
+#source{
+	width:600px;
+	height:600px;
+	font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;
+	font-size:16px;
+}
+.area_0{
+	height: 800px !important;
+}
 </style>
 <script type="text/javascript">
 function $(str) {
@@ -152,9 +174,9 @@ function $(str) {
 	<table width="100%" cellspacing="0">
 		<tr>
 <?php if($textarea):?>
-			<td style="width:28px;"><textarea id="txt_ln" rows="40" cols="4" style="height:600px;font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;background-color:#838383;color:#F3F3F3;border:none;text-align:right;overflow:hidden;scrolling:no;padding-right:0;font-size:16px;max-width:30px;" readonly="true"><?php echo implode("\n",range(1,31))."\n";?></textarea></td>
-<?php endif;?>
-			<td valign="top"><textarea name="source" id="source" rows="40" cols="80"  onscroll="show_ln()" wrap="off" style="width:600px;height:600px;font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;font-size:16px;"><?php echo str_replace('</textarea>','&lt;/textarea>',$source);?></textarea></td>
+			<td style="width:28px;"><textarea id="txt_ln" rows="40" cols="4" style="" readonly="true"><?php echo implode("\n",range(1,31))."\n";?></textarea></td>
+<?php endif; //@todo fix codemirror area height ?>
+			<td valign="top"><textarea name="source" id="source" <?= $textarea?'onscroll="show_ln()" rows="40" cols="80"':'class="area_0"' ?> wrap="off"><?php echo str_replace('</textarea>','&lt;/textarea>',$source);?></textarea></td>
 		</tr>
 	</table>
 	<input type="submit" value="Run" style="width:80px;height:40px;">
@@ -185,31 +207,49 @@ function show_ln()
 }
 </script>
 <?php else:?>
-<link rel="stylesheet" href="testbase/CodeMirror-2.33/lib/codemirror.css">
-<script src="testbase/CodeMirror-2.33/lib/codemirror.js"></script>
-<script src="testbase/CodeMirror-2.33/mode/xml/xml.js"></script>
-<script src="testbase/CodeMirror-2.33/mode/javascript/javascript.js"></script>
-<script src="testbase/CodeMirror-2.33/mode/css/css.js"></script>
-<script src="testbase/CodeMirror-2.33/mode/clike/clike.js"></script>
-<script src="testbase/CodeMirror-2.33/mode/php/php.js"></script>
+<link href="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/codemirror.min.css" rel="stylesheet">
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/codemirror.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/xml/xml.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/javascript/javascript.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/css/css.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/clike/clike.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/php/php.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/addon/comment/comment.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/keymap/sublime.min.js"></script>
 <script>
+  var value = "// The bindings defined specifically in the Sublime Text mode\nvar bindings = {\n";
+  var map = CodeMirror.keyMap.sublime;
+  for (var key in map) {
+    var val = map[key];
+    if (key != "fallthrough" && val != "..." && (!/find/.test(val) || /findUnder/.test(val)))
+      value += "  \"" + key + "\": \"" + val + "\",\n";
+  }
+  value += "}\n\n// The implementation of joinLines\n";
+  value += CodeMirror.commands.joinLines.toString().replace(/^function\s*\(/, "function joinLines(").replace(/\n  /g, "\n") + "\n";
 	var editor = CodeMirror.fromTextArea($("source"), {
+		value: value,
 		lineNumbers: true,
 		matchBrackets: true,
-		mode: "application/x-httpd-php",
-		indentUnit: 4,
+		mode: "php",
+		indentUnit: 2,
 		indentWithTabs: true,
 		enterMode: "keep",
+		keyMap: 'sublime',
 		tabMode: "shift"
 	});
 </script>
 <style type="text/css">
+.CodeMirror {
+  border: 1px solid #eee;
+  height: auto;
+}
 .CodeMirror-scroll {
 	height: 600px;
 	width: 700px;
 }
 .codemirror,.codemirror pre{
 	font-family: Consolas, 'Lucida Console',  Monaco, 'Courier New', Courier, monospace;
+	font-size: 12px;
 }
 </style>
 <?php endif;?>

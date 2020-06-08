@@ -58,7 +58,7 @@ register_shutdown_function(function () {
         's' => 'server',
     ];
     $runtime = number_format(1000 * (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'])) . '<small>ms</small>';
-    $memory = sprintf('%.3f MB', memory_get_peak_usage() / 1048576);
+    $memory = sprintf('%.3f', memory_get_peak_usage() / 1048576);
     $traces = [];
     strpos($_GET['_t'], '_') === false && $_settings['_'] = 0;
     strpos($_GET['_t'], 'x') === false && ($traces['files'] = get_included_files()) && $_settings['x'] = 0;
@@ -77,10 +77,11 @@ register_shutdown_function(function () {
     //@todo 优化一下下面的前端实现代码
     ?>
 <style>
+small{font-size: 60%}
 #debugBar{padding:0;position:fixed;bottom:0;right:0;font-size:14px;width:100%;z-index:999999;color:#000;text-align:left;font-family:'微软雅黑',serif}
 #debugBar_tab{padding:0;display:none;background:white;margin:0;height:250px}
-#debugBar_tab_tit{height:30px;padding:6px 12px 0;border-bottom:1px solid #ececec;border-top:1px solid #ececec;font-size:16px}
-span.trace-title{color:#000;padding-right:12px;height:20px;line-height:20px;display:inline-block;margin-right:3px;cursor:pointer;font-weight:700}
+#debugBar_tab_tit{height:30px;padding:6px 12px 0;border-bottom:1px solid #ececec;border-top:1px solid #ececec;font-size:16px;flex-grow: 1;cursor: n-resize;}
+span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:20px;line-height:20px;display:inline-block;margin-right:3px;cursor:pointer;font-weight:700}
 li.trace-info{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
 li.trace-info pre{font-family: 'Courier New'}
 #debugBar_tab_cont{padding:0;overflow:auto;height:212px;line-height:24px}
@@ -94,7 +95,7 @@ li.trace-info pre{font-family: 'Courier New'}
 <div id="debugBar">
     <div id="debugBar_tab">
         <div id="debugBar_tab_tit">
-            <span class="trace-title"><?= $runtime, ' | ', $memory?></span>
+            <span class="trace-title"><?= $runtime, ' - ', $memory?><small>MB</small></span>
             <?php foreach ($traces as $key => $value) { ?>
                 <span class="trace-title"><?php echo $key ?></span>
             <?php } ?>
@@ -153,8 +154,10 @@ li.trace-info pre{font-family: 'Courier New'}
         });
 
         var $id = function(id){return document.getElementById(id)}
-            , tab_tit = $id('debugBar_tab_tit').children
-            , tab_cont = $id('debugBar_tab_cont').children
+            , dom_tab_tit = $id('debugBar_tab_tit')
+            , tab_tit = dom_tab_tit.children
+            , dom_tab_cont = $id('debugBar_tab_cont')
+            , tab_cont = dom_tab_cont.children
             , open = $id('debugBar_open')
             , close = $id('debugBar_close').children[0]
             , trace = $id('debugBar_tab')
@@ -198,17 +201,33 @@ li.trace-info pre{font-family: 'Courier New'}
                 else close.click();
                 return;
             }
+            var h = trace.clientHeight
+                ,ht = dom_tab_tit.clientHeight - 6;
             if ((a === 188) && (event.altKey)) {//alt+,
-                $id('debugBar_tab').style.height = ($id('debugBar_tab').clientHeight + 100) + 'px';
-                $id('debugBar_tab_cont').style.height = ($id('debugBar_tab_cont').clientHeight + 100) + 'px';
+                trace.style.height = (h + 100) + 'px';
+                dom_tab_cont.style.height = (h + 100 - ht) + 'px';
                 return;
             }
             if ((a === 190) && (event.altKey)) {//alt+.
-                $id('debugBar_tab').style.height = ($id('debugBar_tab').clientHeight - 100) + 'px';
-                $id('debugBar_tab_cont').style.height = ($id('debugBar_tab_cont').clientHeight - 100) + 'px';
+                trace.style.height = (h - 100) + 'px';
+                dom_tab_cont.style.height = (h - 100 - ht) + 'px';
                 return;
             }
         };
+
+        dom_tab_tit.onmousedown = function (e) {
+            document.onmousemove = function (e) {
+                e.preventDefault();
+                var h = document.body.offsetHeight - e.clientY + 30
+                  ,ht = dom_tab_tit.clientHeight - 6;
+                trace.style.height = h + 'px';
+                dom_tab_cont.style.height = (h - ht) + 'px';
+            };
+            document.onmouseup = function (e) {
+                document.onmousemove = null;
+            };
+        };
+
     })();
 </script>
     <?php

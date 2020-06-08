@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <title>jsrun</title>
+    <link rel="stylesheet" href="demo.css"/>
+</head>
+<body>
+
+
+<div class="preview-container"></div>
+
+<div class="editor-panel">
+
+    <div class="editor-controls mdui-p-x-1">
+
+        <div class="editor-control-html mdui-ripple editor-control-active" onclick="Editor.toogleHTML();">HTML</div>
+        <div class="editor-control-css mdui-ripple " onclick="Editor.toogleCSS();">CSS</div>
+        <div class="editor-control-js mdui-ripple " onclick="Editor.toogleJS();">JavaScript</div>
+
+        <div class="editor-controls-drag"></div>
+
+        <div class="editor-controls-run mdui-btn mdui-btn-icon mdui-ripple mdui-m-x-1 mdui-text-color-black-secondary" mdui-tooltip="{content: '运行 Ctrl + Enter'}" onclick="Editor.run();"><span class="run-btn mdui-icon material-icons">▶</span></div>
+        <label class="editor-controls-live-mode mdui-switch mdui-m-x-1" mdui-tooltip="{content: '实时预览'}" onchange="Editor.toogleLiveMode();">
+            <input type="checkbox" class="chk" checked/>
+            <i class="mdui-switch-icon"></i>
+        </label>
+        <!--<div class="mdui-controls-download mdui-btn mdui-btn-icon mdui-ripple mdui-m-x-1" mdui-tooltip="{content: '下载'}" onclick="Editor.download();"><i class="mdui-icon material-icons">file_download</i></div>-->
+
+    </div>
+
+    <div class="editor-container editor-container-html">
+        <div class="editor-container-label">HTML</div>
+        <pre id="editor-ace-html">
+&lt;h1&gtHello World!☺&lt;/h1&gt
+</pre>
+    </div>
+    <div class="editor-container editor-container-css">
+        <div class="editor-container-label">CSS</div>
+        <pre id="editor-ace-css"></pre>
+    </div>
+    <div class="editor-container editor-container-js">
+        <div class="editor-container-label">JavaScript</div>
+        <pre id="editor-ace-js"></pre>
+    </div>
+
+</div>
+
+<!-- ace code area -->
+<script src="https://www.mdui.org/docs/assets/ace-1.2.6/ace.js"></script>
+<script src="https://www.mdui.org/docs/assets/ace-1.2.6/ext-language_tools.js"></script>
+<script src="live-editor.js"></script>
+<script>
+  var Editor = new LiveEditor();
+</script>
+</body>
+</html>

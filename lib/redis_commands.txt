@@ -1,0 +1,258 @@
+cluster|cluster addslots|slot [slot ...]|将新的哈希槽分配给接收节点|Assign new hash slots to receiving node
+cluster|cluster bumpepoch||推进集群配置时代|Advance the cluster config epoch
+cluster|cluster count-failure-reports|node-id|返回给定节点活动的故障报告数|Return the number of failure reports active for a given node
+cluster|cluster countkeysinslot|slot|返回指定哈希槽中的本地键数|Return the number of local keys in the specified hash slot
+cluster|cluster delslots|slot [slot ...]|在接收节点中将哈希槽设置为未绑定|Set hash slots as unbound in receiving node
+cluster|cluster failover|[FORCE|强制副本对其主数据库执行手动故障转移。|TAKEOVER]|Forces a replica to perform a manual failover of its master.
+cluster|cluster flushslots||删除节点自己的插槽信息|Delete a node's own slots information
+cluster|cluster forget|node-id|从节点表中删除节点|Remove a node from the nodes table
+cluster|cluster getkeysinslot|slot,count|在指定的哈希槽中返回本地键名称|Return local key names in the specified hash slot
+cluster|cluster info||提供有关Redis群集节点状态的信息|Provides info about Redis Cluster node state
+cluster|cluster keyslot|key|返回指定键的哈希槽|Returns the hash slot of the specified key
+cluster|cluster meet|ip,port|强制节点集群与另一个节点握手|Force a node cluster to handshake with another node
+cluster|cluster myid||返回节点ID|Return the node id
+cluster|cluster nodes||获取节点的集群配置|Get Cluster config for the node
+cluster|cluster replicas|node-id|列出指定主节点的副本节点|List replica nodes of the specified master node
+cluster|cluster replicate|node-id|将节点重新配置为指定主节点的副本|Reconfigure a node as a replica of the specified master node
+cluster|cluster reset|[HARD|重置Redis集群节点|SOFT]|Reset a Redis Cluster node
+cluster|cluster saveconfig||强制节点将群集状态保存在磁盘上|Forces the node to save cluster state on disk
+cluster|cluster set-config-epoch|config-epoch|在新节点中设置配置纪元|Set the configuration epoch in a new node
+cluster|cluster setslot|slot,IMPORTING|将哈希槽绑定到特定节点|MIGRATING|STABLE|NODE,[node-id]|Bind a hash slot to a specific node
+cluster|cluster slaves|node-id|列出指定主节点的副本节点|List replica nodes of the specified master node
+cluster|cluster slots||获取群集插槽到节点映射的数组|Get array of Cluster slot to node mappings
+cluster|readonly||启用对与集群副本节点的连接的读取查询|Enables read queries for a connection to a cluster replica node
+cluster|readwrite||禁用对集群副本节点连接的读取查询|Disables read queries for a connection to a cluster replica node
+connection|auth|password|验证服务器|Authenticate to the server
+connection|client caching|YES|指示服务器有关是否跟踪下一个请求的key|NO|Instruct the server about tracking or not keys in the next request
+connection|client getname||获取当前的连接名称|Get the current connection name
+connection|client getredir||获取跟踪通知重定向客户端ID（如果有）|Get tracking notifications redirection client ID if any
+connection|client id||返回当前连接的客户端ID|Returns the client ID for the current connection
+connection|client kill|[ip:port],[ID client-id],[TYPE normal|终止客户端的连接|master|slave|pubsub],[ADDR ip:port],[SKIPME yes/no]|Kill the connection of a client
+connection|client list|[TYPE normal|获取客户端连接列表|master|replica|pubsub]|Get the list of client connections
+connection|client pause|timeout|停止处理来自客户端的命令一段时间|Stop processing commands from clients for some time
+connection|client reply|ON|指示服务器是否回复命令|OFF|SKIP|Instruct the server whether to reply to commands
+connection|client setname|connection-name|设置当前连接名称|Set the current connection name
+connection|client tracking|ON|启用或禁用服务器辅助的客户端缓存支持|OFF,[REDIRECT client-id],[PREFIX prefix [PREFIX prefix ...]],[BCAST],[OPTIN],[OPTOUT],[NOLOOP]|Enable or disable server assisted client side caching support
+connection|client unblock|client-id,[TIMEOUT|解除阻止来自其他连接的被阻止命令阻止的客户端|ERROR]|Unblock a client blocked in a blocking command from a different connection
+connection|echo|message|回显给定的字符串|Echo the given string
+connection|hello|protover,[AUTH username password],[SETNAME clientname]|切换Redis协议|switch Redis protocol
+connection|ping|[message]|ping服务器|Ping the server
+connection|quit||关闭连接|Close the connection
+connection|select|index|更改当前连接的所选数据库|Change the selected database for the current connection
+generic|del|key [key ...]|删除key|Delete a key
+generic|dump|key|返回存储在指定键处的值的序列化版本。|Return a serialized version of the value stored at the specified key.
+generic|exists|key [key ...]|确定key是否存在|Determine if a key exists
+generic|expireat|key,timestamp|将key的到期时间设置为UNIX时间戳记|Set the expiration for a key as a UNIX timestamp
+generic|expire|key,seconds|设置key的生存时间（以秒为单位）|Set a key's time to live in seconds
+generic|keys|pattern|查找与给定模式匹配的所有键|Find all keys matching the given pattern
+generic|migrate|host,port,key|将key从Redis实例原子转移到另一个实例。|"",destination-db,timeout,[COPY],[REPLACE],[AUTH password],[KEYS key [key ...]]|Atomically transfer a key from a Redis instance to another one.
+generic|move|key,db|将key移到另一个数据库|Move a key to another database
+generic|object|subcommand,[arguments [arguments ...]]|检查Redis对象的内部|Inspect the internals of Redis objects
+generic|persist|key|从key中删除到期|Remove the expiration from a key
+generic|pexpireat|key,milliseconds-timestamp|将key的到期时间设置为以毫秒为单位指定的UNIX时间戳|Set the expiration for a key as a UNIX timestamp specified in milliseconds
+generic|pexpire|key,milliseconds|设置key的生存时间（以毫秒为单位）|Set a key's time to live in milliseconds
+generic|pttl|key|花费数毫秒的时间来生存|Get the time to live for a key in milliseconds
+generic|randomkey||从键空间返回随机键|Return a random key from the keyspace
+generic|renamenx|key,newkey|仅在新key不存在时重命名key|Rename a key, only if the new key does not exist
+generic|rename|key,newkey|重命名key|Rename a key
+generic|restore|key,ttl,serialized-value,[REPLACE],[ABSTTL],[IDLETIME seconds],[FREQ frequency]|使用提供的序列化值创建key，该序列化值先前是使用DUMP获得的。|Create a key using the provided serialized value, previously obtained using DUMP.
+generic|scan|cursor,[MATCH pattern],[COUNT count],[TYPE type]|递增迭代键空间|Incrementally iterate the keys space
+generic|sort|key,[BY pattern],[LIMIT offset count],[GET pattern [GET pattern ...]],[ASC|对列表，集合或排序集中的元素进行排序|DESC],[ALPHA],[STORE destination]|Sort the elements in a list, set or sorted set
+generic|touch|key [key ...]|更改key的最后访问时间。返回指定的现有键的数量。|Alters the last access time of a key(s). Returns the number of existing keys specified.
+generic|ttl|key|抽出时间为钥匙而活|Get the time to live for a key
+generic|type|key|确定存储在key处的类型|Determine the type stored at key
+generic|unlink|key [key ...]|异步删除另一个线程中的key。否则，它与DEL一样，但不阻塞。|Delete a key asynchronously in another thread. Otherwise it is just as DEL, but non blocking.
+generic|wait|numreplicas,timeout|等待在当前连接的上下文中发送的所有写命令的同步复制|Wait for the synchronous replication of all the write commands sent in the context of the current connection
+geo|geoadd|key,longitude latitude member [longitude latitude member ...]|在使用排序集表示的地理索引中添加一个或多个地理空间项|Add one or more geospatial items in the geospatial index represented using a sorted set
+geo|geodist|key,member1,member2,[m|返回地理空间索引的两个成员之间的距离|km|ft|mi]|Returns the distance between two members of a geospatial index
+geo|geohash|key,member [member ...]|返回地理空间索引的成员作为标准geohash字符串|Returns members of a geospatial index as standard geohash strings
+geo|geopos|key,member [member ...]|返回地理空间索引成员的经度和纬度|Returns longitude and latitude of members of a geospatial index
+geo|georadiusbymember|key,member,radius,m|查询代表地理空间索引的排序集合，以获取与给定最大距离相匹配的成员|km|ft|mi,[WITHCOORD],[WITHDIST],[WITHHASH],[COUNT count],[ASC|DESC],[STORE key],[STOREDIST key]|Query a sorted set representing a geospatial index to fetch members matching a given maximum distance from a member
+geo|georadius|key,longitude,latitude,radius,m|查询代表地理空间索引的排序集合，以获取与给定最大距离点匹配的成员|km|ft|mi,[WITHCOORD],[WITHDIST],[WITHHASH],[COUNT count],[ASC|DESC],[STORE key],[STOREDIST key]|Query a sorted set representing a geospatial index to fetch members matching a given maximum distance from a point
+hash|hdel|key,field [field ...]|删除一个或多个哈希字段|Delete one or more hash fields
+hash|hexists|key,field|确定是否存在哈希字段|Determine if a hash field exists
+hash|hgetall|key|获取哈希中的所有字段和值|Get all the fields and values in a hash
+hash|hget|key,field|获取哈希字段的值|Get the value of a hash field
+hash|hincrbyfloat|key,field,increment|将哈希字段的浮点值增加给定数量|Increment the float value of a hash field by the given amount
+hash|hincrby|key,field,increment|将哈希字段的整数值增加给定数字|Increment the integer value of a hash field by the given number
+hash|hkeys|key|获取哈希中的所有字段|Get all the fields in a hash
+hash|hlen|key|获取哈希中的字段数|Get the number of fields in a hash
+hash|hmget|key,field [field ...]|获取所有给定哈希字段的值|Get the values of all the given hash fields
+hash|hmset|key,field value [field value ...]|将多个哈希字段设置为多个值|Set multiple hash fields to multiple values
+hash|hscan|key,cursor,[MATCH pattern],[COUNT count]|递增迭代哈希字段和关联的值|Incrementally iterate hash fields and associated values
+hash|hsetnx|key,field,value|设置哈希字段的值（仅当该字段不存在时）|Set the value of a hash field, only if the field does not exist
+hash|hset|key,field value [field value ...]|设置哈希字段的字符串值|Set the string value of a hash field
+hash|hstrlen|key,field|获取哈希字段值的长度|Get the length of the value of a hash field
+hash|hvals|key|获取哈希中的所有值|Get all the values in a hash
+hyperloglog|pfadd|key,element [element ...]|将指定的元素添加到指定的HyperLogLog。|Adds the specified elements to the specified HyperLogLog.
+hyperloglog|pfcount|key [key ...]|返回由HyperLogLog在键处观察到的集合的近似基数。|Return the approximated cardinality of the set(s) observed by the HyperLogLog at key(s).
+hyperloglog|pfmerge|destkey,sourcekey [sourcekey ...]|将N个不同的HyperLogLog合并为一个。|Merge N different HyperLogLogs into a single one.
+list|blpop|key [key ...],timeout|删除并获取列表中的第一个元素，或者阻塞直到一个可用|Remove and get the first element in a list, or block until one is available
+list|brpoplpush|source,destination,timeout|从列表中弹出一个元素，将其推到另一个列表中并返回它；或封锁，直到有一个可用|Pop an element from a list, push it to another list and return it; or block until one is available
+list|brpop|key [key ...],timeout|删除并获取列表中的最后一个元素，或者阻塞直到一个可用|Remove and get the last element in a list, or block until one is available
+list|lindex|key,index|通过索引从列表中获取元素|Get an element from a list by its index
+list|linsert|key,BEFORE|在列表中的另一个元素之前或之后插入一个元素|AFTER,pivot,element|Insert an element before or after another element in a list
+list|llen|key|获取列表的长度|Get the length of a list
+list|lpop|key|删除并获取列表中的第一个元素|Remove and get the first element in a list
+list|lpushx|key,element [element ...]|仅当列表存在时，才将元素添加到列表中|Prepend an element to a list, only if the list exists
+list|lpush|key,element [element ...]|在列表前添加一个或多个元素|Prepend one or multiple elements to a list
+list|lrange|key,start,stop|从列表中获取一系列元素|Get a range of elements from a list
+list|lrem|key,count,element|从列表中删除元素|Remove elements from a list
+list|lset|key,index,element|通过其索引设置列表中元素的值|Set the value of an element in a list by its index
+list|ltrim|key,start,stop|将列表修剪到指定范围|Trim a list to the specified range
+list|rpoplpush|source,destination|删除列表中的最后一个元素，将其添加到另一个列表中并返回|Remove the last element in a list, prepend it to another list and return it
+list|rpop|key|删除并获取列表中的最后一个元素|Remove and get the last element in a list
+list|rpushx|key,element [element ...]|仅当列表存在时，将元素追加到列表|Append an element to a list, only if the list exists
+list|rpush|key,element [element ...]|将一个或多个元素附加到列表|Append one or multiple elements to a list
+pubsub|psubscribe|pattern [pattern ...]|收听发布到与给定模式匹配的频道的消息|Listen for messages published to channels matching the given patterns
+pubsub|publish|channel,message|将消息发布到频道|Post a message to a channel
+pubsub|pubsub|subcommand,[argument [argument ...]]|检查发布/订阅子系统的状态|Inspect the state of the Pub/Sub subsystem
+pubsub|punsubscribe|[pattern [pattern ...]]|停止收听发布到与给定模式匹配的频道的消息|Stop listening for messages posted to channels matching the given patterns
+pubsub|subscribe|channel [channel ...]|收听发布到给定频道的消息|Listen for messages published to the given channels
+pubsub|unsubscribe|[channel [channel ...]]|停止收听发布到给定频道的消息|Stop listening for messages posted to the given channels
+scripting|evalsha|sha1,numkeys,key [key ...],arg [arg ...]|执行Lua脚本服务器端|Execute a Lua script server side
+scripting|eval|script,numkeys,key [key ...],arg [arg ...]|执行Lua脚本服务器端|Execute a Lua script server side
+scripting|script debug|YES|为执行的脚本设置调试模式。|SYNC|NO|Set the debug mode for executed scripts.
+scripting|script exists|sha1 [sha1 ...]|检查脚本高速缓存中是否存在脚本。|Check existence of scripts in the script cache.
+scripting|script flush||从脚本缓存中删除所有脚本。|Remove all the scripts from the script cache.
+scripting|script kill||终止当前正在执行的脚本。|Kill the script currently in execution.
+scripting|script load|script|将指定的Lua脚本加载到脚本缓存中。|Load the specified Lua script into the script cache.
+server|acl cat|[categoryname]|列出ACL类别或类别中的命令|List the ACL categories or the commands inside a category
+server|acl deluser|username [username ...]|删除指定的ACL用户和关联规则|Remove the specified ACL users and the associated rules
+server|acl genpass|[bits]|生成用于ACL用户的伪随机安全密码|Generate a pseudorandom secure password to use for ACL users
+server|acl getuser|username|获取特定ACL用户的规则|Get the rules for a specific ACL user
+server|acl help||显示有关不同子命令的有用文本|Show helpful text about the different subcommands
+server|acl list||以ACL配置文件格式列出当前的ACL规则|List the current ACL rules in ACL config file format
+server|acl load||从配置的ACL文件中重新加载ACL|Reload the ACLs from the configured ACL file
+server|acl log|[count or RESET]|列出由于适当的ACL而被拒绝的最新事件|List latest events denied because of ACLs in place
+server|acl save||将当前ACL规则保存在配置的ACL文件中|Save the current ACL rules in the configured ACL file
+server|acl setuser|username,[rule [rule ...]]|修改或创建特定ACL用户的规则|Modify or create the rules for a specific ACL user
+server|acl users||列出所有已配置的ACL规则的用户名|List the username of all the configured ACL rules
+server|acl whoami||返回与当前连接关联的用户名|Return the name of the user associated to the current connection
+server|bgrewriteaof||异步重写仅追加文件|Asynchronously rewrite the append-only file
+server|bgsave|[SCHEDULE]|异步将数据集保存到磁盘|Asynchronously save the dataset to disk
+server|command count||获取Redis命令总数|Get total number of Redis commands
+server|command getkeys||给定完整的Redis命令提取key|Extract keys given a full Redis command
+server|command info|command-name [command-name ...]|获取特定Redis命令详细信息的数组|Get array of specific Redis command details
+server|command||获取Redis命令详细信息数组|Get array of Redis command details
+server|config get|parameter|获取配置参数的值|Get the value of a configuration parameter
+server|config resetstat||重置INFO返回的统计信息|Reset the stats returned by INFO
+server|config rewrite||用内存中配置重写配置文件|Rewrite the configuration file with the in memory configuration
+server|config set|parameter,value|将配置参数设置为给定值|Set a configuration parameter to the given value
+server|dbsize||返回所选数据库中的键数|Return the number of keys in the selected database
+server|debug object|key|获取有关key的调试信息|Get debugging information about a key
+server|debug segfault||使服务器崩溃|Make the server crash
+server|flushall|[ASYNC]|从所有数据库中删除所有key|Remove all keys from all databases
+server|flushdb|[ASYNC]|从当前数据库中删除所有key|Remove all keys from the current database
+server|info|[section]|获取有关服务器的信息和统计信息|Get information and statistics about the server
+server|lastsave||获取最后一次成功保存到磁盘的UNIX时间戳|Get the UNIX time stamp of the last successful save to disk
+server|latency doctor||返回可读的延迟分析报告。|Return a human readable latency analysis report.
+server|latency graph|event|返回事件的延迟图。|Return a latency graph for the event.
+server|latency help||显示有关不同子命令的有用文本。|Show helpful text about the different subcommands.
+server|latency history|event|返回事件的时间戳等待时间样本。|Return timestamp-latency samples for the event.
+server|latency latest||返回所有事件的最新延迟样本。|Return the latest latency samples for all events.
+server|latency reset|[event]|重置一个或多个事件的等待时间数据。|Reset latency data for one or more events.
+server|lolwut|[VERSION version]|显示一些计算机插图和Redis版本|Display some computer art and the Redis version
+server|memory doctor||输出内存问题报告|Outputs memory problems report
+server|memory help||显示有关不同子命令的有用文本|Show helpful text about the different subcommands
+server|memory malloc-stats||显示分配器内部统计信息|Show allocator internal stats
+server|memory purge||要求分配器释放内存|Ask the allocator to release memory
+server|memory stats||显示内存使用情况详细信息|Show memory usage details
+server|memory usage|key,[SAMPLES count]|估计key的内存使用量|Estimate the memory usage of a key
+server|module list||列出服务器加载的所有模块|List all modules loaded by the server
+server|module load|path,[ arg [arg ...]]|加载模块|Load a module
+server|module unload|name|卸载模块|Unload a module
+server|monitor||实时监听服务器收到的所有请求|Listen for all requests received by the server in real time
+server|psync|replicationid,offset|用于复制的内部命令|Internal command used for replication
+server|replicaof|host,port|使服务器成为另一个实例的副本，或将其提升为主服务器。|Make the server a replica of another instance, or promote it as master.
+server|role||在复制的上下文中返回实例的角色|Return the role of the instance in the context of replication
+server|save||同步将数据集保存到磁盘|Synchronously save the dataset to disk
+server|shutdown|[NOSAVE|将数据集同步保存到磁盘，然后关闭服务器|SAVE]|Synchronously save the dataset to disk and then shut down the server
+server|slaveof|host,port|使服务器成为另一个实例的副本，或将其提升为主服务器。从Redis 5开始不推荐使用。改用REPLICAOF。|Make the server a replica of another instance, or promote it as master. Deprecated starting with Redis 5. Use REPLICAOF instead.
+server|slowlog|subcommand,[argument]|管理Redis慢查询日志|Manages the Redis slow queries log
+server|swapdb|index1,index2|交换两个Redis数据库|Swaps two Redis databases
+server|sync||用于复制的内部命令|Internal command used for replication
+server|time||返回当前服务器时间|Return the current server time
+set|sadd|key,member [member ...]|将一个或多个成员添加到集合中|Add one or more members to a set
+set|scard|key|获取集合中的成员数|Get the number of members in a set
+set|sdiffstore|destination,key [key ...]|减去多个集合并将结果集合存储在key中|Subtract multiple sets and store the resulting set in a key
+set|sdiff|key [key ...]|减去多套|Subtract multiple sets
+set|sinterstore|destination,key [key ...]|相交多个集合并将结果集合存储在key中|Intersect multiple sets and store the resulting set in a key
+set|sinter|key [key ...]|相交多组|Intersect multiple sets
+set|sismember|key,member|确定给定值是否是集合的成员|Determine if a given value is a member of a set
+set|smembers|key|获取集合中的所有成员|Get all the members in a set
+set|smove|source,destination,member|将成员从一组移到另一组|Move a member from one set to another
+set|spop|key,[count]|从集合中删除并返回一个或多个随机成员|Remove and return one or multiple random members from a set
+set|srandmember|key,[count]|从一组中获取一个或多个随机成员|Get one or multiple random members from a set
+set|srem|key,member [member ...]|从集合中删除一个或多个成员|Remove one or more members from a set
+set|sscan|key,cursor,[MATCH pattern],[COUNT count]|递增迭代Set元素|Incrementally iterate Set elements
+set|sunionstore|destination,key [key ...]|添加多个集合并将结果集存储在key中|Add multiple sets and store the resulting set in a key
+set|sunion|key [key ...]|添加多套|Add multiple sets
+sorted_set|bzpopmax|key [key ...],timeout|从一个或多个排序集中删除得分最高的成员，或者将其阻塞直到一个可用|Remove and return the member with the highest score from one or more sorted sets, or block until one is available
+sorted_set|bzpopmin|key [key ...],timeout|从一个或多个排序集中删除得分最低的成员，或者将其阻塞，直到一个可用为止|Remove and return the member with the lowest score from one or more sorted sets, or block until one is available
+sorted_set|zadd|key,[NX]|将一个或多个成员添加到排序集中，或者更新其分数（如果已经存在）|XX],[CH],[INCR],score member [score member ...]|Add one or more members to a sorted set, or update its score if it already exists
+sorted_set|zcard|key|获取排序集中的成员数|Get the number of members in a sorted set
+sorted_set|zcount|key,min,max|用给定值内的分数对排序集中的成员进行计数|Count the members in a sorted set with scores within the given values
+sorted_set|zincrby|key,increment,member|增加排序集中成员的分数|Increment the score of a member in a sorted set
+sorted_set|zinterstore|destination,numkeys,key [key ...],[WEIGHTS weight [weight ...]],[AGGREGATE SUM|与多个排序集相交并将结果排序后的集存储在新键中|MIN|MAX]|Intersect multiple sorted sets and store the resulting sorted set in a new key
+sorted_set|zlexcount|key,min,max|计算给定词典范围之间的排序集中的成员数|Count the number of members in a sorted set between a given lexicographical range
+sorted_set|zpopmax|key,[count]|删除并返回排序集中得分最高的成员|Remove and return members with the highest scores in a sorted set
+sorted_set|zpopmin|key,[count]|删除并返回排序集中得分最低的成员|Remove and return members with the lowest scores in a sorted set
+sorted_set|zrangebylex|key,min,max,[LIMIT offset count]|返回按字典顺序排列的一组排序范围内的成员|Return a range of members in a sorted set, by lexicographical range
+sorted_set|zrangebyscore|key,min,max,[WITHSCORES],[LIMIT offset count]|按分数返回排序集中的成员范围|Return a range of members in a sorted set, by score
+sorted_set|zrange|key,start,stop,[WITHSCORES]|按索引返回排序集中的成员范围|Return a range of members in a sorted set, by index
+sorted_set|zrank|key,member|确定排序集中成员的索引|Determine the index of a member in a sorted set
+sorted_set|zremrangebylex|key,min,max|删除给定词典范围之间的排序集中的所有成员|Remove all members in a sorted set between the given lexicographical range
+sorted_set|zremrangebyrank|key,start,stop|删除给定索引内排序集中的所有成员|Remove all members in a sorted set within the given indexes
+sorted_set|zremrangebyscore|key,min,max|在给定分数内删除排序集中的所有成员|Remove all members in a sorted set within the given scores
+sorted_set|zrem|key,member [member ...]|从排序集中删除一个或多个成员|Remove one or more members from a sorted set
+sorted_set|zrevrangebylex|key,max,min,[LIMIT offset count]|返回按字典顺序排列的一组排序范围内的成员范围，按从高到低的字符串排序。|Return a range of members in a sorted set, by lexicographical range, ordered from higher to lower strings.
+sorted_set|zrevrangebyscore|key,max,min,[WITHSCORES],[LIMIT offset count]|按分数返回排序集中的一组成员，分数从高到低排序|Return a range of members in a sorted set, by score, with scores ordered from high to low
+sorted_set|zrevrange|key,start,stop,[WITHSCORES]|按索引返回排序集中的一组成员，其得分从高到低排序|Return a range of members in a sorted set, by index, with scores ordered from high to low
+sorted_set|zrevrank|key,member|确定成员在排序集中的索引，其得分从高到低排序|Determine the index of a member in a sorted set, with scores ordered from high to low
+sorted_set|zscan|key,cursor,[MATCH pattern],[COUNT count]|增量迭代排序的集合元素和相关分数|Incrementally iterate sorted sets elements and associated scores
+sorted_set|zscore|key,member|获取排序集中与给定成员相关的分数|Get the score associated with the given member in a sorted set
+sorted_set|zunionstore|destination,numkeys,key [key ...],[WEIGHTS weight [weight ...]],[AGGREGATE SUM|添加多个排序集并将结果排序集存储在新key中|MIN|MAX]|Add multiple sorted sets and store the resulting sorted set in a new key
+stream|xack|key,group,ID [ID ...]|将待处理消息标记为正确处理，有效地将其从使用者组的待处理条目列表中删除。该命令的返回值是成功确认的消息数，即我们实际上能够在PEL中解析的ID。|Marks a pending message as correctly processed, effectively removing it from the pending entries list of the consumer group. Return value of the command is the number of messages successfully acknowledged, that is, the IDs we were actually able to resolve in the PEL.
+stream|xadd|key,ID,field value [field value ...]|将新条目追加到流|Appends a new entry to a stream
+stream|xclaim|key,group,consumer,min-idle-time,ID [ID ...],[IDLE ms],[TIME ms-unix-time],[RETRYCOUNT count],[FORCE],[JUSTID]|更改（或获取）消费者组中消息的所有权，就像消息已传递给指定的消费者一样。|Changes (or acquires) ownership of a message in a consumer group, as if the message was delivered to the specified consumer.
+stream|xdel|key,ID [ID ...]|从流中删除指定的条目。返回实际删除的项目数，如果某些ID不存在，则可能与传递的ID数不同。|Removes the specified entries from the stream. Returns the number of items actually deleted, that may be different from the number of IDs passed in case certain IDs do not exist.
+stream|xgroup|[CREATE key groupname id-or-$],[SETID key groupname id-or-$],[DESTROY key groupname],[DELCONSUMER key groupname consumername]|创建，销毁和管理消费者群体。|Create, destroy, and manage consumer groups.
+stream|xinfo|[CONSUMERS key groupname],[GROUPS key],[STREAM key],[HELP]|获取有关信息流和消费者群体的信息|Get information on streams and consumer groups
+stream|xlen|key|返回流中的整数个数|Return the number of entires in a stream
+stream|xpending|key,group,[start end count],[consumer]|从流使用者组未决条目列表中返回信息和条目，这些信息是已获取但从未确认的消息。|Return information and entries from a stream consumer group pending entries list, that are messages fetched but never acknowledged.
+stream|xrange|key,start,end,[COUNT count]|返回流中元素的范围，其ID与指定的ID间隔匹配|Return a range of elements in a stream, with IDs matching the specified IDs interval
+stream|xreadgroup|GROUP group consumer,[COUNT count],[BLOCK milliseconds],[NOACK],STREAMS,key [key ...],ID [ID ...]|使用使用者组从流中返回新条目，或访问给定使用者的未决条目的历史记录。可以阻止。|Return new entries from a stream using a consumer group, or access the history of the pending entries for a given consumer. Can block.
+stream|xread|[COUNT count],[BLOCK milliseconds],STREAMS,key [key ...],id [id ...]|返回多个流中从未出现过的元素，其ID大于调用者为每个流报告的ID。可以阻止。|Return never seen elements in multiple streams, with IDs greater than the ones reported by the caller for each stream. Can block.
+stream|xrevrange|key,end,start,[COUNT count]|与XRANGE相比，以相反的顺序（从更大到更小的ID）返回流中具有与指定ID间隔匹配的ID的一系列元素。|Return a range of elements in a stream, with IDs matching the specified IDs interval, in reverse order (from greater to smaller IDs) compared to XRANGE
+stream|xtrim|key,MAXLEN,[~],count|将流修剪到一定大小（如果通过'〜'，则近似）|Trims the stream to (approximately if '~' is passed) a certain size
+string|append|key,value|将值附加到键|Append a value to a key
+string|bitcount|key,[start end]|计算字符串中的设置位|Count set bits in a string
+string|bitfield|key,[GET type offset],[SET type offset value],[INCRBY type offset increment],[OVERFLOW WRAP|对字符串执行任意位域整数运算|SAT|FAIL]|Perform arbitrary bitfield integer operations on strings
+string|bitop|operation,destkey,key [key ...]|在字符串之间执行按位运算|Perform bitwise operations between strings
+string|bitpos|key,bit,[start],[end]|查找第一位或清除字符串|Find first bit set or clear in a string
+string|decrby|key,decrement|将键的整数值减给定数字|Decrement the integer value of a key by the given number
+string|decr|key|将键的整数值减一|Decrement the integer value of a key by one
+string|getbit|key,offset|返回键处存储的字符串值中偏移量的位值|Returns the bit value at offset in the string value stored at key
+string|getrange|key,start,end|获取存储在key处的字符串的子字符串|Get a substring of the string stored at a key
+string|getset|key,value|设置键的字符串值并返回其旧值|Set the string value of a key and return its old value
+string|get|key|获取key的值|Get the value of a key
+string|incrbyfloat|key,increment|将键的浮点值增加给定的数量|Increment the float value of a key by the given amount
+string|incrby|key,increment|将键的整数值增加给定的数量|Increment the integer value of a key by the given amount
+string|incr|key|将键的整数值加1|Increment the integer value of a key by one
+string|mget|key [key ...]|获取所有给定键的值|Get the values of all the given keys
+string|msetnx|key value [key value ...]|仅当不存在任何键时，才将多个键设置为多个值|Set multiple keys to multiple values, only if none of the keys exist
+string|mset|key value [key value ...]|将多个键设置为多个值|Set multiple keys to multiple values
+string|psetex|key,milliseconds,value|设置key的值和有效期限（以毫秒为单位）|Set the value and expiration in milliseconds of a key
+string|setbit|key,offset,value|设置或清除键处存储的字符串值中偏移量的位|Sets or clears the bit at offset in the string value stored at key
+string|setex|key,seconds,value|设置key的值和有效期|Set the value and expiration of a key
+string|setnx|key,value|仅当key不存在时设置key的值|Set the value of a key, only if the key does not exist
+string|setrange|key,offset,value|从指定偏移量开始的键处覆盖字符串的一部分|Overwrite part of a string at key starting at the specified offset
+string|set|key,value,[EX seconds|设置键的字符串值|PX milliseconds],[NX|XX],[KEEPTTL]|Set the string value of a key
+string|stralgo|LCS,algo-specific-argument [algo-specific-argument ...]|针对字符串运行算法（当前为LCS）|Run algorithms (currently LCS) against strings
+string|strlen|key|获取key中存储的值的长度|Get the length of the value stored in a key
+transactions|discard||丢弃MULTI之后发出的所有命令|Discard all commands issued after MULTI
+transactions|exec||执行MULTI之后发出的所有命令|Execute all commands issued after MULTI
+transactions|multi||标记事务块的开始|Mark the start of a transaction block
+transactions|unwatch||忘记所有已观看的key|Forget about all watched keys
+transactions|watch|key [key ...]|监视指定key以确定MULTI / EXEC块的执行|Watch the given keys to determine execution of the MULTI/EXEC block
