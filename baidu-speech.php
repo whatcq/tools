@@ -27,9 +27,9 @@ if(isset($_GET['text'])){
 
 	$client = new AipSpeech(APP_ID, API_KEY, SECRET_KEY);//实例化
 	$result = $client->synthesis($text, 'zh', 2, array(
-			'vol' => 5,
-			'per'=>4,
-			'spd'=> (int)$speed,
+			'vol' => 15,
+			'per' => 110,
+			'spd' => (int)$speed,
 	));
 	echo $result;
 	die;
@@ -48,20 +48,30 @@ if(isset($_GET['text'])){
 <title>听写</title>
 </head>
 <body>
-<audio controls autoplay xmuted id="audio">
-	<source src="?speed=<?= $speed?>&text=<?= $_GET['_text']?>" type="audio/mpeg">
+<audio controls autoplay xmuted id="audio"><!--  -->
+	<source src="?speed=<?= $speed?>&text=<?= $_GET['_text']?>&audio.mp3" type="audio/mpeg">
 </audio>
+<input type="button" value="play" id="play" onclick="pp()">
 <script language="javascript">
-var _audio=document.getElementById('audio'),i=0;
+var _audio=document.getElementById('audio')
+	,_play=document.getElementById('play')
+	,i=0
+	,timer=0;
 function pp(){
-	setInterval(function(){
+	if (timer>0){
+		clearInterval(timer);
+		timer=0;
+		play.value='play';
+		return;
+	}
+	play.value='pause';
+	timer=setInterval(function(){
 		if(_audio.paused && i++%3==0)_audio.play();
 		else _audio.pause();
-		console.log(i,_audio.paused);
+		//console.log(i,_audio.paused);
 	}, 1000);
 }
 </script>
-<input type="button" value="play" id="play" onclick="pp()">
 <a href="baidu-speech.php?speed=1&_text=%E8%98%91%E8%8F%87%20%E5%8B%A4%E5%8A%B3%20%E8%B2%94%E8%B2%85%20%E6%91%87%E6%9B%B3%20%E5%85%8B%E9%9A%86%20%E5%97%AB%E5%9A%85%20%E8%AE%A4%E7%9C%9F%20%E7%A0%A5%E7%A0%BA%20%E6%8B%85%E5%BF%83%20%E7%AF%9D%E7%81%AB%20%E4%B8%A5%E8%82%83">test</a>
 </body>
 </html>
