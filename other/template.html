@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title> 字符串处理 </title>
+</head>
+<style type="text/css">
+	body {
+		magin: 0;
+	}
+
+	* {
+		font-family: "verdana""couier New";
+		font-size: 14px;
+	}
+</style>
+<script language="javascript">
+	var $ = function (id) { return document.getElementById(id); }
+	var W = function (str) { document.writeln(str); }
+
+	function convert() {
+		var string1 = $('string1').value;
+		if ($('explode').checked) {
+			string1 = string1.split($('substr').value).join('\r\n');
+		}
+		else if ($('implode').checked) {
+			string1 = string1.split('\r\n').join($('substr').value);
+		}
+		$('string2').value = string1;
+		if ($('copy').checked) copyToClipboard(string1);
+	}
+	//复制到剪切板
+	function copyToClipboard(txt) {
+		if (window.clipboardData) {
+			window.clipboardData.clearData();
+			window.clipboardData.setData("Text", txt);
+		} else if (navigator.userAgent.indexOf("Opera") != -1) {
+			window.location = txt;
+		} else if (window.netscape) {
+			try {
+				netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+			} catch (e) {
+				alert("被浏览器拒绝！\n请在浏览器地址栏输入'about:config'并回车\n然后将'signed.applets.codebase_principal_support'设置为'true'");
+			}
+			var clip = Components.classes['@mozilla.org/widget/clipboard;1'].createInstance(Components.interfaces.nsIClipboard);
+			if (!clip)
+				return;
+			var trans = Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable);
+			if (!trans)
+				return;
+			trans.addDataFlavor('text/unicode');
+			var str = new Object();
+			var len = new Object();
+			var str = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString);
+			var copytext = txt;
+			str.data = copytext;
+			trans.setTransferData("text/unicode", str, copytext.length * 2);
+			var clipid = Components.interfaces.nsIClipboard;
+			if (!clip)
+				return false;
+			clip.setData(trans, null, clipid.kGlobalClipboard);
+			alert("复制成功！")
+		}
+	}
+	function paste_auto_on(yes) {
+		if (yes) {
+			$('string1').attachEvent("onclick", function () { $('string1').value = window.clipboardData.getData("Text"); });
+		} else {
+			$('string1').attachEvent("onclick", function () { });
+		}
+	}
+
+	function paste() {
+		$('string1').value = window.clipboardData.getData("Text");
+	}
+	/*
+	批量生成
+	like this:
+	to_replace_string1 to_replace_string2 to_replace_string3 ...
+	A textA 1 ...
+	B textB 2 ...
+	*/
+	function batch_generate() {
+		var string1_lines = $('string1').value.split('\n');
+		var products = new Array(), lists = new Array();//09-12-24：不能连等于，否则lists在赋值时products也赋值了
+		for (i in string1_lines) {
+			lists[i] = string1_lines[i].split($('substr').value);
+			//alert(lists[i]);
+		}
+		var moban = $('moban').value;
+		var i = 1, j = lists.length, k = lists[0].length;
+		for (; i < j; i++) {
+			products[i] = moban;
+			for (var m = 0; m < k; m++) {//
+				var re = new RegExp(lists[0][m], "gim");
+				//alert(""+i+m+lists[i][m]);
+				products[i] = products[i].replace(re, lists[i][m]);
+			}//alert(products[i])
+		}
+		$('string2').value = products.join('');
+		if ($('copy').checked) copyToClipboard($('string2').value);
+	}
+</script>
+
+<body>
+	<!-- <INPUT onclick=paste_auto_on(this.checked) CHECKED type=checkbox> -->
+	<a href="javascript:void(0);" onclick="paste()">paste from剪切板</a> <br>
+	<textarea name="text" id="string1" rows="8" cols="40">
+A B
+1 a
+2 b</textarea>
+	<textarea name="text" id="moban" rows="8" cols="80">
+A=>'B',
+</textarea><br>
+	<input type="checkbox" name="explode" id="explode">分割
+	<input type="checkbox" name="implode" id="implode" checked>连接
+	by:<input type="text" name="substr" id="substr"> &nbsp;
+	<button onclick="convert()">转化</button>&nbsp;
+	<input type="checkbox" name="d" id="copy" checked>复制到剪切板&nbsp;
+	<button onclick="batch_generate()">批量生成</button>
+	<!-- <button onclick="copyToClipboard($('string2').value)"></button> -->
+	<br>
+	<textarea name="text" id="string2" rows="18" cols="80"></textarea><br>
+
+</body>
+
+</html>
