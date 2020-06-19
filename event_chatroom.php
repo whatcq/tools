@@ -17,7 +17,7 @@ if (isset($_REQUEST['post'])) {
 	file_put_contents($file, "\n" . json_encode([
 			'from' => htmlspecialchars($data['user']),
 			//'to' => $data['to'],
-			'msg' => htmlspecialchars($data['msg']);
+			'msg' => htmlspecialchars($data['msg']),
 			]), FILE_APPEND);
 	header("content:application/json;chartset=uft-8");
 	exit(json_encode([
