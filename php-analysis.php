@@ -55,6 +55,8 @@ register_shutdown_function(function () {
         'C' => 'classes',
         'g' => 'get',
         'p' => 'post',
+        'c' => 'cookie',
+        'S' => 'session',
         's' => 'server',
     ];
     $runtime = number_format(1000 * (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'])) . '<small>ms</small>';
@@ -67,6 +69,8 @@ register_shutdown_function(function () {
     strpos($_GET['_t'], 'C') === false ? $_settings['C'] = 0 : $traces['classes'] = get_declared_classes();
     strpos($_GET['_t'], 'g') === false ? $_settings['g'] = 0 : $traces['get'] = $_GET;
     strpos($_GET['_t'], 'p') === false ? $_settings['p'] = 0 : $traces['post'] = $_POST;
+    strpos($_GET['_t'], 'c') === false ? $_settings['c'] = 0 : $traces['cookie'] = $_COOKIE;
+    strpos($_GET['_t'], 'S') === false ? $_settings['S'] = 0 : $traces['session'] = $_SESSION;
     strpos($_GET['_t'], 's') === false ? $_settings['s'] = 0 : $traces['server'] = $_SERVER;
     ($logs = _log()) && $traces['vars'] = $logs;
     !empty($GLOBALS['_']) && $traces['vars2'] = $GLOBALS['_'];
