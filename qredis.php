@@ -57,7 +57,7 @@ i{font-size:60%;color:gray;}
 .group{background: #597684; border-radius: 5px; font-size: 12px; color: #d5d5d5; padding: 0 3px; }
 .command{color:blue;}
 .isWrite{color:red;}
-.args{color: green;}
+.args{color: green;font-size: 80%}
 .summary{float:right;color:gray;min-width: 600px;display: inline-block;}
 </style>
 <script src="?redis_commands"></script>
@@ -141,7 +141,7 @@ function filterGroup(group){
 </select>
 
 <form style="display: inline-block;margin-bottom: 0;" id="form">
-	<div style="position:relative;">
+	<div style="position:relative;display: inline-block;">
 		<span style="margin-left:200px;width:18px;overflow:hidden;">
 			<select style="width:218px;margin-left:-200px;height: 25px;"
 			 onchange="$('#cmd').val(this.value);$('#cmd').focus();">
@@ -155,7 +155,7 @@ foreach ($shows as $_show) {
 		</span>
 		<input type="text" name="q" id="cmd" value="<?php echo $q; ?>"
 			style="width:200px;position:absolute;left:2px;top:2px;height: 21px;border:0;" />
-		<input type="submit" value="Go" />
 	</div>
+    <input type="submit" value="Go" />
 </form>
 <div id="commands-container"></div>
