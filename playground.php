@@ -146,21 +146,22 @@ function $(str) {
 		<td valign="top" width="600">
 <iframe width="100%" height="60" src="about:blank" name="openfile"></iframe>
 <form method="post" action="?act=save_run" target="iframe" style="display:inline;">
-
 	<div>
-	<div style="position:relative;">
-		<span style="margin-left:200px;width:18px;overflow:hidden;">
-			<select style="width:218px;margin-left:-200px;" onchange="eval('this.parentNode.nextSibling'+(!top.execScript?'.nextSibling':'')+'.value=this.value');">
-				<?php
-				foreach (glob("{$path}*.php") as $php_filename) {
-					$php_filename = basename($php_filename, '.php');
-					echo "<option value=\"$php_filename\"> $php_filename </option>\n";
-				}
-				?>
-			</select>
-		</span>
-		<input type="text" name="filename" id="filename" value="<?php echo $filename;?>" 
-			style="width:200px;position:absolute;left:0px;top:1px;" />
+		<div style="position:relative;display:inline-block;">
+			<span>
+				<select style="width:218px;height: 25px;" onchange="eval('this.parentNode.nextSibling'+(!top.execScript?'.nextSibling':'')+'.value=this.value');">
+					<option></option>
+					<?php
+					foreach (glob("{$path}*.php") as $php_filename) {
+						$php_filename = basename($php_filename, '.php');
+						echo "<option value=\"$php_filename\"> $php_filename </option>\n";
+					}
+					?>
+				</select>
+			</span>
+			<input type="text" name="filename" id="filename" value="<?php echo $filename;?>" 
+				style="width: 200px;position: absolute;left: 2px;top: 1px;border: none;height: 23px;" />
+		</div>
 
 		<button onclick="openfile.location='?act=open_it_with_editplus&filename='+$('filename').value;return false;" title="Open it with Editplus">Source</button>
 		<button onclick="location='?filename='+$('filename').value;return false;" title="Load this file=>">Load it</button>
@@ -168,7 +169,6 @@ function $(str) {
         <span title="赋值语句后加上#会打印出结果">?</span>
 		
 		<?php if(isset($msg))echo $msg;?>
-	</div>
 	</div>
 
 	<table width="100%" cellspacing="0">

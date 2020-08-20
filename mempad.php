@@ -92,31 +92,34 @@ function array_diff_all() {
 }
 
 /**
+ * MemPad File Format - in case you are interested
+ *
  * New 3.++ format ("String" is always terminated by zero byte)
  *
  * File header
  *
- * header:           string
- * ident         constant "MeMpAd"
- * encoding      character, " " means Ansi, "." means UTF-8
- * initial page  number to select at start (max. 5 characters)
+ *     header:           string
+ *         ident         constant "MeMpAd"
+ *         encoding      character, " " means Ansi, "." means UTF-8
+ *         initial page  number to select at start (max. 5 characters)
  *
- * quick page path:  string (may be empty)
+ *     quick page path:  string (may be empty)
  *
  * For each Page:
  *
- * level:            byte, binary 1..99
+ *     level:            byte, binary 1..99
  *
- * page title:       string (max 64 characters);
- * if a TAB character is found, the rest of the string
- * contains additional header information, currently the
- * background color code ($nnnnnn)
+ *     page title:       string (max 64 characters);
+ *                       if a TAB character is found, the rest of the string
+ *                       contains additional header information, currently the
+ *                       background color code ($nnnnnn)
  *
- * page contents:    string
+ *     page contents:    string
  *
  *
  * Note: If the "MeMpAd " signature at the beginning of the file is not found, Mempad assumes that this file is encrypted, and asks for the password.
- * 22 Jun 2012
+ *
+ * * 22 Jun 2012
  */
 define('SP', chr(0));
 

@@ -2,6 +2,7 @@
 /**
  * markdown转mempad
  * 一般markdown不会太大吧，所以没做逐行读取，撇脱
+ * (层次结构必须对才行，从level1->2->3，否则生成文件打不开！)
  * cqiu@2020-7-21
  */
 define('SP', chr(0));
