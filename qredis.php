@@ -58,7 +58,7 @@ i{font-size:60%;color:gray;}
 .command{color:blue;}
 .isWrite{color:red;}
 .args{color: green;font-size: 80%}
-.summary{float:right;color:gray;min-width: 600px;display: inline-block;}
+.summary{float:right;color:gray;min-width: 600px;display: inline-block;font-size:80%}
 .summary a{font-size:60%;visibility: hidden;vertical-align: top;}
 .summary:hover a{font-size:60%;visibility: visible;}
 </style>

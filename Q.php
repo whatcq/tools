@@ -27,6 +27,7 @@ $shows = [
 	'MASTER STATUS',
 	'MASTER LOGS',
 	'BINARY LOGS',
+	'ENGINES',
 ];
 ?>
 <title>Quick Query</title>
@@ -64,7 +65,7 @@ foreach ($d as $_table) {
 			</select>
 		</span>
 		<input type="text" name="q" id="q" value="<?php echo $q; ?>"
-			style="width:200px;position:absolute;left:2px;top:2px;height: 21px;border:0;" />
+			style="width:200px;position:absolute;left:2px;top:5px;height: 21px;border:0;" />
 		<select name="show" id="show" style="height: 25px;" onchange="this.form.submit()">
 			<option value="">-- show --</option>
 <?php
