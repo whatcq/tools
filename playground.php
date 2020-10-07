@@ -191,20 +191,36 @@ function $(str) {
 卜orz么
  -->
 <?php if($textarea):?>
-<script language="javascript">
+<script>
+// 防抖动函数
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function () {
+        var context = this, args = arguments;
+        var later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};
 var i=32;
-function show_ln()
+// fix for Chrome 85/86
+var show_ln = debounce(function()
 {
-   var txt_ln = $('txt_ln');
-   var txt_main = $('source');
-   txt_ln.scrollTop = txt_main.scrollTop;
-   while(txt_ln.scrollTop != txt_main.scrollTop) 
-   {
-    txt_ln.value += (i++) + '\n';
+    var txt_ln = $('txt_ln');
+    var txt_main = $('source');
     txt_ln.scrollTop = txt_main.scrollTop;
-   }
-   return;
-}
+    console.log(txt_main.scrollTop);
+    while (txt_ln.scrollTop != txt_main.scrollTop) {
+        txt_ln.value += (i++) + '\n';
+        txt_ln.scrollTop = txt_main.scrollTop;
+    }
+    return;
+}, 50);
 </script>
 <?php else:?>
 <link href="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/codemirror.min.css" rel="stylesheet">
