@@ -235,6 +235,7 @@ li.trace-info pre{font-family: 'Courier New'}
 </script>
     <?php
 });
+unset($_GET['_t']);
 
 // trace err
 function err($msg){
