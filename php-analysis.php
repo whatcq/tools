@@ -90,7 +90,7 @@ li.trace-info{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
 li.trace-info pre{font-family: 'Courier New'}
 #debugBar_tab_cont{padding:0;overflow:auto;height:212px;line-height:24px}
 #debugBar_close{padding:0;display:none;text-align:right;height:15px;position:absolute;top:10px;right:12px;cursor:pointer}
-#debugBar_open{padding:0;height:30px;float:right;text-align:right;overflow:hidden;position:fixed;bottom:0;right:0;color:#000;line-height:30px;cursor:pointer}
+#debugBar_open{padding:0;height:30px;float:right;text-align:right;overflow:hidden;position:fixed;bottom:0;right:0;color:#000;line-height:30px;cursor:pointer;z-index: 99999;}
 .setting label{display:block;width:100px;margin-left:20px}
 .setting input{margin:0 3px}
 #debugBarSetting u{margin: 5px;padding: 3px 5px;background: #78e778;border-radius: 5px;}
@@ -108,7 +108,6 @@ li.trace-info pre{font-family: 'Courier New'}
             <div style="display:none;" id="debugBarSetting">
                 <?php foreach ($settings as $key => $name) { ?>
                     <u data-key="<?= $key?>" class="<?= $_settings[$key] ? '' : 'off'?>"><?= $name ?></u>
-
                 <?php } ?>
             </div>
             <?php foreach ($traces as $key => $info) { ?>
@@ -236,3 +235,45 @@ li.trace-info pre{font-family: 'Courier New'}
 </script>
     <?php
 });
+
+// trace err
+function err($msg){
+	$msg = htmlspecialchars($msg);
+	$traces = debug_backtrace();
+	if (ob_get_contents()) ob_end_clean();
+    function _err_highlight_code($code)
+    {
+        if (preg_match('/\<\?(php)?[^[:graph:]]/i', $code)) {
+            return highlight_string($code, TRUE);
+        } else {
+            return preg_replace('/(&lt;\?php&nbsp;)+/i', "", highlight_string("<?php " . $code, TRUE));
+        }
+    }
+
+    function _err_getsource($file, $line)
+    {
+        if (!(file_exists($file) && is_file($file))) {
+            return '';
+        }
+        $data = file($file);
+        $count = count($data) - 1;
+        $start = $line - 5;
+        if ($start < 1) {
+            $start = 1;
+        }
+        $end = $line + 5;
+        if ($end > $count) {
+            $end = $count + 1;
+        }
+        $returns = array();
+        for ($i = $start; $i <= $end; $i++) {
+            if ($i == $line) {
+                $returns[] = "<div id='current'>" . $i . ".&nbsp;" . _err_highlight_code($data[$i - 1], TRUE) . "</div>";
+            } else {
+                $returns[] = $i . ".&nbsp;" . _err_highlight_code($data[$i - 1], TRUE);
+            }
+        }
+        return $returns;
+}?><!DOCTYPE html><html lang="zh-cn"><head><meta name="robots" content="noindex, nofollow, noarchive" /><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title><?php echo $msg;?></title><style>body{padding:0;margin:0;word-wrap:break-word;word-break:break-all;font-family:Courier,Arial,sans-serif;background:#EBF8FF;color:#5E5E5E;}div,h2,p,span{margin:0; padding:0;}ul{margin:0; padding:0; list-style-type:none;font-size:0;line-height:0;}#body{margin:0 auto;}#main{width:95%;margin:13px auto 0 auto;padding:0 0 35px 0;}#contents{margin:13px auto 0 auto;background:#FFF;padding:8px 0 0 9px;}#contents h2{display:block;background:#CFF0F3;font:bold 20px;padding:12px 0 12px 30px;margin:0 10px 22px 1px;}#contents ul{padding:0 0 0 18px;font-size:0;line-height:0;}#contents ul li{display:block;padding:0;color:#8F8F8F;background-color:inherit;font:normal 14px Arial, Helvetica, sans-serif;margin:0;}#contents ul li span{display:block;color:#408BAA;background-color:inherit;font:bold 14px Arial, Helvetica, sans-serif;padding:0 0 10px 0;margin:0;}#oneborder{width:auto;font:normal 14px Arial, Helvetica, sans-serif;border:#EBF3F5 solid 4px;margin:0 30px 20px 30px;padding:10px 20px;line-height:110%;}#oneborder span{padding:0;margin:0;}#oneborder #current{background:#CFF0F3;}code{font-family:Courier,Arial,sans-serif;}</style></head><body><div id="main"><div id="contents"><h2><?php echo $msg?></h2><?php foreach($traces as $trace){if(is_array($trace)&&!empty($trace["file"])){$souceline = _err_getsource($trace["file"], $trace["line"]);if($souceline){?><ul><li><span><?php echo $trace["file"];?> on line <?php echo $trace["line"];?> </span></li></ul><div id="oneborder"><?php foreach($souceline as $singleline)echo $singleline;?></div><?php }}}?></div></div><div style="clear:both;padding-bottom:50px;" /></body></html><?php
+    exit;
+}

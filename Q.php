@@ -1,8 +1,8 @@
 <?php
 define('DB_HOST', '127.0.0.1');
-define('DB_NAME', 'mdwl');
+define('DB_NAME', 'mysql');//information_schema
 define('DB_USER', 'root');
-define('DB_PASS', 'root');
+define('DB_PASS', '');
 
 require 'lib/DB.php';
 
@@ -54,7 +54,7 @@ window.onload = function() {
 			<select style="width:218px;margin-left:-200px;height: 25px;"
 			 onchange="$('q').value=this.value;$('q').focus();$('show').value=''">
 <?php
-$w = parse('#');
+$w = parse('#%');
 $r = call_user_func_array('DB::q', $w);
 $d = $r->fetchAll(PDO::FETCH_COLUMN);
 
@@ -65,7 +65,7 @@ foreach ($d as $_table) {
 			</select>
 		</span>
 		<input type="text" name="q" id="q" value="<?php echo $q; ?>"
-			style="width:200px;position:absolute;left:2px;top:5px;height: 21px;border:0;" />
+			style="width:200px;position:absolute;left:2px;top:4px;height: 21px;border:0;" />
 		<select name="show" id="show" style="height: 25px;" onchange="this.form.submit()">
 			<option value="">-- show --</option>
 <?php

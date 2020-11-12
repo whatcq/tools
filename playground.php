@@ -214,7 +214,6 @@ var show_ln = debounce(function()
     var txt_ln = $('txt_ln');
     var txt_main = $('source');
     txt_ln.scrollTop = txt_main.scrollTop;
-    console.log(txt_main.scrollTop);
     while (txt_ln.scrollTop != txt_main.scrollTop) {
         txt_ln.value += (i++) + '\n';
         txt_ln.scrollTop = txt_main.scrollTop;
