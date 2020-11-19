@@ -10,11 +10,64 @@
  * Author: Cqiu
  * Date: 2017-10-28
  */
+//---------------------------------
+### trace err(from speedphp)
+function _err($msg)
+{
+    $msg = htmlspecialchars($msg);
+    $traces = debug_backtrace();
+    if (ob_get_contents()) ob_end_clean();
+    function _err_highlight_code($code)
+    {
+        if (preg_match('/\<\?(php)?[^[:graph:]]/i', $code)) {
+            return highlight_string($code, TRUE);
+        } else {
+            return preg_replace('/(&lt;\?php&nbsp;)+/i', "", highlight_string("<?php " . $code, TRUE));
+        }
+    }
+
+    function _err_getsource($file, $line)
+    {
+        if (!(file_exists($file) && is_file($file))) {
+            return '';
+        }
+        $data = file($file);
+        $count = count($data) - 1;
+        $start = $line - 5;
+        if ($start < 1) {
+            $start = 1;
+        }
+        $end = $line + 5;
+        if ($end > $count) {
+            $end = $count + 1;
+        }
+        $returns = array();
+        for ($i = $start; $i <= $end; $i++) {
+            if ($i == $line) {
+                $returns[] = "<div id='current'>" . $i . ".&nbsp;" . _err_highlight_code($data[$i - 1], TRUE) . "</div>";
+            } else {
+                $returns[] = $i . ".&nbsp;" . _err_highlight_code($data[$i - 1], TRUE);
+            }
+        }
+        return $returns;
+    }
+    ?><!DOCTYPE html><html lang="zh-cn"><head><meta name="robots" content="noindex, nofollow, noarchive" /><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title><?php echo $msg;?></title><style>body{padding:0;margin:0;word-wrap:break-word;word-break:break-all;font-family:Courier,Arial,sans-serif;background:#EBF8FF;color:#5E5E5E;}div,h2,p,span{margin:0; padding:0;}ul{margin:0; padding:0; list-style-type:none;font-size:0;line-height:0;}#body{margin:0 auto;}#main{width:95%;margin:13px auto 0 auto;padding:0 0 35px 0;}#contents{margin:13px auto 0 auto;background:#FFF;padding:8px 0 0 9px;}#contents h2{display:block;background:#CFF0F3;font:bold 20px Arial;padding:12px 0 12px 30px;margin:0 10px 22px 1px;}#contents ul{padding:0 0 0 18px;font-size:0;line-height:0;}#contents ul li{display:block;padding:0;color:#8F8F8F;background-color:inherit;font:normal 14px Arial, Helvetica, sans-serif;margin:0;}#contents ul li span{display:block;color:#408BAA;background-color:inherit;font:bold 14px Arial, Helvetica, sans-serif;padding:0 0 10px 0;margin:0;}#oneborder{width:auto;font:normal 14px Arial, Helvetica, sans-serif;border:#EBF3F5 solid 4px;margin:0 30px 20px 30px;padding:10px 20px;line-height:110%;}#oneborder span{padding:0;margin:0;}#oneborder #current{background:#CFF0F3;}code{font-family:Courier,Arial,sans-serif;}</style></head><body><div id="main"><div id="contents"><h2><?php echo $msg?></h2><?php foreach($traces as $trace){if(is_array($trace)&&!empty($trace["file"])){$souceline = _err_getsource($trace["file"], $trace["line"]);if($souceline){?><ul><li><span><?php echo $trace["file"];?> on line <?php echo $trace["line"];?> </span></li></ul><div id="oneborder"><?php foreach($souceline as $singleline)echo $singleline;?></div><?php }}}?></div></div><div style="clear:both;padding-bottom:50px;" /></body></html><?php
+    exit;
+}
+if(!empty($_COOKIE['_trace']) || !empty($_REQUEST['_trace'])) {
+    set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+        _err($errstr);
+    });
+    unset($_GET['_trace']);
+}
+
+//---------------------------------
 empty($_COOKIE['_t']) or $_GET['_t'] = $_COOKIE['_t'];
 if (!isset($_GET['_t'])
     || (isset($_SERVER['HTTP_REQUEST_TYPE']) && $_SERVER['HTTP_REQUEST_TYPE'] === 'ajax')
     || array_search('XMLHttpRequest', getallheaders()) === 'X-Requested-With'
 ) {
+    unset($_GET['_t']);//clear invoke
     return;
 }
 
@@ -87,7 +140,7 @@ small{font-size: 60%}
 #debugBar_tab_tit{height:30px;font:bold 16px/30px Georgia;padding:0 12px;background: #dadada;flex-grow: 1;cursor: n-resize;}
 span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:20px;line-height:20px;display:inline-block;margin-right:3px;cursor:pointer;font-weight:700}
 #debugBar_tab_cont li{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
-#debugBar_tab_cont li pre{font-family: 'Courier New',serif;}
+#debugBar_tab_cont li pre{font-family: 'Courier New',serif;background: #e4e2e2;margin: 0;padding: 1px 12px;border-radius: 5px;line-height: 16px;}
 #debugBar_tab_cont{padding:0;overflow:auto;height:220px;line-height:24px}
 #debugBar_close{padding:0;display:none;text-align:right;height:15px;position:absolute;top:6px;right:12px;cursor:pointer}
 #debugBar_open{padding:0;height:30px;float:right;text-align:right;overflow:hidden;position:fixed;bottom:0;right:0;color:#000;line-height:30px;cursor:pointer;z-index: 99999;}
@@ -223,7 +276,11 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
         dom_tab_tit.onmousedown = function () {
             document.onmousemove = function (e) {
                 e.preventDefault();
-                var h = (document.documentElement.clientHeight || document.body.clientHeight) - e.clientY + 20
+                console.log(e.clientY,e.target);
+                var clientHeight = document.documentElement.clientHeight < window.screen.height
+                    ? document.documentElement.clientHeight
+                    : document.body.clientHeight //DOM有错时这个正常些
+                  ,h = clientHeight - e.clientY + 20
                   ,ht = dom_tab_tit.clientHeight - 2;
                 trace.style.height = h + 'px';
                 dom_tab_cont.style.height = (h - ht) + 'px';
@@ -238,48 +295,3 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
     <?php
 });
 unset($selectPanels, $_GET['_t']); //clear invoke
-
-//---------------------------------
-### trace err(from speedphp)
-function err($msg)
-{
-    $msg = htmlspecialchars($msg);
-	$traces = debug_backtrace();
-	if (ob_get_contents()) ob_end_clean();
-    function _err_highlight_code($code)
-    {
-        if (preg_match('/\<\?(php)?[^[:graph:]]/i', $code)) {
-            return highlight_string($code, TRUE);
-        } else {
-            return preg_replace('/(&lt;\?php&nbsp;)+/i', "", highlight_string("<?php " . $code, TRUE));
-        }
-    }
-
-    function _err_getsource($file, $line)
-    {
-        if (!(file_exists($file) && is_file($file))) {
-            return '';
-        }
-        $data = file($file);
-        $count = count($data) - 1;
-        $start = $line - 5;
-        if ($start < 1) {
-            $start = 1;
-        }
-        $end = $line + 5;
-        if ($end > $count) {
-            $end = $count + 1;
-        }
-        $returns = array();
-        for ($i = $start; $i <= $end; $i++) {
-            if ($i == $line) {
-                $returns[] = "<div id='current'>" . $i . ".&nbsp;" . _err_highlight_code($data[$i - 1], TRUE) . "</div>";
-            } else {
-                $returns[] = $i . ".&nbsp;" . _err_highlight_code($data[$i - 1], TRUE);
-            }
-        }
-        return $returns;
-    }
-    ?><!DOCTYPE html><html lang="zh-cn"><head><meta name="robots" content="noindex, nofollow, noarchive" /><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title><?php echo $msg;?></title><style>body{padding:0;margin:0;word-wrap:break-word;word-break:break-all;font-family:Courier,Arial,sans-serif;background:#EBF8FF;color:#5E5E5E;}div,h2,p,span{margin:0; padding:0;}ul{margin:0; padding:0; list-style-type:none;font-size:0;line-height:0;}#body{margin:0 auto;}#main{width:95%;margin:13px auto 0 auto;padding:0 0 35px 0;}#contents{margin:13px auto 0 auto;background:#FFF;padding:8px 0 0 9px;}#contents h2{display:block;background:#CFF0F3;font:bold 20px Arial;padding:12px 0 12px 30px;margin:0 10px 22px 1px;}#contents ul{padding:0 0 0 18px;font-size:0;line-height:0;}#contents ul li{display:block;padding:0;color:#8F8F8F;background-color:inherit;font:normal 14px Arial, Helvetica, sans-serif;margin:0;}#contents ul li span{display:block;color:#408BAA;background-color:inherit;font:bold 14px Arial, Helvetica, sans-serif;padding:0 0 10px 0;margin:0;}#oneborder{width:auto;font:normal 14px Arial, Helvetica, sans-serif;border:#EBF3F5 solid 4px;margin:0 30px 20px 30px;padding:10px 20px;line-height:110%;}#oneborder span{padding:0;margin:0;}#oneborder #current{background:#CFF0F3;}code{font-family:Courier,Arial,sans-serif;}</style></head><body><div id="main"><div id="contents"><h2><?php echo $msg?></h2><?php foreach($traces as $trace){if(is_array($trace)&&!empty($trace["file"])){$souceline = _err_getsource($trace["file"], $trace["line"]);if($souceline){?><ul><li><span><?php echo $trace["file"];?> on line <?php echo $trace["line"];?> </span></li></ul><div id="oneborder"><?php foreach($souceline as $singleline)echo $singleline;?></div><?php }}}?></div></div><div style="clear:both;padding-bottom:50px;" /></body></html><?php
-    exit;
-}
