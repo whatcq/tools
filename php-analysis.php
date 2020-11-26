@@ -5,7 +5,12 @@
  * - print vars,trace,sqls
  *
  * Usage：
+ * define('LOG_TO', __DIR__ . '/debug.log');
+ * define('LOG_TO', 'admin@domain.com');
+ * define('LOG_TO', 0);//default php log
  * include('php-analysis.php');
+ * 或：(防止不小心提交到代码库)
+ * file_exists($debugFile = 'path/to/php-analysis.php') && include($debugFile);
  *
  * Author: Cqiu
  * Date: 2017-10-28
@@ -62,15 +67,6 @@ if(!empty($_COOKIE['_trace']) || !empty($_REQUEST['_trace'])) {
 }
 
 //---------------------------------
-empty($_COOKIE['_t']) or $_GET['_t'] = $_COOKIE['_t'];
-if (!isset($_GET['_t'])
-    || (isset($_SERVER['HTTP_REQUEST_TYPE']) && $_SERVER['HTTP_REQUEST_TYPE'] === 'ajax')
-    || array_search('XMLHttpRequest', getallheaders()) === 'X-Requested-With'
-) {
-    unset($_GET['_t']);//clear invoke
-    return;
-}
-
 /**
  * 打印4测试
  * - 无参数：返回所有
@@ -86,21 +82,44 @@ function _log()
     }
 
     static $files = [];
-    $bt = debug_backtrace();
+    $bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
     $caller = array_shift($bt);
     if (!isset($files[$caller['file']])) {
         $files[$caller['file']] = file($caller['file']);
     }
 
-    preg_match('#\((.*)\)#i', $files[$caller['file']][$caller['line'] - 1], $params);
+    preg_match('#\(([^;]*)\)#i', $files[$caller['file']][$caller['line'] - 1], $params);
 
-    $logs[$caller['file'] . ': ' . $caller['line'] . ": " . $params[1]] = func_num_args() > 1
+    $key = $caller['file'] . ': ' . $caller['line'] . ": " . $params[1];
+    if (isset($logs[$key])) $key .= microtime(1);
+    $logs[$key] = func_num_args() > 1
         ? var_export(func_get_args(), 1)
         : var_export(func_get_arg(0), 1);
 }
 
-$selectPanels = array_flip(str_split($_GET['_t']));
-register_shutdown_function(function () use ($selectPanels) {
+//---------------------------------
+$debugOptions = empty($_COOKIE['_t']) ? (empty($_GET['_t']) ? null : $_GET['_t']) : $_COOKIE['_t'];
+
+register_shutdown_function(function () use ($debugOptions) {
+    $logs = _log();
+    if ($logs && defined('LOG_TO')) {
+        $logString = '';
+        foreach ($logs as $where => $log) {
+            $logString .=  "\n$where\n" . print_r($log, true);
+        }
+        if (empty(LOG_TO)) error_log($logString);
+        elseif (strpos(LOG_TO, '@')) error_log($logString, 1, LOG_TO);
+        else error_log($logString, 3, LOG_TO);
+    }
+
+    if (!$debugOptions
+        || (isset($_SERVER['HTTP_REQUEST_TYPE']) && $_SERVER['HTTP_REQUEST_TYPE'] === 'ajax')
+        || array_search('XMLHttpRequest', getallheaders()) === 'X-Requested-With'
+    ) {
+        return;
+    }
+
+    $selectPanels = array_flip(str_split($debugOptions));
     $settings = [
         '_' => '<b title="选上则每个页面都显示本调试面板">Pinned</b>',
         'x' => 'x files',
@@ -125,7 +144,7 @@ register_shutdown_function(function () use ($selectPanels) {
     isset($selectPanels['c']) && $traces['cookie'] = isset($_COOKIE) ? $_COOKIE : [];
     isset($selectPanels['S']) && $traces['session'] = isset($_SESSION) ? $_SESSION : [];
     isset($selectPanels['s']) && $traces['server'] = $_SERVER;
-    ($logs = _log()) && $traces['vars'] = $logs;
+    $logs && $traces['vars'] = $logs;
     empty($GLOBALS['_']) or $traces['vars2'] = $GLOBALS['_'];
     // echo '<pre>';
     // print_r($traces);
@@ -276,7 +295,6 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
         dom_tab_tit.onmousedown = function () {
             document.onmousemove = function (e) {
                 e.preventDefault();
-                console.log(e.clientY,e.target);
                 var clientHeight = document.documentElement.clientHeight < window.screen.height
                     ? document.documentElement.clientHeight
                     : document.body.clientHeight //DOM有错时这个正常些
@@ -294,4 +312,4 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
 </script>
     <?php
 });
-unset($selectPanels, $_GET['_t']); //clear invoke
+unset($debugOptions, $_GET['_t']); //clear invoke
