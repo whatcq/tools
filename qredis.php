@@ -8,7 +8,7 @@
 if (isset($_GET['redis_commands'])) {
 	$data = file('lib/redis_commands.txt');
 	foreach ($data as &$line) {
-		$line = explode('|', rtrim($line));
+		$line = explode('||', rtrim($line));
 	}
 	die('var commands=' . json_encode($data));
 }
