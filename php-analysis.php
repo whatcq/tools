@@ -91,14 +91,14 @@ function _log()
     preg_match('#\(([^;]*)\)#i', $files[$caller['file']][$caller['line'] - 1], $params);
 
     $key = $caller['file'] . ': ' . $caller['line'] . ": " . $params[1];
-    if (isset($logs[$key])) $key .= microtime(1);
+    if (isset($logs[$key])) $key .= ':' . microtime(1);
     $logs[$key] = func_num_args() > 1
         ? var_export(func_get_args(), 1)
         : var_export(func_get_arg(0), 1);
 }
 
 //---------------------------------
-$debugOptions = empty($_COOKIE['_t']) ? (empty($_GET['_t']) ? null : $_GET['_t']) : $_COOKIE['_t'];
+$debugOptions = empty($_COOKIE['_t']) ? (isset($_GET['_t']) ? ($_GET['_t'] ? $_GET['_t'] : '_') : null) : $_COOKIE['_t'];
 
 register_shutdown_function(function () use ($debugOptions) {
     $logs = _log();
