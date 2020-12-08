@@ -3,6 +3,7 @@ define('DB_HOST', '127.0.0.1');
 define('DB_NAME', 'mysql');//information_schema
 define('DB_USER', 'root');
 define('DB_PASS', '');
+define('DB_CHAR', 'utf8');//utf8mb4
 
 require 'lib/DB.php';
 
@@ -30,8 +31,10 @@ $shows = [
 	'ENGINES',
 ];
 ?>
+<meta charset="utf-8">
 <title>Quick Query</title>
 <style type="text/css">
+*{font-family: 'Microsoft YaHei',Arial,serif;}
 a{display: inline-block; padding: 2px 5px;background: #c6dfff;border-radius: 3px;}
 label{clear:left; width: 130px;display: inline-block;color: gray;font-style: italic;}
 tr:nth-child(odd){background-color: #f2f2f2;}
@@ -39,13 +42,14 @@ tr:nth-child(even),li:nth-child(even) {background-color: #fafafa;}
 tr:hover{background: #c3e9cb;}
 pre{margin:0;}
 i{font-size:60%;color:gray;}
+table{font-size:80%}
 </style>
 <script type="text/javascript">
 function $(str) {
 	return document.getElementById(str);
 }
 window.onload = function() {
-    $('q').focus();
+	$('q').focus();
 };
 </script>
 <form style="display: inline-block;margin-bottom: 0;">
@@ -55,6 +59,7 @@ window.onload = function() {
 			 onchange="$('q').value=this.value;$('q').focus();$('show').value=''">
 <?php
 $w = parse('#%');
+if (defined('DB_CHAR'))DB::x('SET NAMES "'.DB_CHAR.'"');
 $r = call_user_func_array('DB::q', $w);
 $d = $r->fetchAll(PDO::FETCH_COLUMN);
 
@@ -65,7 +70,7 @@ foreach ($d as $_table) {
 			</select>
 		</span>
 		<input type="text" name="q" id="q" value="<?php echo $q; ?>"
-			style="width:200px;position:absolute;left:2px;top:4px;height: 21px;border:0;" />
+			style="width:200px;position:absolute;left:2px;top:4px;height: 20px;border:0;" />
 		<select name="show" id="show" style="height: 25px;" onchange="this.form.submit()">
 			<option value="">-- show --</option>
 <?php
@@ -93,8 +98,21 @@ foreach ($sqls as $_q => $sql) {
 	echo " <a href=\"?q=", urlencode($_q), "\" title=\"$sql\">$_q</a>";
 }
 
+// 获取主键字段名
+function getPk($table)
+{
+	$_sql = "SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'";
+	$pkField = null;
+	if ($pkInfo = DB::q($_sql)->fetch(PDO::FETCH_ASSOC)) {
+		$pkField = $pkInfo['Column_name'];
+	}
+	return $pkField;
+}
+
 //解析请求，返回sql+params
-function parse($q) {
+function parse($q)
+{
+	global $show;
 	if ($q === '#*') {
 		return ['SELECT TABLE_NAME,TABLE_COMMENT,TABLE_ROWS n,AVG_ROW_LENGTH l,INDEX_LENGTH idx,AUTO_INCREMENT i,TABLE_COLLATION,CREATE_TIME,UPDATE_TIME,TABLE_TYPE type,ENGINE e,ROW_FORMAT FROM information_schema.`TABLES` where TABLE_SCHEMA=?s', DB_NAME];
 	}
@@ -107,10 +125,10 @@ function parse($q) {
 
 	$tmp = explode('#', $q);
 	$table = $tmp[0];
-	$id = isset($tmp[1]) ? $tmp[1] : null;
+	$var = isset($tmp[1]) ? $tmp[1] : null;
 
 	if (!$table) {
-		return ['SHOW TABLES LIKE ?s', $id];
+		return ['SHOW TABLES LIKE ?s', $var];
 	}
 
 	if ($q[0] === '-') {
@@ -130,22 +148,38 @@ function parse($q) {
 	}
 
 	$params = [];
-	if ($id) {
-		if ($id === '*') {
+	if ($var) {
+		if ($var === '*') {
 			return ["SHOW FULL FIELDS FROM $table"];
 			return [
 				'SELECT COLUMN_NAME,COLUMN_COMMENT,COLUMN_DEFAULT default_,IS_NULLABLE nul,DATA_TYPE,CHARACTER_MAXIMUM_LENGTH m,CHARACTER_OCTET_LENGTH n,COLUMN_KEY,EXTRA FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA=?s AND TABLE_NAME=?s', //,CHARACTER_SET_NAME c,COLLATION_NAME,COLUMN_TYPE
 				DB_NAME,
 				$table,
 			];
-		} elseif ($id === '~') {
+		} elseif ($var === '~') {
 			return ["SELECT * FROM $table PROCEDURE ANALYSE(1, 10)"];
 		}
 		$sql = "SELECT * FROM $table";
-		$sql .= ' WHERE id=?i';
-		$params = [$id];
-	} elseif (is_null($id)) {
-		$sql = "SELECT * FROM $table LIMIT 30";
+		$pkField = getPk($table);
+		$pkField or $pkField = 'id';
+		$sql .= " WHERE $pkField=?i";
+		$params = [$var];
+	} elseif (is_null($var)) {
+		$orderBy = '';
+		$offset = 0;
+		$limit = 30;
+		if ($show) {
+			if (strpos($show, ',') !== false) {
+				list($offset, $limit) = explode(',', $show);
+				$offset = (int)$offset;
+				$limit = (int)$limit;
+			} elseif ($show < 0) {
+				$pkField = getPk($table);
+				$orderBy = " ORDER BY $pkField DESC";
+				$limit = abs($show);
+			}
+		}
+		$sql = "SELECT * FROM $table{$orderBy} LIMIT $offset,$limit";
 	} else {
 		$sql = "SELECT COUNT(*) FROM $table";
 	}
@@ -174,13 +208,13 @@ function render($data) {
 		return;
 	}
 	echo '<table border="0" cellpadding="3">';
-	echo '<tr bgcolor="#dddddd">';
+	echo '<tr bgcolor="#dddddd"><th>#</th>';
 	foreach (current($data) as $key => $null) {
 		echo "<th>$key</th>";
 	}
 	echo '</tr>';
 	foreach ($data as $_key => $_data) {
-		echo '<tr>';
+		echo "<tr><td>$_key</td>";
 		foreach ($_data as $key => $value) {
 			is_null($value) && $value = '<i>&lt;null></i>';
 			echo "<td>$value</td>";

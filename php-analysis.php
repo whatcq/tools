@@ -88,7 +88,7 @@ function _log()
         $files[$caller['file']] = file($caller['file']);
     }
 
-    preg_match('#\(([^;]*)\)#i', $files[$caller['file']][$caller['line'] - 1], $params);
+    preg_match('#_log\(([^;]*)\)#i', $files[$caller['file']][$caller['line'] - 1], $params);
 
     $key = $caller['file'] . ': ' . $caller['line'] . ": " . $params[1];
     if (isset($logs[$key])) $key .= ':' . microtime(1);
