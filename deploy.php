@@ -29,7 +29,7 @@ if (PHP_SAPI === "cli") {
 //================
 // git web hook: http://domain.etc/deploy.php?project-dir/aa
 $deployFolders = ['project-dir', 'project-dir/aa', 'project-dir/bb'];
-is_file($file) or die('msg file not exist!')
+is_file($file) or die('msg file not exist!');
 if (isset($_SERVER['QUERY_STRING']) && $folder = $_SERVER['QUERY_STRING']) {
     if (in_array($folder, $deployFolders)) {
         file_put_contents($file, $folder . PHP_EOL) 
