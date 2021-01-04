@@ -7,21 +7,26 @@
  * 如果没有匹配，则进入默认程序：录入脚本
  * @Cqiu 2020-12-31
  */
+$messageFile = 'todo.msg';
+function todo($cmd)
+{
+    global $messageFile;
+    file_put_contents($messageFile, $cmd);
+}
 
 class ScriptResult
 {
-    public $isFanal;
+    public $isFinal;
     public $content;
 
     public function __construct($isFanal)
     {
-        $this->isFanal = $isFanal;
+        $this->isFinal = $isFanal;
     }
 
     public function done()
     {
         echo $this->content;
-        if ($this->isFanal) exit;
     }
 }
 
@@ -32,6 +37,7 @@ if ($input = $_REQUEST['input'] ?? null) {
         $result = include $script;
         if ($result instanceof ScriptResult) {
             $result->done();
+            if ($result->isFinal) break;
         } else {
             echo $result;
         }
