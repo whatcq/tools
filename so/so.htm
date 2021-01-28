@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>☺全搜</title>
+<link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+<style type="text/css">
+::-webkit-scrollbar-track{-webkit-box-shadow:inset 0 0 6px rgba(194, 161, 161, 0.1);border-radius:10px;background-color:#F5F5F5}
+::-webkit-scrollbar{width:6px;background-color:#F5F5F5}
+::-webkit-scrollbar-thumb{border-radius:5px;-webkit-box-shadow:inset 0 0 6px rgba(0,0,0,.1);background-color:rgb(209, 190, 171)}
+html,body{height:100%;overflow:hidden;font-size:12px;}
+body,div,ul,li,p,h1,h2,table,iframe,td,tr{list-style:none;margin:0;padding:0;border:0;}
+a{color:#666;text-decoration:none;outline:none;}
+.show{display:block}
+.hide{display:none}
+#search_box{background:#FFF;padding:0;margin:0px auto;width:auto;height:22px;border:1px solid #BEBEBE;margin-right: -200px;position: relative;border-bottom-right-radius: 9px;}
+#btn{float:right;border:1px solid #EFEFEF;border-left:1px solid #BEBEBE;background:#EFEFEF;width:32px;height:22px;padding:0;margin:0;cursor:pointer;border-bottom-right-radius: 9px;}
+#text{width:239px;height:22px;line-height:22px;margin:0;padding:0 5px;float:left;outline:none;border:0;background-color:transparent;}
+#sidebar{overflow-x:hidden;overflow-y:auto;width:auto;height:100%;background:#EEF2FB;padding:0 1px 10px 4px;}
+#sidebar ul{display:block;border:0px solid #009966;border-top:0;width:auto;}
+#sidebar ul li{background:#fff;cursor:pointer;width:80px;overflow:hidden;white-space:nowrap;}
+#sidebar ul li a{display:block;padding:5px;border-top:1px dotted #009966;color:#999}
+#sidebar ul li a::before{content:'•';padding-right: 5px;}
+#sidebar ul li a.hover{color:#DB7C22;font-weight:bold;background:#f4dab4;}
+#sidebar ul li a:hover{color:#DB7C22; background: lightgreen;}
+#load{border:3px solid #CCCCCC;background:#5DA2D0;position:absolute;right:17px;bottom:0;padding:5px;display:none;width:100px;z-index:2;}
+#open{position:absolute;right:0;bottom:0;display:none;z-index:1;cursor:pointer;}
+#sq{display:none;width:250px;height:217px;top:26px;background:#fff;border:1px solid #c9dcf5}
+#sq td{line-height:19px;padding:2px 6px;font-size:14px;white-space:nowrap;text-align:left;border-bottom:1px dashed #f4f4f4}
+input[type="checkbox"]{vertical-align:-3px;}
+</style>
+</head>
+
+<body>
+<table width="100%" height="100%" border="1" cellspacing="0" cellpadding="0" Valign="top">
+	<tr>
+		<td id="blank" style="width: 0;"></td>
+		<td height="100%"><iframe id="iframe" onreadystatechange="stateChangeIE(this)" width="100%" height="100%" src="" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="yes" allowtransparency="yes"></iframe></td>
+		<td height="100%"><iframe id="iframe2" width="100%" height="100%" src="" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="yes" allowtransparency="yes"></iframe></td>
+	</tr>
+</table>
+
+<div style="width: 90px;position: absolute;z-index:2;top:0;left:0;">
+	<div id="search_box">
+			<input type="button" id="btn" value="So" onclick="go_iframe();">
+			<input type="text" id="text" value="" onkeypress="if(event.keyCode == 13){go_iframe();}"
+			onmouseover="this.select();focus();" onclick="if(this.value)$('sq').style.display='block'" onblur="setTimeout(&quot;$('sq').style.display='none'&quot;,200)" onKeyDown="m=event.keyCode;clearTimeout(setTimeout('mh()',0)-1)" >
+			<input type="hidden" id="url" value="http://www.baidu.com/s?wd={key}">
+			<input type="hidden" id="url2" value="http://www.sogou.com/web?query={key}">
+			<input type="hidden" id="search_id" value="baidu">
+			<div id="sq"></div>
+	</div>
+
+	<div id='sidebar' class='show'>
+		<ul>
+<li><a id='baidu' value='http://www.baidu.com/s?wd={key}' class='hover' style='color: blue;margin-top:0;border-top:0;font-weight:bold;'>百度搜索</a></li>
+<li><a id='google' value='https://www.google.com/?gws_rd=ssl#newwindow=1&safe=active&q={key}' target="_blank">谷歌!!</a></li>
+<li><a id='bing' value='http://cn.bing.com/search?q={key}' style="color:#DB7C22;font-weight:bold;">微软bing</a></li>
+<li><a id='magi' value='https://magi.com/search?q={key}' style="color:#003333;font-weight:bold;" target="_blank">Magi</a></li>
+<li><a id='sogou' value='http://www.sogou.com/web?query={key}' style='color: #fa5151'>搜狗搜索</a></li>
+
+<li><a id='weibo' value='http://s.weibo.com/weibo/{key}&Refer=index' style='color: #db2828' target="_blank">微博</a></li>
+<li><a id='weixin' value='http://weixin.sogou.com/weixin?p=01030402&query={key}&type=2&ie=utf8' style='color: green;font-weight: 700'>微信</a></li>
+<li><a id='zhongsou' value='http://www.chinaso.com/search/pagesearch.htm?q={key}'>中国搜索</a></li>
+<li><a id='_360' value='http://so.360.cn/s?q={key}'>360搜索</a></li>
+<li><a id='youdao' value='http://www.youdao.com/search?q={key}'>有道搜索</a></li>
+<li><a id='yandex' value='https://www.yandex.com/search/?text={key}' style='font-family:Tohoma;' target="_blank">Yandex</a></li>
+
+<li><a id='taobao' value='http://s.taobao.com/search?q={key}'>淘宝购物</a></li>
+<li><a id='_1688' value='http://s.1688.com/selloffer/offer_search.htm?keywords={key}'>1688批发</a></li>
+<li><a id='wenku' value='http://wenku.baidu.com/search?word={key}&lm=0&od=0&fr=top_home'>百度文库</a></li>
+<li><a id='zhidao' value='http://zhidao.baidu.com/search?lm=0&rn=10&pn=0&fr=search&word={key}'>百度知道</a></li>
+<li><a id='bilibili' value='https://search.bilibili.com/all?keyword={key}&from_source=banner_search' style>bilibili</a></li>
+
+<li><a id='kaifa' value='https://kaifa.baidu.com/searchPage?wd={key}'>百度代码</a></li>
+<li><a id='cnblog' value='https://zzk.cnblogs.com/s/blogpost?Keywords={key}' target="_blank">博客园</a></li>
+<li><a id='csdn' value='https://so.csdn.net/so/search/s.do?q={key}' targetx="_blank">CSDN</a></li>
+<li><a id='runoob' value='https://www.runoob.com/?s={key}'>runoob</a></li>
+<li><a id='juejin' value='https://juejin.cn/search?query={key}&type=all' style="color:blue" target="_blank">掘金</a></li>
+<li><a id='segmentfault' value='https://segmentfault.com/search?q={key}'>segment<span style="color:green">fault</span></a></li>
+<li><a id='v2ex' value='http://www.baidu.com/s?wd=site:v2ex.com {key}'>v2ex</a></li>
+
+<li><a id='github' value='https://github.com/search?q={key}' target="_blank">Github</a></li>
+<li><a id='gitee' value='https://search.gitee.com/?skin=rec&type=repository&q={key}'>Gitee</a></li>
+		</ul>
+	</div>
+</div>
+
+<div style="position: absolute;bottom: 0;left: 0px;z-index:3">
+<label><input type="checkbox" onclick="toggle('iframe')"  checked="true" />①</label>
+<label><input type="checkbox" onclick="toggle('iframe2')"  checked="true" />②</label>
+<span onclick="x('blank.style.width', '80px', '0')" style="cursor: pointer;">⇔</span>
+</div>
+
+<div id="open"><a onclick='window.open(document.getElementById("iframe").src)' title="在新窗口中打开">♐</a></div>
+<div id="load"><a style='color:#ffffff;font-weight:bold;' onclick='window.open(document.getElementById("iframe").src)'>正在加载中…</a></div>
+
+<script type="text/javascript" src="so.js"></script>
+</body>
+</html>
