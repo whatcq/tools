@@ -179,7 +179,7 @@ function $(str) {
 			<td valign="top"><textarea name="source" id="source" <?= $textarea?'onscroll="show_ln()" rows="40" cols="80"':'class="area_0"' ?> wrap="off"><?php echo str_replace('</textarea>','&lt;/textarea>',$source);?></textarea></td>
 		</tr>
 	</table>
-	<input type="submit" value="Run" style="width:80px;height:40px;">
+	<input type="submit" value="Run (Ctrl+S)" style="width:90px;height:40px;">
 	<a href="?textarea=1&filename=<?php echo $filename;?>">textarea</a> | <a href="?textarea=0&filename=<?php echo $filename;?>">richarea</a>
 </form>
 		</td>
@@ -220,6 +220,14 @@ var show_ln = debounce(function()
     }
     return;
 }, 50);
+document.onkeydown = function (event) {
+	var a = window.event.keyCode;
+	console.log(a);
+	if ((a === 83) && (event.ctrlKey)) {//Ctrl+s
+		document.forms[0].submit();
+		return false;
+	}
+};
 </script>
 <?php else:?>
 <link href="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/codemirror.min.css" rel="stylesheet">
@@ -239,6 +247,7 @@ var show_ln = debounce(function()
     if (key != "fallthrough" && val != "..." && (!/find/.test(val) || /findUnder/.test(val)))
       value += "  \"" + key + "\": \"" + val + "\",\n";
   }
+  value += "  \"Ctrl-S\": function(){console.log(self.location)}\n";
   value += "}\n\n// The implementation of joinLines\n";
   value += CodeMirror.commands.joinLines.toString().replace(/^function\s*\(/, "function joinLines(").replace(/\n  /g, "\n") + "\n";
 	var editor = CodeMirror.fromTextArea($("source"), {
