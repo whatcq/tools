@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+
+    <title>DBQ</title>
+    <style>
+        body {
+            background-color: #343d46;
+            color: white;
+            font-size: 16px;
+            font-family: Helvetica, Arial;
+        }
+
+        #input {
+            position: fixed;
+            /* bottom: 0; */
+            top: 0;
+            left: 0;
+            width: 100%;
+            line-height: 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <input type="text" id="input">
+    <div id="message"></div>
+    <div id="data"></div>
+</body>
+<script src="http://localhost/cqiu/static/jquery-3.4.1.min.js"></script>
+<script>
+    function render(data) {
+        $('#data').html('<pre>' + JSON.stringify(data, null, 4) + '</pre>')
+    }
+    $('#input').change(function () {
+        var o=$(this)
+        console.log(o.val())
+        $.ajax({
+            url: '/cqiu/tools/DBQ/dbq.php',//http://localhost
+            type: 'get',
+            data: 'q=' + o.val(),
+            //  默认情况下，标准的跨域请求是不会发送cookie的
+            xhrFields: {
+                withCredentials: true
+            },
+            dataType: 'json',
+            success: function (res) {
+                if (res.message != '') {
+                    $('#message').append('<li>' + res.message);
+                }
+                if (res.status) {
+                    render(res.data)
+                }
+            }
+        });
+        //regexp dsn..confirm to connect
+        //query
+        //function doSomething()
+    }).change();
+</script>
+
+</html>
