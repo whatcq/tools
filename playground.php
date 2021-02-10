@@ -112,8 +112,8 @@ body,html{
 #txt_ln{
 	height:600px;
 	font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;
-	background-color:#838383;
-	color:#F3F3F3;
+	background-color:#ecf0f5;
+	color:#c0bebe;
 	border:none;
 	text-align:right;
 	overflow:hidden;
@@ -121,16 +121,19 @@ body,html{
 	padding-right:0;
 	font-size:16px;
 	max-width:30px;
+	padding-right: 4px;
 }
 #source{
 	width:600px;
 	height:600px;
 	font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;
 	font-size:16px;
+	color: #5021b0;
 }
 .area_0{
 	height: 800px !important;
 }
+*:focus {outline: none;}
 </style>
 <script type="text/javascript">
 function $(str) {
@@ -222,7 +225,6 @@ var show_ln = debounce(function()
 }, 50);
 document.onkeydown = function (event) {
 	var a = window.event.keyCode;
-	console.log(a);
 	if ((a === 83) && (event.ctrlKey)) {//Ctrl+s
 		document.forms[0].submit();
 		return false;
