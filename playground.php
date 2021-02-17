@@ -1,6 +1,9 @@
 <?php
 $ip = $_SERVER['REMOTE_ADDR'];
-if($ip !== '127.0.0.1' && $ip !=='::1')die('403-' . $ip);
+if ($ip !== '127.0.0.1' && $ip !== '::1') {
+    die('403-' . $ip);
+}
+
 /*
 Author: Cqiu <gdaymate@126.com>
 Created: 2010-7-26
@@ -11,25 +14,28 @@ Modified: 2013-7-26 16:13
 - 自动复制文本内容
 - 自适应宽度
 - 兼容ie,ff,chrome
-*/
+ */
 //如果ini没设默认的会报错
 date_default_timezone_set('Asia/Chongqing');
 
 // 去掉转义字符
-function s_array(&$array) {
-	return is_array($array) ? array_map('s_array', $array) : stripslashes($array);
+function s_array(&$array)
+{
+    return is_array($array) ? array_map('s_array', $array) : stripslashes($array);
 }
-if(function_exists('set_magic_quotes_runtime'))set_magic_quotes_runtime(0);
-if(get_magic_quotes_gpc()) {
-	$_REQUEST = s_array($_REQUEST);
+if (function_exists('set_magic_quotes_runtime')) {
+    set_magic_quotes_runtime(0);
 }
 
+if (get_magic_quotes_gpc()) {
+    $_REQUEST = s_array($_REQUEST);
+}
 
 $path = basename(__FILE__, '.php') . '/';
-$this_dir = dirname(__FILE__).DIRECTORY_SEPARATOR;
-$filename='test';
-$source='&lt;?php
-/*'.date('Y-m-d').'
+$this_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR;
+$filename = 'test';
+$source = '&lt;?php
+/*' . date('Y-m-d') . '
 */
 header("Content-type:text/html;charset=utf-8");
 include \'common.func.php\';
@@ -38,66 +44,64 @@ var_dump(
 
 );
 ';
-if(isset($_REQUEST['filename'])) {
-	$filename=$_REQUEST['filename'];
-	$file=$this_dir.$path.$filename.'.php';
+if (isset($_REQUEST['filename'])) {
+    $filename = $_REQUEST['filename'];
+    $file = $this_dir . $path . $filename . '.php';
 }
 
-$act = isset($_REQUEST['act'])?$_REQUEST['act']:'';
+$act = isset($_REQUEST['act']) ? $_REQUEST['act'] : '';
 
-if($act==='save_run') {
-	//exit($act);
-	$file = $path.$_REQUEST['filename'].'.php';
-	$source = preg_replace('/((\$\w+)\s?=.*)#(\r?\n)/', "\$1var_dump(\$2);\$3", $_REQUEST['source']);
-	file_put_contents($file, $source);
-	header('location:'.$file);
-	exit;
+if ($act === 'save_run') {
+    //exit($act);
+    $file = $path . $_REQUEST['filename'] . '.php';
+    $source = preg_replace('/((\$\w+)\s?=.*)#(\r?\n)/', "\$1var_dump(\$2);\$3", $_REQUEST['source']);
+    file_put_contents($file, $source);
+    header('location:' . $file);
+    exit;
+} elseif ($act === 'open_it_with_editplus') {
+    /*在服务器端执行命令，用editplus.exe打开文件;(不知为何不行了现在……)*/
+//    $program='D:\\Program Files\\EditPlus 3\\editplus.exe';
+    //    if(!file_exists($file)) {
+    //        exit('File '.htmlspecialchars($file).' not found!');
+    //    }
+    //    if(!file_exists($program)) {
+    //        exit('program not found!');
+    //    }
+    //尝试1
+    //    $output = shell_exec('start "" "'.$program.'" "'.$file.'"');
+    //    $shell= new COM('Shell.Application') or die('启动COM失败！');
+    //尝试2
+    //    $a = $shell->Open("\"$program\" \"$file\"");
+    //    var_dump($a);
+    //尝试3
+    //    $a = $shell->ShellExecute($program,$file);
+    //尝试4
+    //    $a = $shell->ShellExecute('c:\windows\system32\cmd.exe','/c start "" "D:\Program Files\tools\putty.exe"');
+    //尝试5
+    //    $WshShell = new COM("WScript.Shell");
+    //    $a = $WshShell->Run("cmd /C start  \"$file\" ", 3, true);
+    //    var_dump($a);
+    echo '<body onload="document.getElementById(\'tt\').focus();"><input id="tt" type="text" value="', (strtr($file, '/', '\\')), '" onfocus="this.select();typeof window.clipboardData===\'object\' ? window.clipboardData.setData(\'text\', this.value):document.execCommand(\'copy\');" size="50" />&lt;=复制';
+    exit;
 }
 
-elseif($act==='open_it_with_editplus'){
-	/*在服务器端执行命令，用editplus.exe打开文件;(不知为何不行了现在……)*/
-//	$program='D:\\Program Files\\EditPlus 3\\editplus.exe';
-//	if(!file_exists($file)) {
-//		exit('File '.htmlspecialchars($file).' not found!');
-//	}
-//	if(!file_exists($program)) {
-//		exit('program not found!');
-//	}
-//尝试1
-//	$output = shell_exec('start "" "'.$program.'" "'.$file.'"');
-//	$shell= new COM('Shell.Application') or die('启动COM失败！');
-//尝试2
-//	$a = $shell->Open("\"$program\" \"$file\"");
-//	var_dump($a);
-//尝试3
-//	$a = $shell->ShellExecute($program,$file);
-//尝试4
-//	$a = $shell->ShellExecute('c:\windows\system32\cmd.exe','/c start "" "D:\Program Files\tools\putty.exe"');
-//尝试5
-//	$WshShell = new COM("WScript.Shell"); 
-//	$a = $WshShell->Run("cmd /C start  \"$file\" ", 3, true); 
-//	var_dump($a);
-	echo '<body onload="document.getElementById(\'tt\').focus();"><input id="tt" type="text" value="',(strtr($file,'/','\\')),'" onfocus="this.select();typeof window.clipboardData===\'object\' ? window.clipboardData.setData(\'text\', this.value):document.execCommand(\'copy\');" size="50" />&lt;=复制';
-	exit;
-}
-
-if(isset($file)) {
-	if(!file_exists($file)) {
-		$msg = 'File not exists!';
-	}else {
-		$source=file_get_contents($file);
-	}
+if (isset($file)) {
+    if (!file_exists($file)) {
+        $msg = 'File not exists!';
+    } else {
+        $source = file_get_contents($file);
+    }
 }
 
 // 切换输入框模式
-if(isset($_COOKIE['textarea'])) {
-	$textarea = $_COOKIE['textarea'];
-}else {
-	$textarea = 1;//默认值
+if (isset($_COOKIE['textarea'])) {
+    $textarea = $_COOKIE['textarea'];
+} else {
+    $textarea = 1; //默认值
 }
-if(isset($_GET['textarea'])) {//$_REQUEST variables_order:GetPostCookie会覆盖！
-	setcookie('textarea', $_GET['textarea']) or print('set cookie failed!');
-	$textarea = (boolean)$_GET['textarea'];
+if (isset($_GET['textarea'])) { //$_REQUEST variables_order:GetPostCookie会覆盖！
+    setcookie('textarea', $_GET['textarea']) or print('set cookie failed!');
+    $textarea = (boolean) $_GET['textarea'];
 }
 ?>
 <html>
@@ -155,45 +159,48 @@ function $(str) {
 				<select style="width:218px;height: 25px;" onchange="eval('this.parentNode.nextSibling'+(!top.execScript?'.nextSibling':'')+'.value=this.value');">
 					<option></option>
 					<?php
-					foreach (glob("{$path}*.php") as $php_filename) {
-						$php_filename = basename($php_filename, '.php');
-						echo "<option value=\"$php_filename\"> $php_filename </option>\n";
-					}
-					?>
+foreach (glob("{$path}*.php") as $php_filename) {
+    $php_filename = basename($php_filename, '.php');
+    echo "<option value=\"$php_filename\"> $php_filename </option>\n";
+}
+?>
 				</select>
 			</span>
-			<input type="text" name="filename" id="filename" value="<?php echo $filename;?>" 
+			<input type="text" name="filename" id="filename" value="<?php echo $filename; ?>"
 				style="width: 200px;position: absolute;left: 2px;top: 1px;border: none;height: 23px;" />
 		</div>
 
 		<button onclick="openfile.location='?act=open_it_with_editplus&filename='+$('filename').value;return false;" title="Open it with Editplus">Source</button>
 		<button onclick="location='?filename='+$('filename').value;return false;" title="Load this file=>">Load it</button>
-		<button onclick="iframe.location='<?php echo $path;?>'+$('filename').value+'.php';console.log($('filename').value);return false;" title="Run this file=>">Run</button>
+		<button onclick="iframe.location='<?php echo $path; ?>'+$('filename').value+'.php';console.log($('filename').value);return false;" title="Run this file=>">Run</button>
         <span title="赋值语句后加上#会打印出结果">?</span>
-		
-		<?php if(isset($msg))echo $msg;?>
+
+		<?php if (isset($msg)) {
+    echo $msg;
+}
+?>
 	</div>
 
 	<table width="100%" cellspacing="0">
 		<tr>
-<?php if($textarea):?>
-			<td style="width:28px;"><textarea id="txt_ln" rows="40" cols="4" style="" readonly="true"><?php echo implode("\n",range(1,31))."\n";?></textarea></td>
+<?php if ($textarea): ?>
+			<td style="width:28px;"><textarea id="txt_ln" rows="40" cols="4" style="" readonly="true"><?php echo implode("\n", range(1, 31)) . "\n"; ?></textarea></td>
 <?php endif; //@todo fix codemirror area height ?>
-			<td valign="top"><textarea name="source" id="source" <?= $textarea?'onscroll="show_ln()" rows="40" cols="80"':'class="area_0"' ?> wrap="off"><?php echo str_replace('</textarea>','&lt;/textarea>',$source);?></textarea></td>
+			<td valign="top"><textarea name="source" id="source" <?=$textarea ? 'onscroll="show_ln()" rows="40" cols="80"' : 'class="area_0"'?> wrap="off"><?php echo str_replace('</textarea>', '&lt;/textarea>', $source); ?></textarea></td>
 		</tr>
 	</table>
 	<input type="submit" value="Run (Ctrl+S)" style="width:90px;height:40px;">
-	<a href="?textarea=1&filename=<?php echo $filename;?>">textarea</a> | <a href="?textarea=0&filename=<?php echo $filename;?>">richarea</a>
+	<a href="?textarea=1&filename=<?php echo $filename; ?>">textarea</a> | <a href="?textarea=0&filename=<?php echo $filename; ?>">richarea</a>
 </form>
 		</td>
 	</tr>
 </table>
-<!-- 
+<!--
 (.)(.)
- )  ( 
+ )  (
 卜orz么
  -->
-<?php if($textarea):?>
+<?php if ($textarea): ?>
 <script>
 // 防抖动函数
 function debounce(func, wait, immediate) {
@@ -223,15 +230,43 @@ var show_ln = debounce(function()
     }
     return;
 }, 50);
-document.onkeydown = function (event) {
-	var a = window.event.keyCode;
-	if ((a === 83) && (event.ctrlKey)) {//Ctrl+s
-		document.forms[0].submit();
-		return false;
+// textarea indent+tab @todo
+function indent(tx) {
+	tx.addEventListener("keydown", function(event) {
+		// console.log(event.keyCode)
+		if (event.keyCode === 13) {
+			event.preventDefault();
+			insert("\r\n");
+		}
+		if (event.keyCode === 9) {
+			event.preventDefault();
+			insert("\t");
+		}
+	});
+
+	function insert(v) {
+		var txt = tx.value;
+		var point = tx.selectionEnd;
+		var s = "",	e = "",	c = "",	hh = false;
+		var sn = txt.lastIndexOf('\n', point - 1);
+		// console.log(txt,point, sn)
+		if (sn === -1) {
+			hh = true;
+		}
+		var x1 = txt.substring(sn, txt.length);
+		var rxx = /^\s*/gi;
+		c = x1.match(rxx)[0];
+		s = txt.substring(0, point);
+		e = txt.substring(point, txt.length);
+		tx.value = hh ? s + c + v + e : s + c + e;
+		hh 
+		? tx.setSelectionRange(point + c.length + 1, point + c.length + 1)
+		: tx.setSelectionRange(point + c.length, point + c.length)
 	}
-};
+}
+indent($('source'));
 </script>
-<?php else:?>
+<?php else: ?>
 <link href="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/codemirror.min.css" rel="stylesheet">
 <script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/codemirror.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/mode/xml/xml.min.js"></script>
@@ -279,5 +314,14 @@ document.onkeydown = function (event) {
 }
 </style>
 <?php endif;?>
+<script>
+document.onkeydown = function (event) {
+	var a = window.event.keyCode;
+	if ((a === 83) && (event.ctrlKey)) {//Ctrl+s
+		document.forms[0].submit();
+		return false;
+	}
+};
+</script>
 </body>
 </html>
