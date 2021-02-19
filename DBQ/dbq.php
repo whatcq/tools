@@ -13,6 +13,7 @@ $link = isset($_REQUEST['link']) ? $_REQUEST['link'] : (isset($_COOKIE['link']) 
 if (!$link) {
     function parseDsn($str)
     {
+        //@todo
         return [
             'HOST' => '127.0.0.1',
             'NAME' => 'zentao_prod',// foreabay_msr
@@ -21,6 +22,7 @@ if (!$link) {
             'CHAR' => 'UTF8',
         ];
     }
+
     $dsn = parseDsn($q);
     if (!$dsn) {
         res(0, null, 'parse link failed!');
@@ -29,7 +31,7 @@ if (!$link) {
     $link = md5($info);
     $_SESSION[$link] = $info;
     setcookie('link', $link);
-    $q = '#%';
+    $q = '#';
     $fetchType = PDO::FETCH_COLUMN;
 }
 
@@ -66,14 +68,14 @@ $shows = [
 ];
 // common sqls
 $sqls = [
-    '#*' => ':tables info',
-    '#user%' => ':tables like',
+    '#*'        => ':tables info',
+    '#user%'    => ':tables like',
     '-%user_id' => ':tables having the column',
-    'u' => ':user data limit 30',
-    'u#' => ':count user data',
-    'u#2' => ':query user data',
-    'u#*' => ':table structure',
-    'u#~' => ':PROCEDURE ANALYSE',
+    'u'         => ':user data limit 30',
+    'u#'        => ':count user data',
+    'u#2'       => ':query user data',
+    'u#*'       => ':table structure',
+    'u#~'       => ':PROCEDURE ANALYSE',
 ];
 
 // 获取主键字段名
@@ -122,7 +124,7 @@ function parse($q)
     }
 
     if (!preg_match('/^[a-zA-Z\$_][a-zA-Z\d_]*$/i', $table)) {
-        throw new Exception("Error table name", 1);
+        throw new RuntimeException("Error table name", 1);
     }
 
     $params = [];
@@ -149,8 +151,8 @@ function parse($q)
         if ($show) {
             if (strpos($show, ',') !== false) {
                 list($offset, $limit) = explode(',', $show);
-                $offset = (int) $offset;
-                $limit = (int) $limit;
+                $offset = (int)$offset;
+                $limit = (int)$limit;
             } elseif ($show < 0) {
                 $pkField = getPk($table);
                 $orderBy = " ORDER BY $pkField DESC";
@@ -170,12 +172,59 @@ function res($status = 0, $data = null, $message = '')
     header('Content-type: application/json');
     header("Content-type:text/html;charset=utf-8");
     die(json_encode([
-        'status' => $status,
-        'info'=>$_REQUEST,
-        'cookie'=>$_COOKIE,
-        'data' => $data,
+        'status'  => $status,
+        'info'    => $_REQUEST,
+        'cookie'  => $_COOKIE,
+        'data'    => $data,
         'message' => $message,
     ]));
+}
+
+// 显示不同的结果
+function render($data)
+{
+    if (empty($data)) {
+        echo '无数据';
+        return;
+    }
+    if (count($data) === 1) {
+        $data = current($data);
+        if (count($data) === 1) {
+            echo current($data);
+        } else {
+            echo '<ol>';
+            foreach ($data as $key => $value) {
+                is_null($value) && $value = '<i>&lt;null></i>';
+                echo "<li><label>$key</label>$value</li>";
+            }
+            echo '</ol>';
+        }
+        return;
+    }
+    echo '<table border="0" cellpadding="3">';
+    echo '<tr bgcolor="#dddddd"><th>#</th>';
+    foreach (current($data) as $key => $null) {
+        echo "<th>$key</th>";
+    }
+    echo '</tr>';
+    foreach ($data as $_key => $_data) {
+        echo "<tr><td>$_key</td>";
+        foreach ($_data as $key => $value) {
+            is_null($value) && $value = '<i>&lt;null></i>';
+            echo "<td>$value</td>";
+        }
+        echo '</tr>';
+    }
+    echo '</table>';
+}
+
+function renderHtml($data)
+{
+    ob_start();
+    render($data);
+    $content = ob_get_contents();
+    ob_clean();
+    return $content;
 }
 
 if ($show || $q) {
@@ -183,12 +232,19 @@ if ($show || $q) {
         $w = 'SHOW ' . $show;
         $r = DB::q($w);
     } else {
-        $w = parse($q);
-        $r = call_user_func_array('DB::q', $w);
+        try {
+            $w = parse($q);
+            $r = call_user_func_array('DB::q', $w);
+        } catch (Exception $e) {
+            res(0, $w ?? '', $e->getMessage());
+        }
         $w = json_encode($w);
     }
     $d = $r->fetchAll($fetchType);
-    res(1, $d, $w);
+    if ($w === '["SHOW TABLES LIKE ?s",""]') {
+        res(1, array_map('current', $d), $w);
+    }
+    res(1, renderHtml($d), $w);
 }
 
 res();

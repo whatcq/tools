@@ -26,14 +26,18 @@
     
 </script>
 <script src="http://localhost/cqiu/static/jquery-3.5.1.min.js"></script>
+<script src="http://localhost/cqiu/static/typeahead.jquery.min.js"></script>
+<script src="localStore.js"></script>
 <script>
     function render(data) {
         $($('#tpl_layer').html())
             .find('.body')
-            .html('<pre>' + JSON.stringify(data, null, 4) + '</pre>')
+            .html(data)//'<pre>' + JSON.stringify(data, null, 4) + '</pre>') @todo 改成art-template-web.js
             .end()
             .appendTo($('body'));
     }
+    var lsh = new LocalStorageHandler();
+    var link;
     $('#input').change(function () {
         var o = $(this)
         console.log(o.val())
@@ -49,6 +53,11 @@
             success: function (res) {
                 if (res.message != '') {
                     $('#message').append('<li>' + res.message);
+                    if(res.message === '["SHOW TABLES LIKE ?s",""]'){
+                        link = res.cookie.link;
+                        lsh.set(link, res.data);
+                        return;
+                    }
                 }
                 if (res.status) {
                     render(res.data)
@@ -98,6 +107,31 @@
                 $(document).off('mouseup');
             }
         });
+    });
+    $(function(){
+        var substringMatcher = function() {
+            return function findMatches(q, cb) {
+                var matches = [];
+                substrRegex = new RegExp(q, 'i');
+                var strs = lsh.get(link);
+                $.each(strs, function(i, str) {
+                    if (substrRegex.test(str)) {
+                        matches.push(str);
+                    }
+                });
+                cb(matches);
+            };
+        };
+
+        $('#input').typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 1
+            },
+            {
+                name: 'states',
+                source: substringMatcher()
+            });
     });
 </script>
 
