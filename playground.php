@@ -81,7 +81,8 @@ if ($act === 'save_run') {
     //    $WshShell = new COM("WScript.Shell");
     //    $a = $WshShell->Run("cmd /C start  \"$file\" ", 3, true);
     //    var_dump($a);
-    echo '<body onload="document.getElementById(\'tt\').focus();"><input id="tt" type="text" value="', (strtr($file, '/', '\\')), '" onfocus="this.select();typeof window.clipboardData===\'object\' ? window.clipboardData.setData(\'text\', this.value):document.execCommand(\'copy\');" size="50" />&lt;=复制';
+    echo '<body onload="document.getElementById(\'tt\').focus();"><input id="tt" type="text" value="',
+        (strtr($file, '/', '\\')), '" onfocus="this.select();typeof window.clipboardData===\'object\' ? window.clipboardData.setData(\'text\', this.value):document.execCommand(\'copy\');" size="50" />&lt;=复制了';
     exit;
 }
 
@@ -109,97 +110,93 @@ if (isset($_GET['textarea'])) { //$_REQUEST variables_order:GetPostCookie会覆�
 <title>php playground</title>
 <style type="text/css">
 body,html{
-	margin:0;
-	padding:0;
-	overflow:hidden;
+    margin:0;
+    padding:0;
+    overflow:hidden;
 }
 #txt_ln{
-	height:600px;
-	font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;
-	background-color:#ecf0f5;
-	color:#c0bebe;
-	border:none;
-	text-align:right;
-	overflow:hidden;
-	scrolling:no;
-	padding-right:0;
-	font-size:16px;
-	max-width:30px;
-	padding-right: 4px;
+    height:600px;
+    font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;
+    background-color:#ecf0f5;
+    color:#c0bebe;
+    border:none;
+    text-align:right;
+    overflow:hidden;
+    scrolling:no;
+    padding-right:0;
+    font-size:16px;
+    max-width:30px;
+    padding-right: 4px;
 }
 #source{
-	width:600px;
-	height:600px;
-	font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;
-	font-size:16px;
-	color: #5021b0;
+    width:600px;
+    height:600px;
+    font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;
+    font-size:16px;
+    tab-size: 4;
+    color: #5021b0;
 }
 .area_0{
-	height: 800px !important;
+    height: 800px !important;
 }
 *:focus {outline: none;}
 </style>
 <script type="text/javascript">
-function $(str) {
-	return document.getElementById(str);
-}
+    function $(str) {
+        return document.getElementById(str);
+    }
 </script>
 <body scroll="no">
 <table width="100%" height="100%">
-	<tr>
-		<td width="*">
-<iframe width="100%" height="100%" src="about:blank" name="iframe"></iframe>
-			</td>
-		<td valign="top" width="600">
-<iframe width="100%" height="60" src="about:blank" name="openfile"></iframe>
-<form method="post" action="?act=save_run" target="iframe" style="display:inline;">
-	<div>
-		<div style="position:relative;display:inline-block;">
+    <tr>
+        <td width="*">
+            <iframe width="100%" height="100%" src="about:blank" name="iframe"></iframe>
+        </td>
+        <td valign="top" width="600">
+            <iframe width="100%" height="60" src="about:blank" name="openfile"></iframe>
+            <form method="post" action="?act=save_run" target="iframe" style="display:inline;">
+                <div>
+                    <div style="position:relative;display:inline-block;">
 			<span>
 				<select style="width:218px;height: 25px;" onchange="eval('this.parentNode.nextSibling'+(!top.execScript?'.nextSibling':'')+'.value=this.value');">
 					<option></option>
 					<?php
-foreach (glob("{$path}*.php") as $php_filename) {
-    $php_filename = basename($php_filename, '.php');
-    echo "<option value=\"$php_filename\"> $php_filename </option>\n";
-}
-?>
+                    foreach (glob("{$path}*.php") as $php_filename) {
+                        $php_filename = basename($php_filename, '.php');
+                        echo "<option value=\"$php_filename\"> $php_filename </option>\n";
+                    }
+                    ?>
 				</select>
 			</span>
-			<input type="text" name="filename" id="filename" value="<?php echo $filename; ?>"
-				style="width: 200px;position: absolute;left: 2px;top: 1px;border: none;height: 23px;" />
-		</div>
+                        <input type="text" name="filename" id="filename" value="<?php echo $filename; ?>"
+                               style="width: 200px;position: absolute;left: 2px;top: 1px;border: none;height: 23px;" />
+                    </div>
 
-		<button onclick="openfile.location='?act=open_it_with_editplus&filename='+$('filename').value;return false;" title="Open it with Editplus">Source</button>
-		<button onclick="location='?filename='+$('filename').value;return false;" title="Load this file=>">Load it</button>
-		<button onclick="iframe.location='<?php echo $path; ?>'+$('filename').value+'.php';console.log($('filename').value);return false;" title="Run this file=>">Run</button>
-        <span title="赋值语句后加上#会打印出结果">?</span>
+                    <button onclick="openfile.location='?act=open_it_with_editplus&filename='+$('filename').value;return false;" title="Open it with Editplus">Source</button>
+                    <button onclick="location='?filename='+$('filename').value;return false;" title="Load this file=>">Load it</button>
+                    <button onclick="iframe.location='<?php echo $path; ?>'+$('filename').value+'.php';console.log($('filename').value);return false;" title="Run this file=>">Run</button>
+                    <span title="赋值语句后加上#会打印出结果">?</span>
 
-		<?php if (isset($msg)) {
-    echo $msg;
-}
-?>
-	</div>
+                    <?php if (isset($msg)) {
+                        echo $msg;
+                    }
+                    ?>
+                </div>
 
-	<table width="100%" cellspacing="0">
-		<tr>
-<?php if ($textarea): ?>
-			<td style="width:28px;"><textarea id="txt_ln" rows="40" cols="4" style="" readonly="true"><?php echo implode("\n", range(1, 31)) . "\n"; ?></textarea></td>
-<?php endif; //@todo fix codemirror area height ?>
-			<td valign="top"><textarea name="source" id="source" <?=$textarea ? 'onscroll="show_ln()" rows="40" cols="80"' : 'class="area_0"'?> wrap="off"><?php echo str_replace('</textarea>', '&lt;/textarea>', $source); ?></textarea></td>
-		</tr>
-	</table>
-	<input type="submit" value="Run (Ctrl+S)" style="width:90px;height:40px;">
-	<a href="?textarea=1&filename=<?php echo $filename; ?>">textarea</a> | <a href="?textarea=0&filename=<?php echo $filename; ?>">richarea</a>
-</form>
-		</td>
-	</tr>
+                <table width="100%" cellspacing="0">
+                    <tr>
+                        <?php if ($textarea): ?>
+                            <td style="width:28px;"><textarea id="txt_ln" rows="40" cols="4" style="" readonly="true"><?php echo implode("\n", range(1, 31)) . "\n"; ?></textarea></td>
+                        <?php endif; //@todo fix codemirror area height ?>
+                        <td valign="top"><textarea name="source" id="source" <?=$textarea ? 'onscroll="show_ln()" rows="40" cols="80"' : 'class="area_0"'?> wrap="off"><?php echo str_replace('</textarea>', '&lt;/textarea>', $source); ?></textarea></td>
+                    </tr>
+                </table>
+                <input type="submit" value="Run (Ctrl+S)" style="width:90px;height:40px;">
+                <a href="?textarea=1&filename=<?php echo $filename; ?>">textarea</a> | <a href="?textarea=0&filename=<?php echo $filename; ?>">richarea</a>
+            </form>
+        </td>
+    </tr>
 </table>
-<!--
-(.)(.)
- )  (
-卜orz么
- -->
 <?php if ($textarea): ?>
 <script>
 // 防抖动函数
@@ -216,7 +213,7 @@ function debounce(func, wait, immediate) {
         timeout = setTimeout(later, wait);
         if (callNow) func.apply(context, args);
     };
-};
+}
 var i=32;
 // fix for Chrome 85/86
 var show_ln = debounce(function()
@@ -230,39 +227,42 @@ var show_ln = debounce(function()
     }
     return;
 }, 50);
-// textarea indent+tab @todo
+// textarea indent+tab
 function indent(tx) {
-	tx.addEventListener("keydown", function(event) {
-		// console.log(event.keyCode)
-		if (event.keyCode === 13) {
-			event.preventDefault();
-			insert("\r\n");
-		}
-		if (event.keyCode === 9) {
-			event.preventDefault();
-			insert("\t");
-		}
-	});
-
-	function insert(v) {
-		var txt = tx.value;
-		var point = tx.selectionEnd;
-		var s = "",	e = "",	c = "",	hh = false;
-		var sn = txt.lastIndexOf('\n', point - 1);
-		// console.log(txt,point, sn)
-		if (sn === -1) {
-			hh = true;
-		}
-		var x1 = txt.substring(sn, txt.length);
-		var rxx = /^\s*/gi;
-		c = x1.match(rxx)[0];
-		s = txt.substring(0, point);
-		e = txt.substring(point, txt.length);
-		tx.value = hh ? s + c + v + e : s + c + e;
-		hh 
-		? tx.setSelectionRange(point + c.length + 1, point + c.length + 1)
-		: tx.setSelectionRange(point + c.length, point + c.length)
-	}
+    tx.addEventListener("keydown", function (e) {
+        if (e.key === 'Enter' || e.key === 'Tab') {
+            e.preventDefault();
+            var start = this.selectionStart
+                , end = this.selectionEnd
+                , txt = this.value
+                , prefix = txt.substring(0, start)
+                , suffix = txt.substring(end);
+        }
+        if (e.key === 'Enter') {
+            var breakPoint = txt.lastIndexOf('\n', start - 1)
+                , prevLine = txt.substring(breakPoint + 1, start)
+                , prevLineSpaces = prevLine.match(/^\s*/gi)[0];
+            this.value = prefix + '\n' + prevLineSpaces + suffix;
+            this.selectionStart = this.selectionEnd = start + prevLineSpaces.length + 1;
+            return;
+        }
+        if (e.key === 'Tab') {
+            if (end > start) {
+                start = txt.lastIndexOf('\n', start - 1) + 1;
+                var newSelection = txt.slice(start, end)
+                    , indentedText = e.shiftKey
+                    ? newSelection.replace(/(^|\n)\t/g, "$1")//unindent
+                    : newSelection.replace(/^|\n/g, '$&\t')//indent
+                    , replacementsCount = indentedText.length - newSelection.length;
+                this.value = txt.substring(0, start) + indentedText + suffix;
+                this.selectionStart = start + 1;
+                this.selectionEnd = end + replacementsCount;
+                return;
+            }
+            this.value = prefix + "\t" + suffix;
+            this.selectionStart = this.selectionEnd = start + 1;
+        }
+    });
 }
 indent($('source'));
 </script>
@@ -277,50 +277,49 @@ indent($('source'));
 <script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/addon/comment/comment.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/keymap/sublime.min.js"></script>
 <script>
-  var value = "// The bindings defined specifically in the Sublime Text mode\nvar bindings = {\n";
-  var map = CodeMirror.keyMap.sublime;
-  for (var key in map) {
+var value = "// The bindings defined specifically in the Sublime Text mode\nvar bindings = {\n";
+var map = CodeMirror.keyMap.sublime;
+for (var key in map) {
     var val = map[key];
     if (key != "fallthrough" && val != "..." && (!/find/.test(val) || /findUnder/.test(val)))
-      value += "  \"" + key + "\": \"" + val + "\",\n";
-  }
-  value += "  \"Ctrl-S\": function(){console.log(self.location)}\n";
-  value += "}\n\n// The implementation of joinLines\n";
-  value += CodeMirror.commands.joinLines.toString().replace(/^function\s*\(/, "function joinLines(").replace(/\n  /g, "\n") + "\n";
-	var editor = CodeMirror.fromTextArea($("source"), {
-		value: value,
-		lineNumbers: true,
-		matchBrackets: true,
-		mode: "php",
-		indentUnit: 2,
-		indentWithTabs: true,
-		enterMode: "keep",
-		keyMap: 'sublime',
-		tabMode: "shift"
-	});
+        value += "  \"" + key + "\": \"" + val + "\",\n";
+}
+value += "  \"Ctrl-S\": function(){console.log(self.location)}\n";
+value += "}\n\n// The implementation of joinLines\n";
+value += CodeMirror.commands.joinLines.toString().replace(/^function\s*\(/, "function joinLines(").replace(/\n  /g, "\n") + "\n";
+var editor = CodeMirror.fromTextArea($("source"), {
+    value: value,
+    lineNumbers: true,
+    matchBrackets: true,
+    mode: "php",
+    indentUnit: 2,
+    indentWithTabs: true,
+    enterMode: "keep",
+    keyMap: 'sublime',
+    tabMode: "shift"
+});
 </script>
 <style type="text/css">
 .CodeMirror {
-  border: 1px solid #eee;
-  height: auto;
+    border: 1px solid #eee;
+    height: auto;
 }
 .CodeMirror-scroll {
-	height: 600px;
-	width: 700px;
+    height: 600px;
+    width: 700px;
 }
 .codemirror,.codemirror pre{
-	font-family: Consolas, 'Lucida Console',  Monaco, 'Courier New', Courier, monospace;
-	font-size: 12px;
+    font-family: Consolas, 'Lucida Console',  Monaco, 'Courier New', Courier, monospace;
+    font-size: 12px;
 }
 </style>
 <?php endif;?>
 <script>
-document.onkeydown = function (event) {
-	var a = window.event.keyCode;
-	if ((a === 83) && (event.ctrlKey)) {//Ctrl+s
-		document.forms[0].submit();
-		return false;
-	}
+document.onkeydown = function (e) {
+    if (e.key==='s' && e.ctrlKey) {
+        document.forms[0].submit();
+        return false;
+    }
 };
 </script>
 </body>
