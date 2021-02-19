@@ -186,7 +186,7 @@ body,html{
                 <table width="100%" cellspacing="0">
                     <tr>
                         <?php if ($textarea): ?>
-                            <td style="width:28px;"><textarea id="txt_ln" rows="40" cols="4" style="" readonly="true"><?php echo implode("\n", range(1, 31)) . "\n"; ?></textarea></td>
+                            <td style="width:28px;"><textarea id="txt_ln" rows="40" cols="4" wrap="off" readonly="true"><?php echo implode("\n", range(1, 31)) . "\n"; ?></textarea></td>
                         <?php endif; //@todo fix codemirror area height ?>
                         <td valign="top"><textarea name="source" id="source" <?=$textarea ? 'onscroll="show_ln()" rows="40" cols="80"' : 'class="area_0"'?> wrap="off"><?php echo str_replace('</textarea>', '&lt;/textarea>', $source); ?></textarea></td>
                     </tr>
@@ -237,7 +237,7 @@ function indent(tx) {
                 , txt = this.value
                 , prefix = txt.substring(0, start)
                 , suffix = txt.substring(end);
-        }
+        } else return;
         if (e.key === 'Enter') {
             var breakPoint = txt.lastIndexOf('\n', start - 1)
                 , prevLine = txt.substring(breakPoint + 1, start)
