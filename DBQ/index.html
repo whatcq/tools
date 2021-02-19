@@ -14,7 +14,7 @@
 </head>
 
 <body>
-    <input type="text" id="input" value="zi#2">
+    <input type="text" id="input" value="">
     <div id="message"></div>
     <div id="data"></div>
 </body>
@@ -35,9 +35,11 @@
             .html(data)//'<pre>' + JSON.stringify(data, null, 4) + '</pre>') @todo 改成art-template-web.js
             .end()
             .appendTo($('body'));
+        zIndex++;
     }
     var lsh = new LocalStorageHandler();
-    var link;
+    var link = lsh.get('currentLink');
+    var zIndex = 0;
     $('#input').change(function () {
         var o = $(this)
         console.log(o.val())
@@ -55,6 +57,7 @@
                     $('#message').append('<li>' + res.message);
                     if(res.message === '["SHOW TABLES LIKE ?s",""]'){
                         link = res.cookie.link;
+                        lsh.set('currentLink', link);
                         lsh.set(link, res.data);
                         return;
                     }
@@ -107,6 +110,8 @@
                 $(document).off('mouseup');
             }
         });
+    }).on('click', '.box', function(){
+        if ((parseInt($(this).css('z-index')) || 0) < zIndex) $(this).css('z-index', ++zIndex);
     });
     $(function(){
         var substringMatcher = function() {
