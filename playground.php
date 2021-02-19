@@ -175,7 +175,7 @@ body,html{
                     <button onclick="openfile.location='?act=open_it_with_editplus&filename='+$('filename').value;return false;" title="Open it with Editplus">Source</button>
                     <button onclick="location='?filename='+$('filename').value;return false;" title="Load this file=>">Load it</button>
                     <button onclick="iframe.location='<?php echo $path; ?>'+$('filename').value+'.php';console.log($('filename').value);return false;" title="Run this file=>">Run</button>
-                    <span title="赋值语句后加上#会打印出结果">?</span>
+                    <span title="- 赋值语句后加上#会打印出结果&#10;- Ctrl+j 复制当前行/选中文本">?</span>
 
                     <?php if (isset($msg)) {
                         echo $msg;
@@ -230,7 +230,7 @@ var show_ln = debounce(function()
 // textarea indent+tab
 function indent(tx) {
     tx.addEventListener("keydown", function (e) {
-        if (e.key === 'Enter' || e.key === 'Tab') {
+        if (e.key === 'Enter' || e.key === 'Tab' || (e.ctrlKey && e.key === 'j')) {
             e.preventDefault();
             var start = this.selectionStart
                 , end = this.selectionEnd
@@ -261,6 +261,18 @@ function indent(tx) {
             }
             this.value = prefix + "\t" + suffix;
             this.selectionStart = this.selectionEnd = start + 1;
+        }
+        if (e.ctrlKey && e.key === 'j') {//duplicate line/selection
+            if (end > start) {
+                this.value = txt.substring(0, end) + txt.slice(start, end) + suffix;
+                this.selectionStart = this.selectionEnd = end + end - start;
+                return;
+            }
+            var breakPoint = txt.lastIndexOf('\n', start - 1)
+                , breakPointNext = txt.indexOf('\n', start)
+                , prevLine = txt.substring(breakPoint, breakPointNext);
+            this.value = txt.substring(0, breakPoint) + prevLine + prevLine + txt.substring(breakPointNext);
+            this.selectionStart = this.selectionEnd = start + prevLine.length;
         }
     });
 }
