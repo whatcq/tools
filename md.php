@@ -3,16 +3,18 @@
  * markdown reader by ?p=[filePath]
  *
  * @cqiu 2016-08-01
- *
- * # Apache .htaccess locate ['DOCUMENT_ROOT'] @2017/12/11
- * # display Markdown as HTML by default
- * RewriteEngine on
- * RewriteRule (.+\.(markdown|mdown|md|mkd))$ ['PHP_SELF']
- * RewriteRule (.+\.(markdown|mdown|md|mkd)\-text)$ ['PHP_SELF'] [L]
- * #RewriteRule (.+\.(markdown|mdown|md|mkd))$ ['PHP_SELF']?p=['DOCUMENT_ROOT']/$1
- *
- * IndexIgnore .??* *~ *# HEADER* README.html readme.txt RCS CVS *,v *,t
  */
+/*
+# Apache .htaccess locate ['DOCUMENT_ROOT'] @2017/12/11
+file_put_contents("{$_SERVER['DOCUMENT_ROOT']}/.htaccess", <<<SETTING
+# display Markdown as HTML by default
+RewriteEngine on
+RewriteRule (.+\.(markdown|mdown|md|mkd))$ {$_SERVER['PHP_SELF']}
+RewriteRule (.+\.(markdown|mdown|md|mkd)\-text)$ {$_SERVER['PHP_SELF']} [L]
+IndexIgnore .??* *~ *# HEADER* README.html readme.txt RCS CVS *,v *,t
+SETTING
+    , FILE_APPEND);
+/**/
 
 if (isset($_GET['src'])) {
     readfile(preg_replace('#\?.*#', '', $_GET['src']));
