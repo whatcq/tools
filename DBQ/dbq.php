@@ -11,16 +11,63 @@ $show = isset($_REQUEST['show']) ? $_REQUEST['show'] : null;
 $link = isset($_REQUEST['link']) ? $_REQUEST['link'] : (isset($_COOKIE['link']) ? $_COOKIE['link'] : null);
 
 if (!$link) {
+    // 快捷化输入连接信息，..语义分割,有点难了
     function parseDsn($str)
     {
-        //@todo
-        return [
-            'HOST' => '127.0.0.1',
-            'NAME' => 'zentao_prod',// foreabay_msr
-            'USER' => 'root',
-            'PASS' => '',
-            'CHAR' => 'UTF8',
-        ];
+        $str = trim($str);
+        if (empty($str)) {
+            return false;
+        }
+        // dsn/url解析
+        $info = parse_url($str);
+        if ($info['scheme']) {
+            return [
+                'DBMS' => $info['scheme'],
+                'HOST' => isset($info['host']) ? $info['host'] . (isset($info['port']) ? ':' . $info['port'] : '') : '',
+                'NAME' => isset($info['path']) ? substr($info['path'], 1) : '',
+                'USER' => isset($info['user']) ? $info['user'] : '',
+                'PASS' => isset($info['pass']) ? $info['pass'] : '',
+                'CHAR' => 'UTF8',
+            ];
+        }
+        preg_match('/^(.*?)\:\/\/(.*?)\:(.*?)\@(.*?)\:([0-9]{1, 6})\/(.*?)$/', trim($str), $matches);
+        if ($matches[0]) {
+            return [
+                'DBMS' => $matches[1],
+                'USER' => $matches[2],
+                'PASS' => $matches[3],
+                'HOST' => $matches[4] . ':' . $matches[5],
+                'NAME' => $matches[6],
+                'CHAR' => 'UTF8',
+            ];
+        }
+        // .env/.ini解析
+        preg_match_all('/(\w+)\s?=\s?(\S*)/', $str, $matches);
+        $dsn = [];
+        if ($matches[0]) {
+            foreach ($matches[1] as $i => $field) {
+                if (stripos($field, 'host')) $dsn['HOST'] = $matches[2][$i];
+                if (stripos($field, 'port')) $dsn['HOST'] .= ':' . $matches[2][$i];
+                if (stripos($field, 'pass')) $dsn['PASS'] = $matches[2][$i];
+                if (stripos($field, 'user')) $dsn['USER'] = $matches[2][$i];
+                if (stripos($field, 'name')) $dsn['NAME'] = $matches[2][$i];
+            }
+            return $dsn;
+        }
+        // multiline define/array map
+        preg_match_all('/(["\'])(.*?)\1/', $str, $matches);
+        $dsn = [];
+        if ($matches[0]) {
+            foreach ($matches[1] as $i => $field) {
+                if (stripos($field, 'host')) $dsn['HOST'] = $matches[2][++$i];
+                if (stripos($field, 'port')) $dsn['HOST'] .= ':' . $matches[2][++$i];
+                if (stripos($field, 'pass')) $dsn['PASS'] = $matches[2][++$i];
+                if (stripos($field, 'user')) $dsn['USER'] = $matches[2][++$i];
+                if (stripos($field, 'name')) $dsn['NAME'] = $matches[2][++$i];
+            }
+            return $dsn;
+        }
+        return false;
     }
 
     $dsn = parseDsn($q);
