@@ -230,7 +230,7 @@ var show_ln = debounce(function()
 // textarea indent+tab
 function indent(tx) {
     tx.addEventListener("keydown", function (e) {
-        if (e.key === 'Enter' || e.key === 'Tab' || (e.ctrlKey && e.key === 'j')) {
+        if (e.key === 'Enter' || e.key === 'Tab' || (e.ctrlKey && (e.key === 'j' || e.key === '/' || e.key === '?'))) {
             e.preventDefault();
             var start = this.selectionStart
                 , end = this.selectionEnd
@@ -261,6 +261,7 @@ function indent(tx) {
             }
             this.value = prefix + "\t" + suffix;
             this.selectionStart = this.selectionEnd = start + 1;
+            return;
         }
         if (e.ctrlKey && e.key === 'j') {//duplicate line/selection
             if (end > start) {
@@ -273,6 +274,18 @@ function indent(tx) {
                 , prevLine = txt.substring(breakPoint, breakPointNext);
             this.value = txt.substring(0, breakPoint) + prevLine + prevLine + txt.substring(breakPointNext);
             this.selectionStart = this.selectionEnd = start + prevLine.length;
+            return;
+        }
+        if (e.ctrlKey && (e.key === '/' || e.key === '?')) {
+            start = txt.lastIndexOf('\n', start - 1) + 1;
+            var newSelection = txt.slice(start, end)
+                , indentedText = e.shiftKey
+                ? newSelection.replace(/(^|\n)\/\//g, "$1")//uncomment
+                : newSelection.replace(/^|\n/g, '$&//')//comment
+                , replacementsCount = indentedText.length - newSelection.length;
+            this.value = txt.substring(0, start) + indentedText + suffix;
+            this.selectionStart = start;
+            this.selectionEnd = end + replacementsCount;
         }
     });
 }
