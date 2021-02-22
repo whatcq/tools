@@ -20,7 +20,7 @@ if (!$link) {
         }
         // dsn/url解析
         $info = parse_url($str);
-        if ($info['scheme']) {
+        if (isset($info['scheme'])) {
             return [
                 'DBMS' => $info['scheme'],
                 'HOST' => isset($info['host']) ? $info['host'] . (isset($info['port']) ? ':' . $info['port'] : '') : '',
@@ -31,7 +31,7 @@ if (!$link) {
             ];
         }
         preg_match('/^(.*?)\:\/\/(.*?)\:(.*?)\@(.*?)\:([0-9]{1, 6})\/(.*?)$/', trim($str), $matches);
-        if ($matches[0]) {
+        if (isset($matches[0])) {
             return [
                 'DBMS' => $matches[1],
                 'USER' => $matches[2],
@@ -44,7 +44,7 @@ if (!$link) {
         // .env/.ini解析
         preg_match_all('/(\w+)\s?=\s?(\S*)/', $str, $matches);
         $dsn = [];
-        if ($matches[0]) {
+        if (isset($matches[0])) {
             foreach ($matches[1] as $i => $field) {
                 if (stripos($field, 'host')) $dsn['HOST'] = $matches[2][$i];
                 if (stripos($field, 'port')) $dsn['HOST'] .= ':' . $matches[2][$i];
@@ -57,7 +57,7 @@ if (!$link) {
         // multiline define/array map
         preg_match_all('/(["\'])(.*?)\1/', $str, $matches);
         $dsn = [];
-        if ($matches[0]) {
+        if (isset($matches[0])) {
             foreach ($matches[1] as $i => $field) {
                 if (stripos($field, 'host')) $dsn['HOST'] = $matches[2][++$i];
                 if (stripos($field, 'port')) $dsn['HOST'] .= ':' . $matches[2][++$i];
@@ -78,6 +78,7 @@ if (!$link) {
     $link = md5($info);
     $_SESSION[$link] = $info;
     setcookie('link', $link);
+    $_COOKIE['link'] = $link;
     $q = '#';
     $fetchType = PDO::FETCH_COLUMN;
 }
@@ -289,7 +290,7 @@ if ($show || $q) {
     }
     $d = $r->fetchAll($fetchType);
     if ($w === '["SHOW TABLES LIKE ?s",""]') {
-        res(1, array_map('current', $d), $w);
+        res(1, $d, $w);//array_map('current', $d)
     }
     res(1, renderHtml($d), $w);
 }

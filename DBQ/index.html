@@ -14,7 +14,10 @@
 </head>
 
 <body>
-    <input type="text" id="input" value="">
+<!--    <input type="text" id="input" value="">-->
+    <textarea name="" id="input" cols="30" rows="3"></textarea>
+<div>link:<button onclick="document.cookie='link=0'">reset</button></div>
+
     <div id="message"></div>
     <div id="data"></div>
 </body>
@@ -110,7 +113,7 @@
                 $(document).off('mouseup');
             }
         });
-    }).on('click', '.box', function(){
+    }).on('mousedown', '.box', function(){
         if ((parseInt($(this).css('z-index')) || 0) < zIndex) $(this).css('z-index', ++zIndex);
     });
     $(function(){
