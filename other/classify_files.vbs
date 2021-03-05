@@ -34,7 +34,7 @@ set objFolder=fso.GetFolder(Path)
 set objFiles=objFolder.Files
 for each objFile in objFiles
 	If LCase(Right(objFile, 4))=".jpg" Or LCase(Right(objFile, 5))=".jpeg" Then
-		subFolder = RTrim(ReplaceTest(objFile, "\(.*", ""))
+		subFolder = Path &"\"& RTrim(ReplaceTest(objFile.name, "\(.*", ""))
 		CreateFolderEx fso,subFolder
 
 
