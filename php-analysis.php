@@ -292,14 +292,15 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
             }
         };
 
-        dom_tab_tit.onmousedown = function () {
+        dom_tab_tit.onmousedown = function (e) {
+            var clientHeight = document.documentElement.clientHeight < window.screen.height
+                ? document.documentElement.clientHeight
+                : document.body.clientHeight //DOM有错时这个正常些
+                , mouseOffset = e.clientY - (clientHeight - trace.clientHeight)
+                , ht = dom_tab_tit.clientHeight - 2;
             document.onmousemove = function (e) {
                 e.preventDefault();
-                var clientHeight = document.documentElement.clientHeight < window.screen.height
-                    ? document.documentElement.clientHeight
-                    : document.body.clientHeight //DOM有错时这个正常些
-                  ,h = clientHeight - e.clientY + 20
-                  ,ht = dom_tab_tit.clientHeight - 2;
+                var h = clientHeight - e.clientY + mouseOffset;
                 trace.style.height = h + 'px';
                 dom_tab_cont.style.height = (h - ht) + 'px';
             };
