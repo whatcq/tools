@@ -82,7 +82,7 @@ if ($act === 'save_run') {
     //    $a = $WshShell->Run("cmd /C start  \"$file\" ", 3, true);
     //    var_dump($a);
     echo '<body onload="document.getElementById(\'tt\').focus();"><input id="tt" type="text" value="',
-        (strtr($file, '/', '\\')), '" onfocus="this.select();typeof window.clipboardData===\'object\' ? window.clipboardData.setData(\'text\', this.value):document.execCommand(\'copy\');" size="50" />&lt;=复制了';
+    (strtr($file, '/', '\\')), '" onfocus="this.select();typeof window.clipboardData===\'object\' ? window.clipboardData.setData(\'text\', this.value):document.execCommand(\'copy\');" size="50" />&lt;=复制了';
     exit;
 }
 
@@ -125,6 +125,7 @@ body,html{
     scrolling:no;
     padding-right:0;
     font-size:16px;
+    line-height: 18px;
     max-width:30px;
     padding-right: 4px;
 }
@@ -133,6 +134,7 @@ body,html{
     height:600px;
     font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;
     font-size:16px;
+    line-height: 18px;
     tab-size: 4;
     color: #5021b0;
 }
@@ -161,11 +163,11 @@ body,html{
 				<select style="width:218px;height: 25px;" onchange="eval('this.parentNode.nextSibling'+(!top.execScript?'.nextSibling':'')+'.value=this.value');">
 					<option></option>
 					<?php
-                    foreach (glob("{$path}*.php") as $php_filename) {
-                        $php_filename = basename($php_filename, '.php');
-                        echo "<option value=\"$php_filename\"> $php_filename </option>\n";
-                    }
-                    ?>
+foreach (glob("{$path}*.php") as $php_filename) {
+    $php_filename = basename($php_filename, '.php');
+    echo "<option value=\"$php_filename\"> $php_filename </option>\n";
+}
+?>
 				</select>
 			</span>
                         <input type="text" name="filename" id="filename" value="<?php echo $filename; ?>"
@@ -178,15 +180,15 @@ body,html{
                     <span title="- 赋值语句后加上#会打印出结果&#10;- Ctrl+j 复制当前行/选中文本&#10;- Ctrl+/(+Shift) 注释/取消中文本&#10;- 可以多行缩进/反缩进">?</span>
 
                     <?php if (isset($msg)) {
-                        echo $msg;
-                    }
-                    ?>
+    echo $msg;
+}
+?>
                 </div>
 
                 <table width="100%" cellspacing="0">
                     <tr>
                         <?php if ($textarea): ?>
-                            <td style="width:28px;"><textarea id="txt_ln" rows="40" cols="4" wrap="off" readonly="true"><?php echo implode("\n", range(1, 31)) . "\n"; ?></textarea></td>
+                            <td style="width:28px;"><textarea id="txt_ln" rows="40" cols="4" wrap="off" readonly="true"><?php //echo implode("\n", range(1, 31)) . "\n"; ?></textarea></td>
                         <?php endif; //@todo fix codemirror area height ?>
                         <td valign="top"><textarea name="source" id="source" <?=$textarea ? 'onscroll="show_ln()" rows="40" cols="80"' : 'class="area_0"'?> wrap="off"><?php echo str_replace('</textarea>', '&lt;/textarea>', $source); ?></textarea></td>
                     </tr>
@@ -199,7 +201,7 @@ body,html{
 </table>
 <?php if ($textarea): ?>
 <script>
-// 防抖动函数
+/*/ 防抖动函数
 function debounce(func, wait, immediate) {
     var timeout;
     return function () {
@@ -214,19 +216,20 @@ function debounce(func, wait, immediate) {
         if (callNow) func.apply(context, args);
     };
 }
+*/
 var i=32;
-// fix for Chrome 85/86
-var show_ln = debounce(function()
-{
+$('txt_ln').value = Array.apply(null, Array(i)).map(function (_, i) {return i+1;}).join('\n');
+var show_ln = function() {
     var txt_ln = $('txt_ln');
     var txt_main = $('source');
-    txt_ln.scrollTop = txt_main.scrollTop;
-    while (txt_ln.scrollTop != txt_main.scrollTop) {
-        txt_ln.value += (i++) + '\n';
-        txt_ln.scrollTop = txt_main.scrollTop;
+    var n = $('source').value.split("\n").length;
+    var buf = '';
+    while (i < n) {
+        buf += '\n' + (++i);
     }
-    return;
-}, 50);
+    txt_ln.value += buf;
+    txt_ln.scrollTop = txt_main.scrollTop;
+};
 // textarea indent+tab
 function indent(tx) {
     tx.addEventListener("keydown", function (e) {
@@ -244,6 +247,7 @@ function indent(tx) {
                 , prevLineSpaces = prevLine.match(/^\s*/gi)[0];
             this.value = prefix + '\n' + prevLineSpaces + suffix;
             this.selectionStart = this.selectionEnd = start + prevLineSpaces.length + 1;
+            tx.scrollTop += 18;//line-height;
             return;
         }
         if (e.key === 'Tab') {
