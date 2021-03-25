@@ -16,6 +16,7 @@ Cqiu's script tools
 - run-ide -- 浏览器打开IDE
 - file_server -- simple by php-cli
 - jsrun -- simple js/html/css playground by mdui
+- yii2 hack script -- edit bug file online
 
 ### personal
 - today's work.vbs -- task alerter for daily work
@@ -23,10 +24,13 @@ Cqiu's script tools
 - autoF5.ahk  -- hot key to auto reload bowser, for development
 - hackerVisions -- simple script to hacker visions
 - cqiu-note + enter.ahk
+- so -- multi search
+- tasks -- 任务执行system
 
 ### software-helper
 - for-tpl.py -- make code with template;plugin for sublime(at last!!)
 - for-tpl.js -- make code with template;plugin for Editplus
+- template.html -- make code with template
 - mempad merge
 - minipad2 data reader
 - life 900 months!
