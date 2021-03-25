@@ -7,21 +7,23 @@
 /*
 # Apache .htaccess locate ['DOCUMENT_ROOT'] @2017/12/11
 file_put_contents("{$_SERVER['DOCUMENT_ROOT']}/.htaccess", <<<SETTING
+
 # display Markdown as HTML by default
 RewriteEngine on
 RewriteRule (.+\.(markdown|mdown|md|mkd))$ {$_SERVER['PHP_SELF']}
 RewriteRule (.+\.(markdown|mdown|md|mkd)\-text)$ {$_SERVER['PHP_SELF']} [L]
-IndexIgnore .??* *~ *# HEADER* README.html readme.txt RCS CVS *,v *,t
+IndexIgnore .??* *~ HEADER* README.html readme.txt RCS CVS *,v *,t *#
+
 SETTING
-    , FILE_APPEND);
-/**/
+    ,FILE_APPEND) && die('.htacess appended!');
+die('failed!');
+// */
 
 if (isset($_GET['src'])) {
     readfile(preg_replace('#\?.*#', '', $_GET['src']));
     exit;
 }
 
-//$p = isset($_GET['p']) ? $_GET['p'] : null;
 if (isset($_GET['p'])) {
     $p = $_GET['p'];
 } elseif (isset($_SERVER['REDIRECT_URL'])) {
@@ -33,12 +35,15 @@ if (isset($_GET['p'])) {
 function mdList($p)
 {
     $html = '<li class="title"><a href="./.">' . basename($p) . ' \</a></li>'
-        .'<li class="title"><a href="?p=' . dirname($p) . '">..</a></li>';
-    foreach (glob($p . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
+        . '<li class="title"><a href="?p=' . dirname($p) . '">..</a></li>';
+    foreach (glob("$p/*", GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
         $html .= '<li><a href="?p=' . $dir . '">' . basename($dir) . '</a></li>';
     }
-    foreach (glob($p . DIRECTORY_SEPARATOR . '*.{md,markdown}', GLOB_BRACE) as $file) {
-        $html .= '<li class="md ' . ($file == $GLOBALS['p'] ? ' title' : '') . '"><a href="?p=' . $file . '">' . basename($file) . '</a></li>';
+    $isWWW = strpos($p, $_SERVER['DOCUMENT_ROOT']) === 0;
+    foreach (glob("$p/*.{md,markdown}", GLOB_BRACE) as $file) {
+        $baseFile = basename($file);
+        $href = $isWWW ? substr($file, strlen($_SERVER['DOCUMENT_ROOT'])) : "?p=$file";
+        $html .= '<li class="md ' . ($file == $GLOBALS['p'] ? ' title' : '') . '"><a href="' . $href . '">' . $baseFile . '</a></li>';
     }
     return $html;
 }
