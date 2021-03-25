@@ -8,81 +8,73 @@ if ($ip !== '127.0.0.1' && $ip !== '::1') {
 Author: Cqiu <gdaymate@126.com>
 Created: 2010-7-26
 Modified: 2013-7-26 16:13
+Modified: 2021-3-25 Final!整理代码，做为Legacy版本(简单轻量)，更多特性还得codemirror之类
 要点：
 - 可输入下拉框
 - 带行号文本框
 - 自动复制文本内容
+- 文本框编辑强化(tab,indent,duplicate,comment)
 - 自适应宽度
 - 兼容ie,ff,chrome
  */
 //如果ini没设默认的会报错
 date_default_timezone_set('Asia/Chongqing');
 
-// 去掉转义字符
-function s_array(&$array)
-{
-    return is_array($array) ? array_map('s_array', $array) : stripslashes($array);
-}
 if (function_exists('set_magic_quotes_runtime')) {
     set_magic_quotes_runtime(0);
-}
-
-if (get_magic_quotes_gpc()) {
-    $_REQUEST = s_array($_REQUEST);
+    if (get_magic_quotes_gpc()) {
+        // 去掉转义字符
+        function s_array(&$array)
+        {
+            return is_array($array) ? array_map('s_array', $array) : stripslashes($array);
+        }
+        $_REQUEST = s_array($_REQUEST);
+    }
 }
 
 $path = basename(__FILE__, '.php') . '/';
-$this_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR;
+$thisDir = dirname(__FILE__) . DIRECTORY_SEPARATOR;
 $filename = 'test';
-$source = '&lt;?php
-/*' . date('Y-m-d') . '
+$date = date('Y-m-d');
+$source = <<<PHP
+<?php
+/*$date
 */
 header("Content-type:text/html;charset=utf-8");
-include \'common.func.php\';
+include 'common.func.php';
 
 var_dump(
-
+    
 );
-';
+PHP;
+
 if (isset($_REQUEST['filename'])) {
     $filename = $_REQUEST['filename'];
-    $file = $this_dir . $path . $filename . '.php';
+    $file = $thisDir . $path . $filename . '.php';
 }
 
 $act = isset($_REQUEST['act']) ? $_REQUEST['act'] : '';
 
 if ($act === 'save_run') {
-    //exit($act);
     $file = $path . $_REQUEST['filename'] . '.php';
-    $source = preg_replace('/((\$\w+)\s?=.*)#(\r?\n)/', "\$1var_dump(\$2);\$3", $_REQUEST['source']);
-    file_put_contents($file, $source);
+    file_put_contents($file, preg_replace(
+        '/((\$\w+)\s?=.*)#(\r?\n)/',
+        "\$1var_dump(\$2);\$3",
+        $_REQUEST['source']
+    ));
     header('location:' . $file);
     exit;
 } elseif ($act === 'open_it_with_editplus') {
-    /*在服务器端执行命令，用editplus.exe打开文件;(不知为何不行了现在……)*/
-//    $program='D:\\Program Files\\EditPlus 3\\editplus.exe';
-    //    if(!file_exists($file)) {
-    //        exit('File '.htmlspecialchars($file).' not found!');
-    //    }
-    //    if(!file_exists($program)) {
-    //        exit('program not found!');
-    //    }
-    //尝试1
-    //    $output = shell_exec('start "" "'.$program.'" "'.$file.'"');
-    //    $shell= new COM('Shell.Application') or die('启动COM失败！');
-    //尝试2
-    //    $a = $shell->Open("\"$program\" \"$file\"");
-    //    var_dump($a);
-    //尝试3
-    //    $a = $shell->ShellExecute($program,$file);
-    //尝试4
-    //    $a = $shell->ShellExecute('c:\windows\system32\cmd.exe','/c start "" "D:\Program Files\tools\putty.exe"');
-    //尝试5
-    //    $WshShell = new COM("WScript.Shell");
-    //    $a = $WshShell->Run("cmd /C start  \"$file\" ", 3, true);
-    //    var_dump($a);
-    echo '<body onload="document.getElementById(\'tt\').focus();"><input id="tt" type="text" value="',
-    (strtr($file, '/', '\\')), '" onfocus="this.select();typeof window.clipboardData===\'object\' ? window.clipboardData.setData(\'text\', this.value):document.execCommand(\'copy\');" size="50" />&lt;=复制了';
+    /*在服务器端执行命令，用editplus.exe打开文件;(有空格不行！即使加了引号也不行！用短文件名：dir /x 即可查看)*/
+    $program = 'D:\\mysoft\\EditPlus\\EditPlus.exe';
+    $output = shell_exec('start "" "' . $program . '" "' . $file . '"');
+    $file = strtr($file, '/', '\\');
+    echo <<<HTML
+<body onload="document.getElementById('filePath').focus();">
+<input id="filePath" type="text" value="$file"
+  onfocus="this.select();typeof window.clipboardData==='object' ? window.clipboardData.setData('text', this.value):document.execCommand('copy');" size="50" />
+&lt;=复制了
+HTML;
     exit;
 }
 
@@ -95,14 +87,11 @@ if (isset($file)) {
 }
 
 // 切换输入框模式
-if (isset($_COOKIE['textarea'])) {
-    $textarea = $_COOKIE['textarea'];
-} else {
-    $textarea = 1; //默认值
-}
+$textarea = isset($_COOKIE['textarea']) ? $_COOKIE['textarea'] : 1;
+
 if (isset($_GET['textarea'])) { //$_REQUEST variables_order:GetPostCookie会覆盖！
     setcookie('textarea', $_GET['textarea']) or print('set cookie failed!');
-    $textarea = (boolean) $_GET['textarea'];
+    $textarea = (boolean)$_GET['textarea'];
 }
 ?>
 <html>
@@ -114,27 +103,23 @@ body,html{
     padding:0;
     overflow:hidden;
 }
-#txt_ln{
+.src{
     height:600px;
     font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;
+    line-height: 18px;
+    font-size:16px;
+}
+#txt_ln{
     background-color:#ecf0f5;
     color:#c0bebe;
     border:none;
     text-align:right;
     overflow:hidden;
-    scrolling:no;
-    padding-right:0;
-    font-size:16px;
-    line-height: 18px;
     max-width:30px;
     padding-right: 4px;
 }
 #source{
     width:600px;
-    height:600px;
-    font-family: Consolas,'Lucida Console',Monaco,'Courier New',Courier, monospace;
-    font-size:16px;
-    line-height: 18px;
     tab-size: 4;
     color: #5021b0;
 }
@@ -179,18 +164,19 @@ foreach (glob("{$path}*.php") as $php_filename) {
                     <button onclick="iframe.location='<?php echo $path; ?>'+$('filename').value+'.php';console.log($('filename').value);return false;" title="Run this file=>">Run</button>
                     <span title="- 赋值语句后加上#会打印出结果&#10;- Ctrl+j 复制当前行/选中文本&#10;- Ctrl+/(+Shift) 注释/取消中文本&#10;- 可以多行缩进/反缩进">?</span>
 
-                    <?php if (isset($msg)) {
-    echo $msg;
-}
-?>
+                    <?php if (isset($msg)) {echo $msg;}?>
                 </div>
 
                 <table width="100%" cellspacing="0">
                     <tr>
                         <?php if ($textarea): ?>
-                            <td style="width:28px;"><textarea id="txt_ln" rows="40" cols="4" wrap="off" readonly="true"><?php //echo implode("\n", range(1, 31)) . "\n"; ?></textarea></td>
+                            <td style="width:28px;"><textarea id="txt_ln" class="src" rows="40" cols="4" wrap="off" readonly="true"></textarea></td>
                         <?php endif; //@todo fix codemirror area height ?>
-                        <td valign="top"><textarea name="source" id="source" <?=$textarea ? 'onscroll="show_ln()" rows="40" cols="80"' : 'class="area_0"'?> wrap="off"><?php echo str_replace('</textarea>', '&lt;/textarea>', $source); ?></textarea></td>
+                        <td valign="top">
+                            <textarea name="source" id="source" <?=
+                            $textarea ? ' class="src" onscroll="show_ln()" rows="40" cols="80"' : 'class="area_0"' ?> wrap="off"><?php
+                                echo htmlspecialchars($source); ?></textarea>
+                        </td>
                     </tr>
                 </table>
                 <input type="submit" value="Run (Ctrl+S)" style="width:90px;height:40px;">
@@ -217,19 +203,20 @@ function debounce(func, wait, immediate) {
     };
 }
 */
-var i=32;
-$('txt_ln').value = Array.apply(null, Array(i)).map(function (_, i) {return i+1;}).join('\n');
-var show_ln = function() {
-    var txt_ln = $('txt_ln');
-    var txt_main = $('source');
-    var n = $('source').value.split("\n").length;
-    var buf = '';
-    while (i < n) {
-        buf += '\n' + (++i);
+var ln = 0
+    , txt_ln = $('txt_ln')
+    , txt_main = $('source');
+var show_ln = function () {
+    var n = Math.max(40, txt_main.value.split("\n").length);
+    if (ln < n) {
+        ln = n;
+        txt_ln.value = Array.apply(null, Array(ln)).map(function (_, i) {
+            return i + 1;
+        }).join('\n');
     }
-    txt_ln.value += buf;
     txt_ln.scrollTop = txt_main.scrollTop;
 };
+show_ln();
 // textarea indent+tab
 function indent(tx) {
     tx.addEventListener("keydown", function (e) {
@@ -242,7 +229,7 @@ function indent(tx) {
                 , suffix = txt.substring(end);
         } else return;
         if (e.key === 'Enter') {
-            var breakPoint = txt.lastIndexOf('\n', start - 1)
+            let breakPoint = txt.lastIndexOf('\n', start - 1)
                 , prevLine = txt.substring(breakPoint + 1, start)
                 , prevLineSpaces = prevLine.match(/^\s*/gi)[0];
             this.value = prefix + '\n' + prevLineSpaces + suffix;
@@ -253,7 +240,7 @@ function indent(tx) {
         if (e.key === 'Tab') {
             if (end > start) {
                 start = txt.lastIndexOf('\n', start - 1) + 1;
-                var newSelection = txt.slice(start, end)
+                let newSelection = txt.slice(start, end)
                     , indentedText = e.shiftKey
                     ? newSelection.replace(/(^|\n)\t/g, "$1")//unindent
                     : newSelection.replace(/^|\n/g, '$&\t')//indent
@@ -273,7 +260,7 @@ function indent(tx) {
                 this.selectionStart = this.selectionEnd = end + end - start;
                 return;
             }
-            var breakPoint = txt.lastIndexOf('\n', start - 1)
+            let breakPoint = txt.lastIndexOf('\n', start - 1)
                 , breakPointNext = txt.indexOf('\n', start)
                 , prevLine = txt.substring(breakPoint, breakPointNext);
             this.value = txt.substring(0, breakPoint) + prevLine + prevLine + txt.substring(breakPointNext);
@@ -293,7 +280,7 @@ function indent(tx) {
         }
     });
 }
-indent($('source'));
+indent(txt_main);
 </script>
 <?php else: ?>
 <link href="https://cdn.bootcdn.net/ajax/libs/codemirror/5.54.0/codemirror.min.css" rel="stylesheet">
@@ -313,7 +300,6 @@ for (var key in map) {
     if (key != "fallthrough" && val != "..." && (!/find/.test(val) || /findUnder/.test(val)))
         value += "  \"" + key + "\": \"" + val + "\",\n";
 }
-value += "  \"Ctrl-S\": function(){console.log(self.location)}\n";
 value += "}\n\n// The implementation of joinLines\n";
 value += CodeMirror.commands.joinLines.toString().replace(/^function\s*\(/, "function joinLines(").replace(/\n  /g, "\n") + "\n";
 var editor = CodeMirror.fromTextArea($("source"), {
