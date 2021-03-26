@@ -47,10 +47,16 @@ function mdList($p)
     }
     return $html;
 }
+$base = is_dir($p) && strpos($p, $_SERVER['DOCUMENT_ROOT']) === 0 ? substr($p, strlen($_SERVER['DOCUMENT_ROOT'])) : '';
 if (is_file($p)) {
     $content = file_get_contents($p);
 } elseif (is_dir($p)) {
     if (file_exists($p . '/README.md')) {
+        if (strpos($p, $_SERVER['DOCUMENT_ROOT']) === 0) {
+            header('location:' . substr($p, strlen($_SERVER['DOCUMENT_ROOT'])) . '/README.md');
+            die;
+        }
+
         $content = file_get_contents($p = $p . '/README.md');
     } else {
         $content = null;
@@ -80,7 +86,12 @@ if ($content) {
     <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
     <title><?= basename($p) ?></title>
     <link rel="stylesheet" href="<?= dirname($_SERVER['PHP_SELF']) ?>/lib/github-markdown.css">
+    <?php //= '<base href="' . $base . '/"/>' ?>
+
     <style>
+        ::-webkit-scrollbar-track{-webkit-box-shadow:inset 0 0 6px rgba(194, 161, 161, 0.1);border-radius:10px;background-color:#F5F5F5}
+        ::-webkit-scrollbar{width:6px;height:6px;background-color:#F5F5F5}
+        ::-webkit-scrollbar-thumb{border-radius:5px;-webkit-box-shadow:inset 0 0 6px rgba(0,0,0,.1);background-color:rgb(209, 190, 171)}
         body {
             margin: 0;
         }
@@ -91,6 +102,7 @@ if ($content) {
             position: fixed;
             top: 0;
             bottom: 0;
+            background: #f6f8fa;
         }
 
         #content {
@@ -115,20 +127,6 @@ if ($content) {
             padding: 0;
             list-style: none;
             overflow: auto;
-        }
-        .sidebar-nav::-webkit-scrollbar {
-            width: 10px;
-            height: 1px;
-        }
-        .sidebar-nav::-webkit-scrollbar-thumb {
-            border-radius: 10px;
-             -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
-            background: #535353;
-        }
-        .sidebar-nav::-webkit-scrollbar-track {
-            -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
-            border-radius: 10px;
-            background: #EDEDED;
         }
 
         .sidebar-nav li {
@@ -163,6 +161,29 @@ if ($content) {
             color: #1f9b4c;
             content: '▶ '
         }
+
+        #toc {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            overflow: auto;
+            background: #f6f8fa;
+            display: none;
+            font-size: 85%;
+        }
+
+        #toc ol {
+            padding-left: 20px;
+        }
+        #toc a{
+            color: #0366d6;
+            text-decoration: none;
+        }
+        #toc a:visited{
+            color: gray;
+        }
     </style>
 </head>
 <body>
@@ -174,5 +195,61 @@ if ($content) {
         <?= $content; ?>
     </article>
 </div>
+<div id="toc"></div>
+
+<script>
+    (function () {
+        var tocBox = document.getElementById("toc");
+        var documentBox = document.getElementById("content");
+        var toc = "";
+        var level = 0;
+        var duplicateIndex = 0;
+        //fix duplicate anchor
+        var anchorSet = {};
+
+        documentBox.innerHTML =
+            documentBox.innerHTML.replace(
+                /<h([2-6]).*?>(.+?)<\/h([2-6])>/gim,
+                function (str, openLevel, titleText, closeLevel) {
+                    if (openLevel !== closeLevel) {
+                        return str;
+                    }
+
+                    if (openLevel > level) {
+                        toc += (new Array(openLevel - level + 1)).join("<ol>");
+                    } else if (openLevel < level) {
+                        toc += (new Array(level - openLevel + 1)).join("</ol>");
+                    }
+
+                    level = parseInt(openLevel);
+
+                    var anchor = titleText.replace(/<.*?>/g, '').replace(/ /g, "_");
+                    if (anchor) {
+                        text = anchor;
+                        if (!!anchorSet[anchor]) {
+                            anchor = anchor + (duplicateIndex++);
+                        }
+                        anchorSet[anchor] = 1;
+
+                        toc += "<li><a href=\"#" + anchor + "\">" + text
+                            + "</a></li>";
+                    }
+
+                    return "<h" + openLevel + "  id=\"" + anchor + "\">"
+                        + titleText + "</h" + closeLevel + ">";
+                }
+            );
+
+        if (level) {
+            toc += (new Array(level + 1)).join("</ol>");
+        }
+
+        if (toc) {
+            tocBox.innerHTML += toc;
+            tocBox.style.display = 'block';
+            documentBox.style.marginRight = '250px';
+        }
+    })();
+</script>
 </body>
 </html>
