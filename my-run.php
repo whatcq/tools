@@ -12,11 +12,20 @@ var_dump(
     </form>
     <iframe src="" name="iframe" frameborder="0" style="width: 100%;height: 100%;"></iframe>
 </div>
-<script src="https://cdn.bootcss.com/ace/1.4.6/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://cdn.bootcss.com/ace/1.4.9/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/ace/1.4.9/ext-language_tools.min.js"></script>
 <script>
+    // trigger extension
+    ace.require("ace/ext/language_tools");
     var e = ace.edit("e");
     e.setTheme("ace/theme/monokai");
     e.getSession().setMode("ace/mode/php");
+    // enable autocompletion and snippets
+    e.setOptions({
+        enableBasicAutocompletion: true,//Ctrl+space
+        enableSnippets: true,//tab
+        enableLiveAutocompletion: false
+    });
     document.onkeydown = function (e) {
         if (e.key==='s' && e.ctrlKey) {
             document.getElementById('source').value=window.e.getValue();
