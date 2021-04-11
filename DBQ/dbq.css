@@ -80,11 +80,16 @@ table{font-size:80%}
     border-radius: 0 0 8px 8px;
 }
 .coor {
-    background: #0f0;
+    background: #f2c2f4;
     cursor: move;
     display: inline-block;
+    text-align: center;
+    line-height: 20px;
     height: 20px;
     width: 20px;
+    margin: 0;
+    padding: 0;
+    border-radius: 20px;
 }
 /*typeahead*/
 

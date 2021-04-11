@@ -44,7 +44,7 @@ if (!$link) {
         // .env/.ini解析
         preg_match_all('/(\w+)\s?=\s?(\S*)/', $str, $matches);
         $dsn = [];
-        if (isset($matches[0])) {
+        if (!empty($matches[0])) {
             foreach ($matches[1] as $i => $field) {
                 if (stripos($field, 'host')) $dsn['HOST'] = $matches[2][$i];
                 if (stripos($field, 'port')) $dsn['HOST'] .= ':' . $matches[2][$i];
@@ -57,8 +57,8 @@ if (!$link) {
         // multiline define/array map
         preg_match_all('/(["\'])(.*?)\1/', $str, $matches);
         $dsn = [];
-        if (isset($matches[0])) {
-            foreach ($matches[1] as $i => $field) {
+        if (!empty($matches[0])) {
+            foreach ($matches[2] as $i => $field) {
                 if (stripos($field, 'host')) $dsn['HOST'] = $matches[2][++$i];
                 if (stripos($field, 'port')) $dsn['HOST'] .= ':' . $matches[2][++$i];
                 if (stripos($field, 'pass')) $dsn['PASS'] = $matches[2][++$i];
@@ -75,15 +75,11 @@ if (!$link) {
         res(0, null, 'parse link failed!');
     }
     $info = serialize($dsn);
-    $link = md5($info);
-    $_SESSION[$link] = $info;
-    setcookie('link', $link);
-    $_COOKIE['link'] = $link;
     $q = '#';
     $fetchType = PDO::FETCH_COLUMN;
 }
 
-if (!isset($_SESSION[$link])) {
+if (!isset($_SESSION[$link]) && !isset($dsn)) {
     res(0, null, 'link not set!');
 }
 
@@ -92,7 +88,18 @@ define('DB_HOST', $dsn['HOST']);
 define('DB_NAME', $dsn['NAME']);
 define('DB_USER', $dsn['USER']);
 define('DB_PASS', $dsn['PASS']);
-!empty($dsn['CHAR']) && define('DB_CHAR', $dsn['CHAR']) && DB::x('SET NAMES "' . DB_CHAR . '"');
+!empty($dsn['CHAR']) && define('DB_CHAR', $dsn['CHAR']);
+$dbInstance = DB::instance(true);
+if($dbInstance instanceof PDOException){
+    res(0, null, $dbInstance->getMessage());
+}
+if(isset($info)){
+    $link = md5($info);
+    $_SESSION[$link] = $info;
+    setcookie('link', $link);
+    $_COOKIE['link'] = $link;
+}
+defined('DB_CHAR') && DB::x('SET NAMES "' . DB_CHAR . '"');
 
 $shows = [
     'TABLES',
@@ -284,7 +291,7 @@ if ($show || $q) {
             $w = parse($q);
             $r = call_user_func_array('DB::q', $w);
         } catch (Exception $e) {
-            res(0, $w ?? '', $e->getMessage());
+            res(0, $w ?? $q, $e->getMessage());
         }
         $w = json_encode($w);
     }
