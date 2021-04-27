@@ -32,17 +32,23 @@ if (isset($_GET['p'])) {
     $p = null;
 }
 
+//urlencode之后地址栏不好看
+function urlencode2($str)
+{
+    return str_replace(['+', ' '], ['%2B', '%20'], $str);
+}
+
 function mdList($p)
 {
     $html = '<li class="title"><a href="./.">' . basename($p) . ' \</a></li>'
         . '<li class="title"><a href="?p=' . dirname($p) . '">..</a></li>';
     foreach (glob("$p/*", GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
-        $html .= '<li><a href="?p=' . $dir . '">' . basename($dir) . '</a></li>';
+        $html .= '<li><a href="?p=' . urlencode2($dir) . '">' . basename($dir) . '</a></li>';
     }
     $isWWW = strpos($p, $_SERVER['DOCUMENT_ROOT']) === 0;
     foreach (glob("$p/*.{md,markdown}", GLOB_BRACE) as $file) {
         $baseFile = basename($file);
-        $href = $isWWW ? substr($file, strlen($_SERVER['DOCUMENT_ROOT'])) : "?p=$file";
+        $href = $isWWW ? substr($file, strlen($_SERVER['DOCUMENT_ROOT'])) : "?p=" . urlencode2($file);
         $html .= '<li class="md ' . ($file == $GLOBALS['p'] ? ' title' : '') . '"><a href="' . $href . '">' . $baseFile . '</a></li>';
     }
     return $html;
@@ -64,6 +70,7 @@ if (is_file($p)) {
     }
 } else {
     $content = null;
+    var_dump($p);
     $html = 'File not found!';
 }
 if ($content) {
@@ -89,9 +96,24 @@ if ($content) {
     <?php //= '<base href="' . $base . '/"/>' ?>
 
     <style>
-        ::-webkit-scrollbar-track{-webkit-box-shadow:inset 0 0 6px rgba(194, 161, 161, 0.1);border-radius:10px;background-color:#F5F5F5}
-        ::-webkit-scrollbar{width:6px;height:6px;background-color:#F5F5F5}
-        ::-webkit-scrollbar-thumb{border-radius:5px;-webkit-box-shadow:inset 0 0 6px rgba(0,0,0,.1);background-color:rgb(209, 190, 171)}
+        ::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(194, 161, 161, 0.1);
+            border-radius: 10px;
+            background-color: #F5F5F5
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+            background-color: #F5F5F5
+        }
+
+        ::-webkit-scrollbar-thumb {
+            border-radius: 5px;
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .1);
+            background-color: rgb(209, 190, 171)
+        }
+
         body {
             margin: 0;
         }
@@ -177,11 +199,11 @@ if ($content) {
         #toc ol {
             padding-left: 20px;
         }
-        #toc a{
+        #toc a {
             color: #0366d6;
             text-decoration: none;
         }
-        #toc a:visited{
+        #toc a:visited {
             color: gray;
         }
     </style>
@@ -202,7 +224,7 @@ if ($content) {
         var tocBox = document.getElementById("toc");
         var documentBox = document.getElementById("content");
         var toc = "";
-        var level = 0;
+        var level = 1;//ignore h1
         var duplicateIndex = 0;
         //fix duplicate anchor
         var anchorSet = {};
