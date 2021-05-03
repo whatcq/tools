@@ -33,12 +33,18 @@
 <script src="localStore.js"></script>
 <script>
     function render(data) {
+        var _id = 'box_' + zIndex;
         $($('#tpl_layer').html())
             .find('.body')
             .html(data)//'<pre>' + JSON.stringify(data, null, 4) + '</pre>') @todo 改成art-template-web.js
             .end()
+            .attr('id', _id)
+            .css('z-index', zIndex)
             .appendTo($('body'));
         zIndex++;
+        var _width = $('#' + _id).find('.body > table').width();
+        console.log(_width)
+        $('#' + _id).width(Math.min(_width, 600));
     }
     var lsh = new LocalStorageHandler();
     var link = lsh.get('currentLink');
