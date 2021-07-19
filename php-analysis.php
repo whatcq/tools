@@ -65,7 +65,6 @@ if(!empty($_COOKIE['_trace']) || !empty($_REQUEST['_trace'])) {
     });
     unset($_GET['_trace']);
 }
-
 //---------------------------------
 /**
  * 打印4测试
@@ -122,6 +121,7 @@ register_shutdown_function(function () use ($debugOptions) {
     $selectPanels = array_flip(str_split($debugOptions));
     $settings = [
         '_' => '<b title="选上则每个页面都显示本调试面板">Pinned</b>',
+        'e' => 'TRACE',
         'x' => 'x files',
         'T' => 'constants',
         'F' => 'functions',
@@ -180,7 +180,7 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
         <div id="debugBar_tab_cont">
             <div style="display:none;" id="debugBarSetting">
                 <?php foreach ($settings as $key => $name) { ?>
-                    <u data-key="<?= $key?>"<?= isset($selectPanels[$key]) ? '' : ' class="off"'?>><?= $name ?></u>
+                    <u data-key="<?= $key?>"<?= !empty($selectPanels[$key]) ? '' : ' class="off"'?>><?= $name ?></u>
                 <?php } ?>
             </div>
             <?php foreach ($traces as $key => $info) { ?>
@@ -222,6 +222,10 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
                 var key = obj.getAttribute('data-key')
                     , cookie = document.cookie.match(/_t=(\w+)/)
                     , _t = (cookie && typeof cookie[1] !== 'undefined') ? cookie[1] : '_';
+                if (key === 'e') {
+                    document.cookie = '_trace=1' + (obj.classList.contains('off') ? ';expires=Thu,01-Jan-1970 00:00:01 GMT' : '');
+                    return;
+                }
                 document.cookie = '_t=' + (
                     obj.classList.contains('off')
                         ? (key === '_' ? '' : _t.replace(new RegExp(key, 'g'), ''))
