@@ -74,11 +74,14 @@ if (is_file($p)) {
     $html = 'File not found!';
 }
 if ($content) {
-    include 'lib/Parsedown.php';
-    $parsedown = new Parsedown();
+    //include 'lib/Parsedown.php';
+    //$parsedown = new Parsedown();
+    include 'lib/Parser.php';
+    $parsedown = new HyperDown\Parser;
 
     $path = dirname($p) . DIRECTORY_SEPARATOR;
-    $content = $parsedown->text($content);
+    //$content = $parsedown->text($content);
+    $content = $parsedown->makeHtml($content);
     $content = preg_replace('#<img src="(?!((https?:)?//))(.*)"#i', '<img src="?src=' . $path . '\$3"', $content);
     $content = preg_replace('#<a href="(?!(https?://))(.*\.md)"#i', '<a href="?p=' . $path . '\$2"', $content);
     $content = preg_replace('#<a href="&lt;(.*\.md)>"#i', '<a href="?p=' . $path . '\$1"', $content);
@@ -198,6 +201,7 @@ if ($content) {
 
         #toc ol {
             padding-left: 20px;
+            border-left: 1px lightgray solid;
         }
         #toc a {
             color: #0366d6;
@@ -273,5 +277,13 @@ if ($content) {
         }
     })();
 </script>
+
+<!-- <link href="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.1.0/styles/a11y-light.min.css" rel="stylesheet"> -->
+<!-- <link href="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.1.0/styles/base16/dracula.min.css" rel="stylesheet"> -->
+<link href="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.1.0/styles/base16/edge-light.min.css" rel="stylesheet">
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.1.0/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.1.0/languages/php.min.js"></script>
+<script>hljs.highlightAll();</script>
+
 </body>
 </html>
