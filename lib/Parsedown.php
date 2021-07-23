@@ -872,7 +872,7 @@ class Parsedown
     protected function blockReference($Line)
     {
         if (strpos($Line['text'], ']') !== false
-            and preg_match('/^\[(.+?)\]:[ ]*+<?(\S+?)>?(?:[ ]+["\'(](.+)["\')])?[ ]*+$/', $Line['text'], $matches)
+            and preg_match('/^\[(?!\[)(.+?)\]:[ ]*+<?(\S+?)>?(?:[ ]+["\'(](.+)["\')])?[ ]*+$/', $Line['text'], $matches)
         ) {
             $id = strtolower($matches[1]);
 

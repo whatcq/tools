@@ -964,7 +964,7 @@ class Parser
      */
     private function parseBlockDefinition($block, $key, $line)
     {
-        if (preg_match("/^\s*\[((?:[^\]]|\\]|\\[)+?)\]:\s*(.+)$/", $line, $matches)) {
+        if (preg_match("/^\s*\[(?!\[)((?:[^\]]|\\]|\\[)+?)\]:\s*(.+)$/", $line, $matches)) {
             $this->_definitions[$matches[1]] = $this->cleanUrl($matches[2]);
             $this->startBlock('definition', $key)
                 ->endBlock();
