@@ -1,9 +1,12 @@
 <?php
-define('DB_HOST', '127.0.0.1');
-define('DB_NAME', 'mysql');//information_schema
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_CHAR', 'utf8');//utf8mb4
+$links = include 'playground/config.database.php';
+$link = $_REQUEST['link'] ?? 'local';
+$config = $links[$link];
+define('DB_HOST', $config['host']);
+define('DB_NAME', $config['database']);
+define('DB_USER', $config['username']);
+define('DB_PASS', $config['password']);
+isset($config['charset']) && define('DB_CHAR', $config['charset']);
 
 require 'lib/DB.php';
 
@@ -71,6 +74,15 @@ foreach ($d as $_table) {
 		</span>
 		<input type="text" name="q" id="q" value="<?php echo $q; ?>"
 			style="width:200px;position:absolute;left:2px;top:4px;height: 20px;border:0;" />
+        <select name="link" style="height: 25px;">
+            <?php
+            foreach ($links as $_link => $info) {
+                $color = $info['color'] ?? '#fff';
+                $selected = $link === $_link ? ' selected' : '';
+                echo "<option value=\"$_link\" style=\"background: $color\"$selected> $_link </option>\n";
+            }
+            ?>
+        </select>
 		<select name="show" id="show" style="height: 25px;" onchange="this.form.submit()">
 			<option value="">-- show --</option>
 <?php
