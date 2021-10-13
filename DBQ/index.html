@@ -22,7 +22,7 @@
     <div id="data"></div>
 </body>
 <script type="text/html" id="tpl_layer">
-    <div id="" class="box no_select">
+    <div id="" class="box no_selectx">
         <div class="box_head"><a class="coor">+</a></div>
         <div class="body"></div>
     </div>
@@ -32,11 +32,12 @@
 <script src="http://localhost/cqiu/static/typeahead.jquery.min.js"></script>
 <script src="localStore.js"></script>
 <script>
+    // @todo 面板关联视图
     function render(data) {
         var _id = 'box_' + zIndex;
         $($('#tpl_layer').html())
             .find('.body')
-            .html(data)//'<pre>' + JSON.stringify(data, null, 4) + '</pre>') @todo 改成art-template-web.js
+            .html(data)// @todo 改成art-template-web.js=>why not vue?
             .end()
             .attr('id', _id)
             .css('z-index', zIndex)
@@ -143,7 +144,8 @@
                 minLength: 1
             },
             {
-                name: 'states',
+                name: 'tables',
+                limit: 10,
                 source: substringMatcher()
             });
     });

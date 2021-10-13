@@ -2,6 +2,7 @@
 
 /**
  * 后台task处理进程/服务
+ * 可以修改为redis publish/subscribe
  */
 if (PHP_SAPI !== "cli") {
     die('CLI only!');
@@ -20,7 +21,7 @@ while (1) {
     if ($cmd) {
         file_put_contents($messageFile, '');
         info($cmd);
-        $result = `$cmd`;// >> task.log
+        $result = `$cmd`;
         info($result);
     }
     sleep(1);

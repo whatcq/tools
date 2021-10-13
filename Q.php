@@ -2,6 +2,7 @@
 $links = include 'playground/config.database.php';
 $link = $_REQUEST['link'] ?? 'local';
 $config = $links[$link];
+isset($config['port']) && $config['host'] .= ':' . $config['port'];
 define('DB_HOST', $config['host']);
 define('DB_NAME', $config['database']);
 define('DB_USER', $config['username']);
@@ -219,6 +220,7 @@ function render($data) {
 		}
 		return;
 	}
+
 	echo '<table border="0" cellpadding="3">';
 	echo '<tr bgcolor="#dddddd"><th>#</th>';
 	foreach (current($data) as $key => $null) {
@@ -226,7 +228,7 @@ function render($data) {
 	}
 	echo '</tr>';
 	foreach ($data as $_key => $_data) {
-		echo "<tr><td>$_key</td>";
+		echo "<tr><td><i>$_key</i></td>";
 		foreach ($_data as $key => $value) {
 			is_null($value) && $value = '<i>&lt;null></i>';
 			echo "<td>$value</td>";

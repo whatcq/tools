@@ -68,6 +68,7 @@ if ($act === 'save_run') {
     /*在服务器端执行命令，用editplus.exe打开文件;(有空格不行！即使加了引号也不行！用短文件名：dir /x 即可查看)*/
     $program = 'D:\\mysoft\\EditPlus\\EditPlus.exe';
     $output = shell_exec('start "" "' . $program . '" "' . $file . '"');
+    // 首次打开程序，下面就断了？
     $file = strtr($file, '/', '\\');
     echo <<<HTML
 <body onload="document.getElementById('filePath').focus();">
