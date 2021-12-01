@@ -1,9 +1,10 @@
 <?php
 /**
  * 简单分析php程序的状况
- * - use _COOKIE['_t']/ajax click=>document.cookie='_t=_';
- * - print vars,trace,sqls
- *
+ * - use _COOKIE['_t']/ajax click=>document.cookie='_t=_';//start debug bar
+ * - _err('msg');//trace
+ * - ?_trace=1 //trace
+ * - _log($var1, $var2, ...);//log vars
  * Usage：
  * define('LOG_TO', __DIR__ . '/debug.log');
  * define('LOG_TO', 'admin@domain.com');
