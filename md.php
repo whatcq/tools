@@ -40,7 +40,7 @@ function urlencode2($str)
 
 function mdList($p)
 {
-    $html = '<li class="title"><a href="./.">' . basename($p) . ' \</a></li>'
+    $html = '<ul><li class="title"><a href="./.">' . basename($p) . ' \</a></li>'
         . '<li class="title"><a href="?p=' . dirname($p) . '">..</a></li>';
     foreach (glob("$p/*", GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
         $html .= '<li><a href="?p=' . urlencode2($dir) . '">' . basename($dir) . '</a></li>';
@@ -51,7 +51,7 @@ function mdList($p)
         $href = $isWWW ? substr($file, strlen($_SERVER['DOCUMENT_ROOT'])) : "?p=" . urlencode2($file);
         $html .= '<li class="md ' . ($file == $GLOBALS['p'] ? ' title' : '') . '"><a href="' . $href . '">' . $baseFile . '</a></li>';
     }
-    return $html;
+    return $html . '</ul>';
 }
 $base = is_dir($p) && strpos($p, $_SERVER['DOCUMENT_ROOT']) === 0 ? substr($p, strlen($_SERVER['DOCUMENT_ROOT'])) : '';
 if (is_file($p)) {
@@ -155,7 +155,7 @@ if ($content) {
             list-style: none;
             overflow: auto;
         }
-
+        .sidebar-nav ul{padding:0;margin:0;}
         .sidebar-nav li {
             text-indent: 10px;
             line-height: 30px;
@@ -209,6 +209,7 @@ if ($content) {
             color: #0366d6;
             text-decoration: none;
         }
+        #toc a:hover{border-bottom: 1px orange solid;}
         #toc a:visited {
             color: gray;
         }
