@@ -1,5 +1,15 @@
 <?php
 $links = include 'playground/config.database.php';
+/*
+return [
+    'local' => [
+        'host' => '127.0.0.1',
+        'database' => 'test',
+        'username' => 'root',
+        'password' => 'root',
+    ]
+];
+*/
 $link = $_REQUEST['link'] ?? 'local';
 $config = $links[$link];
 isset($config['port']) && $config['host'] .= ':' . $config['port'];
@@ -47,6 +57,22 @@ tr:hover{background: #c3e9cb;}
 pre{margin:0;}
 i{font-size:60%;color:gray;}
 table{font-size:80%}
+/*
+.fixed-header {
+  border-collapse: collapse;
+  width:100%;
+}
+.fixed-header thead tr {
+  position: relative;
+}
+*/
+.fixed-header thead th {
+  position: sticky;
+  top: 0;
+  resize: horizontal;
+  overflow: auto;
+  background: #c3e9cb;
+}
 </style>
 <script type="text/javascript">
 function $(str) {
@@ -221,12 +247,12 @@ function render($data) {
 		return;
 	}
 
-	echo '<table border="0" cellpadding="3">';
-	echo '<tr bgcolor="#dddddd"><th>#</th>';
+	echo '<table border="0" cellpadding="3" class="fixed-header">';
+	echo '<thead><tr bgcolor="#dddddd"><th>#</th>';
 	foreach (current($data) as $key => $null) {
 		echo "<th>$key</th>";
 	}
-	echo '</tr>';
+	echo '</tr></thead>';
 	foreach ($data as $_key => $_data) {
 		echo "<tr><td><i>$_key</i></td>";
 		foreach ($_data as $key => $value) {

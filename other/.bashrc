@@ -23,6 +23,8 @@ alias cd.b='cd "`cat ~/.cdsave`"'  # cd back
 alias g='git'
 alias la='git pull'
 alias tui='git push'
+alias tui1='git push origin $(git symbolic-ref --short HEAD)'
+alias gla='git clone --depth=1'
 
 #tools
 #https://github.com/Russell91/sshrc.git
@@ -83,4 +85,8 @@ exfile(){
     else
         echo 'Usage: exfile file1 file2\n'
     fi
+}
+
+pkm(){
+	grep -ani --color=auto "$1" /d/mysoft/mempad64/*.ls? /d/mysoft/ALTRun/*.ls?
 }
