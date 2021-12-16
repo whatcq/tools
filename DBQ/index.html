@@ -65,7 +65,7 @@
             success: function (res) {
                 if (res.message != '') {
                     $('#message').append('<li>' + res.message);
-                    if(res.message === '["SHOW TABLES LIKE ?s",""]'){
+                    if(res.message === '#'){
                         link = res.cookie.link;
                         lsh.set('currentLink', link);
                         lsh.set(link, res.data);

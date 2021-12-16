@@ -32,6 +32,8 @@ tr:hover{background: #c3e9cb;}
 pre{margin:0;}
 i{font-size:60%;color:gray;}
 table{font-size:80%}
+.fixed-header {position: relative;}
+.fixed-header > * {position: sticky;top: 0;resize: horizontal;overflow: auto;background: #c3e9cb;}
 
 #input {
     position: fixed;

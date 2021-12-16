@@ -5,7 +5,7 @@ var_dump(
     1
 );
 </div>
-<div style="position: fixed; right: 0; top: 0;width: 700px; height: 100%;">
+<div style="position: fixed; right: 0; top: 0;max-width: 50%;width: 700px; height: 100%;">
     <form method="post" action="playground.php?act=save_run" target="iframe" style="display:inline;">
         <input type="text" name="filename" id="filename" value="test" style="float:right">
         <textarea name="source" id="source" cols="30" rows="10" style="display:none;"></textarea>

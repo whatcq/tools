@@ -59,11 +59,11 @@ if (!$link) {
         $dsn = [];
         if (!empty($matches[0])) {
             foreach ($matches[2] as $i => $field) {
-                if (stripos($field, 'host')) $dsn['HOST'] = $matches[2][++$i];
-                if (stripos($field, 'port')) $dsn['HOST'] .= ':' . $matches[2][++$i];
-                if (stripos($field, 'pass')) $dsn['PASS'] = $matches[2][++$i];
-                if (stripos($field, 'user')) $dsn['USER'] = $matches[2][++$i];
-                if (stripos($field, 'name')) $dsn['NAME'] = $matches[2][++$i];
+                if (false !== stripos($field, 'host')) $dsn['HOST'] = $matches[2][++$i];
+                if (false !== stripos($field, 'port')) $dsn['HOST'] .= ':' . $matches[2][++$i];
+                if (false !== stripos($field, 'pass')) $dsn['PASS'] = $matches[2][++$i];
+                if (false !== stripos($field, 'user')) $dsn['USER'] = $matches[2][++$i];
+                elseif (in_array(strtolower($field), ['db', 'data', 'database']) || false !== stripos($field, 'name')) $dsn['NAME'] = $matches[2][++$i];
             }
             return $dsn;
         }
@@ -90,10 +90,10 @@ define('DB_USER', $dsn['USER']);
 define('DB_PASS', $dsn['PASS']);
 !empty($dsn['CHAR']) && define('DB_CHAR', $dsn['CHAR']);
 $dbInstance = DB::instance(true);
-if($dbInstance instanceof PDOException){
+if ($dbInstance instanceof PDOException) {
     res(0, null, $dbInstance->getMessage());
 }
-if(isset($info)){
+if (isset($info)) {
     $link = md5($info);
     $_SESSION[$link] = $info;
     setcookie('link', $link);
@@ -163,7 +163,7 @@ function parse($q)
     $var = isset($tmp[1]) ? $tmp[1] : null;
 
     if (!$table) {
-        return ['SHOW TABLES LIKE ?s', $var];
+        return ['SHOW TABLES LIKE ?s', $var ?: '%'];
     }
 
     if ($q[0] === '-') {
@@ -227,10 +227,10 @@ function res($status = 0, $data = null, $message = '')
     header('Content-type: application/json');
     header("Content-type:text/html;charset=utf-8");
     die(json_encode([
-        'status'  => $status,
-        'info'    => $_REQUEST,
-        'cookie'  => $_COOKIE,
-        'data'    => $data,
+        'status' => $status,
+        'info' => $_REQUEST,
+        'cookie' => $_COOKIE,
+        'data' => $data,
         'message' => $message,
     ]));
 }
@@ -257,13 +257,13 @@ function render($data)
         return;
     }
     echo '<table border="0" cellpadding="3">';
-    echo '<tr bgcolor="#dddddd"><th>#</th>';
+    echo '<tr bgcolor="#dddddd" class="fixed-header"><th>#</th>';
     foreach (current($data) as $key => $null) {
         echo "<th>$key</th>";
     }
     echo '</tr>';
     foreach ($data as $_key => $_data) {
-        echo "<tr><td>$_key</td>";
+        echo "<tr><td><i>$_key</i></td>";
         foreach ($_data as $key => $value) {
             is_null($value) && $value = '<i>&lt;null></i>';
             echo "<td>$value</td>";
@@ -296,8 +296,8 @@ if ($show || $q) {
         $w = json_encode($w);
     }
     $d = $r->fetchAll($fetchType);
-    if ($w === '["SHOW TABLES LIKE ?s",""]') {
-        res(1, $d, $w);//array_map('current', $d)
+    if ($q === '#') {
+        res(1, $d, $q);//array_map('current', $d)
     }
     res(1, renderHtml($d), $w);
 }

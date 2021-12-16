@@ -57,22 +57,8 @@ tr:hover{background: #c3e9cb;}
 pre{margin:0;}
 i{font-size:60%;color:gray;}
 table{font-size:80%}
-/*
-.fixed-header {
-  border-collapse: collapse;
-  width:100%;
-}
-.fixed-header thead tr {
-  position: relative;
-}
-*/
-.fixed-header thead th {
-  position: sticky;
-  top: 0;
-  resize: horizontal;
-  overflow: auto;
-  background: #c3e9cb;
-}
+.fixed-header thead tr {position: relative;}
+.fixed-header thead th {position: sticky;top: 0;resize: horizontal;overflow: auto;background: #c3e9cb;}
 </style>
 <script type="text/javascript">
 function $(str) {
@@ -167,7 +153,7 @@ function parse($q)
 	$var = isset($tmp[1]) ? $tmp[1] : null;
 
 	if (!$table) {
-		return ['SHOW TABLES LIKE ?s', $var];
+		return ['SHOW TABLES LIKE ?s', $var ?: '%'];
 	}
 
 	if ($q[0] === '-') {
