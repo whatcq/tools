@@ -15,16 +15,18 @@ foreach ($_SERVER as $key => $value) {
 }
 
 fwrite($fh, "\r\n");
-fwrite($fh, file_get_contents('php://input'));
+fwrite($fh, strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') === 0
+    ? http_build_query($_POST)
+    : file_get_contents('php://input'));
 fwrite($fh, "\r\n\r\n");
 fclose($fh);
 
 echo "<html><head /><body><iframe src=\"$myFile\" style=\"height:100%; width:100%;\"></iframe></body></html>";
 echo '<pre>';
 // print_r($_SERVER);
-print_r($_POST);
+// print_r($_POST);
 ?>
-<!--application/x-www-form-urlencoded-->
+<!--application/x-www-form-urlencoded -->
 <form action="" method="post" enctype="multipart/form-data">
     <input type="text" name="name" value="cqiu">
     <input type="text" name="happy" value="89">
