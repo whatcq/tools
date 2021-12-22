@@ -1,6 +1,6 @@
 <title>Run PHP</title>
 <style type="text/css">#e{position: absolute;top:0;right:0;bottom:0;left:0;font-size:16px;}</style>
-<div id="e">&lt;?php
+<div id="e">&lt;pre style="color: green";>&lt;?php
 var_dump(
     1
 );

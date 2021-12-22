@@ -1,15 +1,18 @@
-'=======alert.vbs========
+'è®°å¾—ä¿®æ”¹æœ¬æ–‡ä»¶ç¼–ç æ ¼å¼ä¸ºANSIIï¼
+
+'ç±»ä¼¼msgbox
+'å®šæ—¶åœç•™å¼¹å‡ºæ¡†å‡½æ•°
+Sub Print(text,timeout,title)
+    Dim WshShell
+    Set WshShell = CreateObject("WScript.Shell")
+    WshShell.Popup text,timeout,title
+    Set WshShell = nothing
+End Sub
+
 thisTask= wscript.arguments(0)
 leftTime= wscript.arguments(1)
-Dim br,format
-br= Chr(13) & Chr(10)
-format= br & br & "===================" & br & br
+Dim br
+br= Chr(13) & Chr(10) & Chr(13) & Chr(10) & "===================" & Chr(13) & Chr(10) & Chr(13) & Chr(10)
+'MsgBox  br & thisTask & Chr(9) &  "å‰©ä½™:"&leftTime&"min"  & br ,vbOKOnly,Time & ": working..."
+Print  br & thisTask & Chr(9) &  "å‰©ä½™:"&leftTime&"min"  & br ,10,Time & ": working..."
 
-'µ¯´°ÌáĞÑ
-'MsgBox  br & thisTask & Chr(9) &  "Ê£Óà:"&leftTime&"min"  & br ,vbOKOnly,Time & ": working..."
-
-'³¬Ê±Ê±¼ä3s£¬×Ô¶¯¹Ø±Õ
-Dim WshShell
-Set WshShell = CreateObject("WScript.Shell")
-WshShell.Popup br & thisTask & Chr(9) & "Ê£Óà:" & leftTime & "min" & br,3,Time & ": working..."
-Set WshShell = nothing

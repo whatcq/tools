@@ -5,7 +5,7 @@
 '==============================
 Const ForReading = 1, ForWriting = 2, ForAppending = 8
 
-'数据文件
+'数据文件 @todo 进程间通信，通过文件，但没有锁！<--fix?
 Dim msgFile
 msgFile=".\msg.txt"
 
@@ -44,8 +44,8 @@ While True
 		zStatus = 0
 	End If
 	
-	' 不为空则开始计时(记次数)
-	If status=0 Then
+	' 不为空则开始计时(记次数) hack：status<0直接重置！
+	If status<=0 Then
 		timer=0
 	Else
 		timer=timer+1
