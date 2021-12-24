@@ -61,6 +61,46 @@ alias 78='cd /d/laragon/www/7788'
 alias cqiu='cd /d/laragon/www/cqiu'
 alias i='[ -f composer.json ] && composer install || ([ -f package.json ] && npm install)' #安php不一定js
 
+# 自动解压：判断文件后缀名并调用相应解压命令
+function q-extract() {
+    if [ -f $1 ] ; then
+        case $1 in
+        *.tar.bz2)   tar -xvjf $1    ;;
+        *.tar.gz)    tar -xvzf $1    ;;
+        *.tar.xz)    tar -xvJf $1    ;;
+        *.bz2)       bunzip2 $1     ;;
+        *.rar)       rar x $1       ;;
+        *.gz)        gunzip $1      ;;
+        *.tar)       tar -xvf $1     ;;
+        *.tbz2)      tar -xvjf $1    ;;
+        *.tgz)       tar -xvzf $1    ;;
+        *.zip)       unzip $1       ;;
+        *.Z)         uncompress $1  ;;
+        *.7z)        7z x $1        ;;
+        *)           echo "don't know how to extract '$1'..." ;;
+        esac
+    else
+        echo "'$1' is not a valid file!"
+    fi
+}
+
+# 自动压缩：判断后缀名并调用相应压缩程序
+function q-compress() {
+    if [ -n "$1" ] ; then
+        FILE=$1
+        case $FILE in
+        *.tar) shift && tar -cf $FILE $* ;;
+        *.tar.bz2) shift && tar -cjf $FILE $* ;;
+        *.tar.xz) shift && tar -cJf $FILE $* ;;
+        *.tar.gz) shift && tar -czf $FILE $* ;;
+        *.tgz) shift && tar -czf $FILE $* ;;
+        *.zip) shift && zip $FILE $* ;;
+        *.rar) shift && rar $FILE $* ;;
+        esac
+    else
+        echo "usage: q-compress <foo.tar.gz> ./foo ./bar"
+    fi
+}
 
 sonar(){
     id=`basename $(pwd)`
@@ -89,4 +129,8 @@ exfile(){
 
 pkm(){
 	grep -ani --color=auto "$1" /d/mysoft/mempad64/*.ls? /d/mysoft/ALTRun/*.ls?
+}
+
+dosh(){
+	docker exec -it $1 bash #/usr/bin/sh
 }
