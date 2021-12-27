@@ -1,17 +1,23 @@
 <?php
-$links = include 'playground/config.database.php';
-/*
-return [
+/**
+ * Simple Database Query by Cqiu
+ */
+$links = [
     'local' => [
         'host' => '127.0.0.1',
         'database' => 'test',
         'username' => 'root',
         'password' => 'root',
+        'color' => 'lightblue', # option bgcolor
+        //'extend' => 'local', # extend config
     ]
 ];
-*/
+file_exists($configFile = 'playground/config.database.php')
+&& $links = array_merge($links, include $configFile);
+
 $link = $_REQUEST['link'] ?? 'local';
 $config = $links[$link];
+isset($links[$config['extend'] ?? '']) && $config = array_merge($links[$config['extend']], $config);
 isset($config['port']) && $config['host'] .= ':' . $config['port'];
 define('DB_HOST', $config['host']);
 define('DB_NAME', $config['database']);
@@ -23,6 +29,22 @@ require 'lib/DB.php';
 
 $q = isset($_REQUEST['q']) ? $_REQUEST['q'] : null;
 $show = isset($_REQUEST['show']) ? $_REQUEST['show'] : null;
+
+if (isset($_REQUEST['data'])) {
+    header("Content-Type: text/event-stream\n\n");
+
+    $w = parse('#%');
+    if (defined('DB_CHAR')) DB::x('SET NAMES "' . DB_CHAR . '"');
+    $r = call_user_func_array('DB::q', $w);
+    $tables = $r->fetchAll(PDO::FETCH_COLUMN);
+
+    ob_flush();
+    flush();
+    echo 'data: ', implode(',', $tables), "\n\n";
+    ob_flush();
+    flush();
+    die;
+}
 
 $shows = [
 	'TABLES',
@@ -58,7 +80,7 @@ pre{margin:0;}
 i{font-size:60%;color:gray;}
 table{font-size:80%}
 .fixed-header thead tr {position: relative;}
-.fixed-header thead th {position: sticky;top: 0;resize: horizontal;overflow: auto;background: #c3e9cb;}
+.fixed-header thead th {position: sticky;top: 0;resize: horizontal;overflow: auto;text-shadow: 1px 1px 0 #fff;background: #3c8dbc !important;background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #3c8dbc), color-stop(1, #67a8ce)) !important;}
 </style>
 <script type="text/javascript">
 function $(str) {
@@ -70,29 +92,41 @@ window.onload = function() {
 </script>
 <form style="display: inline-block;margin-bottom: 0;">
 	<div style="position:relative;">
-		<span style="margin-left:200px;width:18px;overflow:hidden;">
-			<select style="width:218px;margin-left:-200px;height: 25px;"
-			 onchange="$('q').value=this.value;$('q').focus();$('show').value=''">
-<?php
-$w = parse('#%');
-if (defined('DB_CHAR'))DB::x('SET NAMES "'.DB_CHAR.'"');
-$r = call_user_func_array('DB::q', $w);
-$d = $r->fetchAll(PDO::FETCH_COLUMN);
+        <input type="text" list="tables" name="q" id="q" value="<?php echo $q; ?>" style="height: 25px;" />
+        <datalist id="tables"></datalist>
 
-foreach ($d as $_table) {
-	echo "<option value=\"$_table\"> $_table </option>\n";
-}
-?>
-			</select>
-		</span>
-		<input type="text" name="q" id="q" value="<?php echo $q; ?>"
-			style="width:200px;position:absolute;left:2px;top:4px;height: 20px;border:0;" />
-        <select name="link" style="height: 25px;">
+        <script>
+            var skey = '<?=$link?>Tables';
+
+            function setDataList() {
+                var tables = localStorage.getItem(skey).split(',');
+                var list = document.getElementById('tables');
+
+                tables.forEach(function (item) {
+                    var option = document.createElement('option');
+                    option.value = item;
+                    list.appendChild(option);
+                });
+            }
+
+            if (localStorage.getItem(skey)) {
+                setDataList();
+            } else {
+                var chat = new window.EventSource("?link=<?=$link?>&show=tables&data=1");
+                chat.onmessage = function (e) {
+                    var msg = e.data;
+                    localStorage.setItem(skey, msg);
+                    setDataList();
+                };
+            }
+        </script>
+        <select name="link" style="height: 25px;background: <?=$config['color']??'#fff'?>" onchange="this.style.backgroundColor=this.options[this.selectedIndex].style.backgroundColor;">
             <?php
             foreach ($links as $_link => $info) {
+                isset($links[$info['extend'] ?? '']) && $info = array_merge($links[$info['extend']], $info);
                 $color = $info['color'] ?? '#fff';
                 $selected = $link === $_link ? ' selected' : '';
-                echo "<option value=\"$_link\" style=\"background: $color\"$selected> $_link </option>\n";
+                echo "<option value=\"$_link\" style=\"background: $color\"$selected> $_link - {$info['database']} </option>\n";
             }
             ?>
         </select>
@@ -117,7 +151,7 @@ $sqls = [
 	'u#' => ':count user data',
 	'u#2' => ':query user data',
 	'u#*' => ':table structure',
-	'u#~' => ':PROCEDURE ANALYSE',
+	'u#@' => ':PROCEDURE ANALYSE',
 ];
 foreach ($sqls as $_q => $sql) {
 	echo " <a href=\"?q=", urlencode($_q), "\" title=\"$sql\">$_q</a>";
@@ -181,14 +215,35 @@ function parse($q)
 				DB_NAME,
 				$table,
 			];
-		} elseif ($var === '~') {
+		} elseif ($var === '@') {
 			return ["SELECT * FROM $table PROCEDURE ANALYSE(1, 10)"];
 		}
-		$sql = "SELECT * FROM $table";
-		$pkField = getPk($table);
-		$pkField or $pkField = 'id';
-		$sql .= " WHERE $pkField=?i";
-		$params = [$var];
+
+        $sql = "SELECT * FROM $table";
+        if ($var[0] === '~' || $var[0] === '=') {
+            $sql .= ' WHERE';
+            $var = addslashes(substr($var, 1));
+            $columns = DB::q("DESC $table")->fetchAll(PDO::FETCH_ASSOC);
+            if ($var[0] === '~') {
+                foreach ($columns as $column) {
+                    $sql .= " {$column['Field']} LIKE '%$var%' OR";
+                }
+            } else {
+                $notNum = !is_numeric($var);
+                foreach ($columns as $column) {
+                    if ($notNum && strpos($column['Type'], 'int') !== false) continue;
+                    $sql .= " {$column['Field']}='$var' OR";
+                }
+            }
+
+            $sql = trim($sql, ' OR');
+            return [$sql];
+        }
+
+        $pkField = getPk($table);
+        $pkField or $pkField = 'id';
+        $sql .= " WHERE $pkField=?i";
+        $params = [$var];
 	} elseif (is_null($var)) {
 		$orderBy = '';
 		$offset = 0;
@@ -234,7 +289,7 @@ function render($data) {
 	}
 
 	echo '<table border="0" cellpadding="3" class="fixed-header">';
-	echo '<thead><tr bgcolor="#dddddd"><th>#</th>';
+	echo '<thead><tr><th>#</th>';
 	foreach (current($data) as $key => $null) {
 		echo "<th>$key</th>";
 	}
