@@ -140,7 +140,6 @@ foreach ($shows as $_show) {
 		</select>
 		<input type="submit" value="Go" />
 	</div>
-</form>
 <?php
 // common sqls
 $sqls = [
@@ -242,24 +241,36 @@ function parse($q)
 
         $pkField = getPk($table);
         $pkField or $pkField = 'id';
-        $sql .= " WHERE $pkField=?i";
+        $sql .= " WHERE $pkField=?s";
         $params = [$var];
 	} elseif (is_null($var)) {
-		$orderBy = '';
+		$where = $orderBy = '';
 		$offset = 0;
 		$limit = 30;
 		if ($show) {
 			if (strpos($show, ',') !== false) {
 				list($offset, $limit) = explode(',', $show);
 				$offset = (int)$offset;
+                $offset > 0 or $offset = 1;
 				$limit = (int)$limit;
 			} elseif ($show < 0) {
-				$pkField = getPk($table);
-				$orderBy = " ORDER BY $pkField DESC";
+				$orderBy = " ORDER BY 1 DESC";
 				$limit = abs($show);
 			}
 		}
-		$sql = "SELECT * FROM $table{$orderBy} LIMIT $offset,$limit";
+        if (isset($_GET['table']) && $_GET['table'] == $table && is_array($_GET['where'])) {
+            $where = [];
+            foreach ($_GET['where'] as $field => $value) {
+                if (!empty($value)) {
+                    $field = addslashes($field);
+                    $where[] = "`$field`=?s";
+                    $params[] = $value;
+                }
+            }
+            $where = $where ? ' WHERE ' . implode(' AND ', $where) : '';
+        }
+        $sql = "SELECT * FROM $table{$where}{$orderBy} LIMIT $offset,$limit";
+        define('SHOW_TABLE', $table);
 	} else {
 		$sql = "SELECT COUNT(*) FROM $table";
 	}
@@ -273,7 +284,7 @@ function render($data) {
 		echo '无数据';
 		return;
 	}
-	if (count($data) === 1) {
+	if (!defined('SHOW_TABLE') && count($data) === 1) {
 		$data = current($data);
 		if (count($data) === 1) {
 			echo current($data);
@@ -290,9 +301,13 @@ function render($data) {
 
 	echo '<table border="0" cellpadding="3" class="fixed-header">';
 	echo '<thead><tr><th>#</th>';
+    $filters = '<tr><td>#<input type="hidden" name="table" value="' . SHOW_TABLE . '"></td>';
 	foreach (current($data) as $key => $null) {
 		echo "<th>$key</th>";
+		$value = htmlspecialchars($_GET['where'][$key] ?? '');
+		$filters.= "<td><input type='text' name='where[$key]' value='$value' style='width:100%'></td>";
 	}
+    echo '</tr>', $filters;
 	echo '</tr></thead>';
 	foreach ($data as $_key => $_data) {
 		echo "<tr><td><i>$_key</i></td>";
@@ -321,3 +336,4 @@ if ($show || $q) {
 	render($d);
 }
 ?>
+</form>
