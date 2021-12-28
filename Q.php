@@ -261,9 +261,15 @@ function parse($q)
         if (isset($_GET['table']) && $_GET['table'] == $table && is_array($_GET['where'])) {
             $where = [];
             foreach ($_GET['where'] as $field => $value) {
-                if (!empty($value)) {
+                if (strlen($value)) {
+                    if (preg_match('/^(<>|>=|>|<=|<|=)/', $value, $matches)) {
+                        $operator = $matches[1];
+                        $value = substr($value, strlen($operator));
+                    } else {
+                        $operator = '=';
+                    }
                     $field = addslashes($field);
-                    $where[] = "`$field`=?s";
+                    $where[] = "`$field`{$operator}?s";
                     $params[] = $value;
                 }
             }
