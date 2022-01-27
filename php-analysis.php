@@ -225,7 +225,7 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
                     , _t = (cookie && typeof cookie[1] !== 'undefined') ? cookie[1] : '_';
                 if (key === 'e') {
                     document.cookie = '_trace=1' + (obj.classList.contains('off') ? ';expires=Thu,01-Jan-1970 00:00:01 GMT' : '');
-                    return;
+                    //return;
                 }
                 document.cookie = '_t=' + (
                     obj.classList.contains('off')

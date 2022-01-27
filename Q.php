@@ -27,6 +27,7 @@ isset($config['charset']) && define('DB_CHAR', $config['charset']);
 
 require 'lib/DB.php';
 
+//-----------------query start
 $q = isset($_REQUEST['q']) ? $_REQUEST['q'] : null;
 $show = isset($_REQUEST['show']) ? $_REQUEST['show'] : null;
 
@@ -46,6 +47,7 @@ if (isset($_REQUEST['data'])) {
     die;
 }
 
+//------------------page render
 $shows = [
 	'TABLES',
 	'DATABASES',
@@ -79,6 +81,7 @@ tr:hover{background: #c3e9cb;}
 pre{margin:0;}
 i{font-size:60%;color:gray;}
 table{font-size:80%}
+td{word-break: break-all}
 .fixed-header thead tr {position: relative;}
 .fixed-header thead th {position: sticky;top: 0;resize: horizontal;overflow: auto;text-shadow: 1px 1px 0 #fff;background: #3c8dbc !important;background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #3c8dbc), color-stop(1, #67a8ce)) !important;}
 </style>
@@ -244,7 +247,7 @@ function parse($q)
         $sql .= " WHERE $pkField=?s";
         $params = [$var];
 	} elseif (is_null($var)) {
-		$where = $orderBy = '';
+        $where = $orderBy = '';
 		$offset = 0;
 		$limit = 30;
 		if ($show) {
@@ -265,6 +268,8 @@ function parse($q)
                     if (preg_match('/^(<>|>=|>|<=|<|=)/', $value, $matches)) {
                         $operator = $matches[1];
                         $value = substr($value, strlen($operator));
+                    } elseif (strpos($value, '%') !== false) {
+                        $operator = ' LIKE ';
                     } else {
                         $operator = '=';
                     }
@@ -275,7 +280,11 @@ function parse($q)
             }
             $where = $where ? ' WHERE ' . implode(' AND ', $where) : '';
         }
-        $sql = "SELECT * FROM $table{$where}{$orderBy} LIMIT $offset,$limit";
+        $fields = '*';
+        if (!empty($_GET['fields'])) {
+            $fields = trim(strtr($_GET['fields'], "\n", ','), ", \t\n\r");
+        }
+        $sql = "SELECT $fields FROM $table{$where}{$orderBy} LIMIT $offset,$limit";
         define('SHOW_TABLE', $table);
 	} else {
 		$sql = "SELECT COUNT(*) FROM $table";
@@ -305,15 +314,16 @@ function render($data) {
 		return;
 	}
 
-	echo '<table border="0" cellpadding="3" class="fixed-header">';
-	echo '<thead><tr><th>#</th>';
-    $filters = '<tr><td>#<input type="hidden" name="table" value="' . SHOW_TABLE . '"></td>';
-	foreach (current($data) as $key => $null) {
-		echo "<th>$key</th>";
-		$value = htmlspecialchars($_GET['where'][$key] ?? '');
-		$filters.= "<td><input type='text' name='where[$key]' value='$value' style='width:100%'></td>";
-	}
-    echo '</tr>', $filters;
+    defined('SHOW_TABLE') && print('<textarea name="fields" style="position:absolute;top:0;right:0;width:150px;height:100px;font: 10px/15px Courier;">' . implode("\n", array_keys($data[0])) . '</textarea>');
+    echo '<table border="0" cellpadding="3" class="fixed-header">';
+    echo '<thead><tr><th>#</th>';
+    $filters = defined('SHOW_TABLE') ? '<tr><td>#<input type="hidden" name="table" value="' . SHOW_TABLE . '"></td>' : false;
+    foreach (current($data) as $key => $null) {
+        echo "<th>$key</th>";
+        $value = htmlspecialchars($_GET['where'][$key] ?? '');
+        $filters && $filters .= "<td><input type='text' name='where[$key]' value='$value' style='width:100%'></td>";
+    }
+    $filters && print('</tr>' . $filters);
 	echo '</tr></thead>';
 	foreach ($data as $_key => $_data) {
 		echo "<tr><td><i>$_key</i></td>";
