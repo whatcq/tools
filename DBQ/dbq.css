@@ -63,7 +63,7 @@ table{font-size:80%}
     max-height: 750px;
     height: 300px;
     /*width: 300px;*/
-    min-width: 300px;
+    min-width: 200px;
     border-radius: 8px;
     box-shadow: 0 0 5px #000;
 }
@@ -167,4 +167,38 @@ table{font-size:80%}
 
 .gist {
     font-size: 14px;
+}
+
+.table-structure {
+    margin: 0;
+    padding: 3px;
+    /*width: 200px;*/
+}
+.table-structure li{
+    margin-bottom: 1px;
+    padding: 2px;
+    font-size: x-small;
+}
+.table-structure li > span {
+    float: right;
+    font-size: 80%;
+    display: inline-block;
+    max-width: 90px;
+    overflow: hidden;
+    height: 15px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    color: #545454;
+}
+
+.table-structure .int,
+.table-structure .bigint,
+.table-structure .tinyint {
+    color: green;
+}
+.table-structure .date,
+.table-structure .datetime,
+.table-structure .time {
+    color: purple;
 }
