@@ -374,7 +374,7 @@ var LiveEditor = (function () {
   /**
    * 切换 HTML 编辑器
    */
-  LiveEditor.prototype.toogleHTML = function () {
+  LiveEditor.prototype.toggleHTML = function () {
     var _this = this;
 
     if (dom.controlHTML.classList.contains('editor-control-active')) {
@@ -414,7 +414,7 @@ var LiveEditor = (function () {
   /**
    * 切换 CSS 编辑器
    */
-  LiveEditor.prototype.toogleCSS = function () {
+  LiveEditor.prototype.toggleCSS = function () {
     var _this = this;
 
     if (dom.controlCSS.classList.contains('editor-control-active')) {
@@ -454,7 +454,7 @@ var LiveEditor = (function () {
   /**
    * 切换 JS 编辑器
    */
-  LiveEditor.prototype.toogleJS = function () {
+  LiveEditor.prototype.toggleJS = function () {
     var _this = this;
 
     if (dom.controlJS.classList.contains('editor-control-active')) {
@@ -467,7 +467,7 @@ var LiveEditor = (function () {
   /**
    * Live Mode 切换
    */
-  LiveEditor.prototype.toogleLiveMode = function () {
+  LiveEditor.prototype.toggleLiveMode = function () {
     var _this = this;
 
     dom.controlLiveMode.checked = _this.isLiveMode = !_this.isLiveMode;
@@ -506,7 +506,27 @@ var LiveEditor = (function () {
    * 下载代码
    */
   LiveEditor.prototype.download = function () {
+    var html = editor.html.getValue();
+    var css = editor.css.getValue();
+    var js = editor.js.getValue();
+    let data = html + '<style>' + css + '</style>' + '<script>' + js + '</script>';
+    let urlObject = window.URL || window.webkitURL || window;
+    let export_blob = new Blob([data]);
+    let save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
+    save_link.href = urlObject.createObjectURL(export_blob);
+    save_link.download = (document.querySelector('#fileName').value || 'test-' + Math.random()) + '.htm';
+    save_link.click();
+  };
 
+  LiveEditor.prototype.cssFormat = function(){
+    var css = editor.css.getValue();
+    css = css.replace(/\s*([\{\}\:\;\,])\s*/g, "$1");
+    css = css.replace(/;\s*;/g, ";");
+    css = css.replace(/\,[\s\.\#\d]*{/g, "{");
+    css = css.replace(/([^\s])\{([^\s])/g, "$1 {\n\t$2");
+    css = css.replace(/([^\s])\}([^\n]*)/g, "$1\n}\n$2");
+    css = css.replace(/([^\s]);([^\s\}])/g, "$1;\n\t$2");
+    editor.css.setValue(css.trim(), -1);
   };
 
   return LiveEditor;

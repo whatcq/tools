@@ -18,29 +18,32 @@
 
     <div class="editor-controls mdui-p-x-1">
 
-        <div class="editor-control-html mdui-ripple editor-control-active" onclick="Editor.toogleHTML();">HTML</div>
-        <div class="editor-control-css mdui-ripple " onclick="Editor.toogleCSS();">CSS</div>
-        <div class="editor-control-js mdui-ripple " onclick="Editor.toogleJS();">JavaScript</div>
+        <div class="editor-control-html mdui-ripple editor-control-active" onclick="Editor.toggleHTML();">HTML</div>
+        <div class="editor-control-css mdui-ripple " onclick="Editor.toggleCSS();">CSS</div>
+        <div class="editor-control-js mdui-ripple " onclick="Editor.toggleJS();">JavaScript</div>
 
         <div class="editor-controls-drag"></div>
 
+        <input type="text" id="fileName" value="test" onfocus="this.select()" title="保存的文件名" style="border:none;">
+        <div class="mdui-controls-download mdui-btn mdui-btn-icon mdui-ripple mdui-m-x-1" mdui-tooltip="{content: '下载'}" onclick="Editor.download();">💾</div>
+
         <div class="editor-controls-run mdui-btn mdui-btn-icon mdui-ripple mdui-m-x-1 mdui-text-color-black-secondary" mdui-tooltip="{content: '运行 Ctrl + Enter'}" onclick="Editor.run();"><span class="run-btn mdui-icon material-icons">▶</span></div>
-        <label class="editor-controls-live-mode mdui-switch mdui-m-x-1" mdui-tooltip="{content: '实时预览'}" onchange="Editor.toogleLiveMode();">
+        <label class="editor-controls-live-mode mdui-switch mdui-m-x-1" mdui-tooltip="{content: '实时预览'}" onchange="Editor.toggleLiveMode();">
             <input type="checkbox" class="chk" checked/>
             <i class="mdui-switch-icon"></i>
         </label>
-        <!--<div class="mdui-controls-download mdui-btn mdui-btn-icon mdui-ripple mdui-m-x-1" mdui-tooltip="{content: '下载'}" onclick="Editor.download();"><i class="mdui-icon material-icons">file_download</i></div>-->
-
     </div>
 
     <div class="editor-container editor-container-html">
         <div class="editor-container-label">HTML</div>
-        <pre id="editor-ace-html">
-&lt;h1&gtHello World!☺&lt;/h1&gt
+        <pre id="editor-ace-html">&lt;!DOCTYPE html>&lt;html>&lt;head>&lt;meta charset="utf-8">&lt;title>&lt;/title>&lt;/head>&lt;body>
+
+&lt;h1&gt;Hello World!☺&lt;/h1&gt;
 </pre>
     </div>
-    <div class="editor-container editor-container-css">
+    <div class="editor-container editor-container-css" style="position: relative">
         <div class="editor-container-label">CSS</div>
+        <button onclick="Editor.cssFormat()" style="position: absolute; right: 10px; z-index: 2;">format</button>
         <pre id="editor-ace-css"></pre>
     </div>
     <div class="editor-container editor-container-js">
@@ -50,9 +53,11 @@
 
 </div>
 
-<!-- ace code area -->
-<script src="https://cdn.jsdelivr.net/gh/ajaxorg/ace-builds@1.4.12/src-min/ace.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/ajaxorg/ace-builds@1.4.12/src-min/ext-language_tools.js"></script>
+<!-- ace code area
+gla git@gitee.com:mirrors/ace-builds.git
+https://cdn.jsdelivr.net/gh/ajaxorg/ace-builds@1.4.12/src-min/ -->
+<script src="http://e/cqiu/static/ace-builds/src-min/ace.js"></script>
+<script src="http://e/cqiu/static/ace-builds/src-min/ext-language_tools.js"></script>
 <script src="live-editor.js"></script>
 <script>
   var Editor = new LiveEditor();

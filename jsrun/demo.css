@@ -19,6 +19,7 @@ html, body {
   border-right: 1px solid rgba(0, 0, 0, 0.12);
 }
 .editor-container-label {
+  display: none;
   padding: 10px;
   line-height: 20px;
   font-size: 13px;
@@ -33,9 +34,15 @@ html, body {
 /* 代码编辑器的 ace */
 .editor-container>pre {
   width: 100%;
-  height: calc(100% - 40px);
+  height: calc(100% - 0px);
   margin: 0;
 }
+.editor-container-html{border-top: solid 1px blue}
+.editor-control-html{color:blue}
+.editor-container-css{border-top: solid 1px pink}
+.editor-control-css{color:pink}
+.editor-container-js{border-top: solid 1px green}
+.editor-control-js{color:green}
 
 /* 工具栏 */
 .editor-controls {
@@ -44,7 +51,7 @@ html, body {
   display: -ms-flexbox;
   display: flex;
 
-  height: 36px;
+  height: 18px;
   background-color: #f3f3f3;
   border-top: 1px solid #a3a3a3;
   border-bottom: 1px solid #cccccc;
@@ -54,8 +61,8 @@ html, body {
 .editor-control-css,
 .editor-control-js {
   padding: 0 16px;
-  height: 36px;
-  line-height: 36px;
+  height: 18px;
+  line-height: 18px;
   text-align: center;
   -webkit-transition: all .2s cubic-bezier(.4, 0, .2, 1), box-shadow .2s cubic-bezier(.4, 0, 1, 1);
   transition: all .2s cubic-bezier(.4, 0, .2, 1), box-shadow .2s cubic-bezier(.4, 0, 1, 1);
@@ -67,7 +74,7 @@ html, body {
 }
 .editor-control-active,
 .editor-control-active:hover {
-  background-color: #cfcfcf;
+  background-color: #d1d8dd;
 }
 
 .editor-controls-drag {
@@ -83,4 +90,11 @@ html, body {
 .chk{
   height: 20px;
   width: 20px;
+}
+.editor-controls-live-mode,
+.mdui-controls-download,
+.editor-controls-run{
+  font-size:12px;
+  margin: 0 5px;
+  cursor: pointer;
 }
