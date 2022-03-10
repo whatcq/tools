@@ -1,37 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer-when-downgrade">
-
     <title>DBQ</title>
-    <style>
-        @import url('dbq.css');
-    </style>
+    <link rel="stylesheet" href="dbq.css" />
+<!--    <style>-->
+<!--        @import url('dbq.css');-->
+<!--    </style>-->
 </head>
-
 <body>
-<!--    <input type="text" id="input" value="">-->
-    <textarea name="" id="input" cols="30" rows="3"></textarea>
-<div>link:<button onclick="document.cookie='link=0'">reset</button></div>
+<div class="sidebar">
+    <select name="link" id="links" size="3"></select><br>
+    <select name="db" id="dbs" size="3"></select><br>
+    <input type="text" name="table" id="table" placeholder="table"><br>
+    <input type="text" name="field" id="field" placeholder="field"><br>
+    <input type="text" name="value" id="value" placeholder="value">
+    <textarea name="" id="input" cols="30" rows="3"></textarea><br>
+    <div>link:<button onclick="document.cookie='link=0'">reset</button></div>
+</div>
 
     <div id="message"></div>
     <div id="data"></div>
 </body>
 <script type="text/html" id="tpl_layer">
     <div id="" class="box no_selectx">
-        <div class="box_head"><a class="coor">+</a></div>
+        <div class="box_head"><a class="coor">+</a><a class="close">×</a></div>
         <div class="body"></div>
     </div>
-    
 </script>
-<script src="http://localhost/cqiu/static/jquery-3.5.1.min.js"></script>
-<script src="http://localhost/cqiu/static/typeahead.jquery.min.js"></script>
+<script src="http://localhost:9090/cqiu/static/jquery-3.5.1.min.js"></script>
+<script src="http://localhost:9090/cqiu/static/typeahead.jquery.min.js"></script>
 <script src="localStore.js"></script>
 <script>
+    const renderTable = (data, fields) => `
+  <table border="0" cellpadding="3">
+  <tr bgcolor="#dddddd" class="fixed-header">
+  ${fields.map(field => `<th>${field}</th>`).join('')}
+  </tr>
+  ${data.map(item => `
+    <tr>
+    ${fields.map(field => `<td>${item[field]}</td>`).join('')}
+    </tr>
+  `).join('')}
+  </table>
+`;
+    $(function () {
+        $.getJSON('dbq.php?act=links', function (res) {
+            if (res.message != '') {
+                $('#message').append('<li>' + res.message);
+            }
+            if (res.status) {
+                var links = $('#links');
+                links.html('');
+                for (let i in res.data) {
+                    links.append('<option>' + res.data[i] + '</option>');
+                }
+            }
+        });
+        $('#links').change(function () {
+            $.getJSON('dbq.php?act=dbs&link=' + $(this).val(), function (res) {
+                if (res.message != '') {
+                    $('#message').append('<li>' + res.message);
+                }
+                if (res.status) {
+                    var dbs = $('#dbs');
+                    dbs.html('');
+                    for (let i in res.data) {
+                        dbs.append('<option>' + res.data[i] + '</option>');
+                    }
+                }
+            });
+        });
+        $('#table').change(function () {
+            $.getJSON('dbq.php?act=tables', {
+                link: $('#links').val(),
+                table: $('#table').val(),
+            }, function (res) {
+                if (res.message != '') $('#message').append('<li>' + res.message);
+                if (res.status) {
+                    if (res.message != '') $('#message').append('<li>' + res.message);
+                    if (res.status) {
+                        if (!res.data || res.data.length < 1) {
+                            $('#message').append('<b>x</b>');
+                            return;
+                        }
+                        render(renderTable(res.data, ['TABLE_SCHEMA','TABLE_NAME','TABLE_COMMENT']));
+                    }
+                }
+            });
+        });
+        $('#field').change(function () {
+            $.getJSON('dbq.php?act=fields', {
+                link: $('#links').val(),
+                field: $('#field').val(),
+            }, function (res) {
+                if (res.message != '') $('#message').append('<li>' + res.message);
+                if (res.status) {
+                    if (!res.data || res.data.length < 1) {
+                        $('#message').append('<b>x</b>');
+                        return;
+                    }
+                    render(renderTable(res.data, ['TABLE_SCHEMA', 'TABLE_NAME', 'COLUMN_NAME', 'COLUMN_COMMENT']));
+                }
+            });
+        });
+    });
     // @todo 面板关联视图
     function render(data) {
         var _id = 'box_' + zIndex;
@@ -40,7 +116,11 @@
             .html(data)// @todo 改成art-template-web.js=>why not vue?
             .end()
             .attr('id', _id)
-            .css('z-index', zIndex)
+            .css({
+                'z-index': zIndex,
+                'top': '10px',
+                'left': (220 + (zIndex % 5) * 5) + 'px',
+            })
             .appendTo($('body'));
         zIndex++;
         var _width = $('#' + _id).find('.body > table').width();
@@ -56,7 +136,7 @@
         $.ajax({
             url: 'dbq.php',//http://localhost/cqiu/tools/DBQ/
             type: 'get',
-            data: { q: o.val() },
+            data: { q: o.val(), link: $('#links').val(), db: $('#dbs').val()},
             //  默认情况下，标准的跨域请求是不会发送cookie的
             xhrFields: {
                 withCredentials: true
@@ -148,6 +228,10 @@
                 limit: 10,
                 source: substringMatcher()
             });
+
+        $(document).on('click', '.close', function () {
+            $(this).parentsUntil('.box').parent().remove();
+        });
     });
 </script>
 

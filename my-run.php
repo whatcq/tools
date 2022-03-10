@@ -24,6 +24,7 @@ var_dump(
     e.setOptions({
         enableBasicAutocompletion: true,//Ctrl+space
         enableSnippets: true,//tab
+        wrap: true,
         enableLiveAutocompletion: false
     });
     document.onkeydown = function (e) {

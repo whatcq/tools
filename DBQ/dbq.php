@@ -5,6 +5,71 @@ header("Access-Control-Allow-Origin: *");
 
 require '../lib/DB.php';
 
+//======= ajax request
+$act = $_GET['act'] ?? '';
+if ($act) {
+    $data = (function () use ($act) {
+        $links = include('../playground/config2.database.php');
+        if ($act === 'links') {
+            return array_keys($links);
+        }
+
+        $link = $_GET['link'] ?? '';
+        if (!isset($links[$link])) {
+            return null;
+        }
+
+        define('DB_HOST', $links[$link]['HOST']);
+        define('DB_NAME', 'information_schema');
+        define('DB_USER', $links[$link]['USER']);
+        define('DB_PASS', $links[$link]['PASS']);
+        $dbInstance = DB::instance(true);
+        if ($dbInstance instanceof PDOException) {
+            return $dbInstance->getMessage();
+        }
+        !empty($links[$link]['CHAR']) && DB::x('SET NAMES "' . $links[$link]['CHAR'] . '"');
+        if ($act === 'dbs') {
+            return DB::q('SHOW DATABASES')->fetchAll(PDO::FETCH_COLUMN);
+        }
+
+        if ($act === 'tables') {
+            $table = $_GET['table'] ?? '';
+            $matchField = preg_match('#^[\w_\d]+$#i', $table) ? 'TABLE_NAME' : 'TABLE_COMMENT';
+            return DB::q("SELECT 
+  `TABLE_SCHEMA`,`TABLE_NAME`,`TABLE_COMMENT`
+FROM
+  `information_schema`.`TABLES` 
+WHERE `TABLE_SCHEMA` NOT IN (
+    'information_schema',
+    'performance_schema',
+    'sys',
+    'mysql'
+  ) 
+  AND $matchField LIKE '%$table%'")->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        if ($act === 'fields') {
+            $field = $_GET['field'] ?? '';
+            $matchField = preg_match('#^[\w_\d]+$#i', $field) ? 'COLUMN_NAME' : 'COLUMN_COMMENT';
+            return DB::q("SELECT 
+  `TABLE_SCHEMA`,`TABLE_NAME`,`COLUMN_NAME`,`COLUMN_COMMENT`
+FROM
+  `information_schema`.`COLUMNS` 
+WHERE `TABLE_SCHEMA` NOT IN (
+    'information_schema',
+    'performance_schema',
+    'sys',
+    'mysql'
+  ) 
+  AND $matchField LIKE '%$field%'")->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        return null;
+    })();
+    res(1, $data);
+}
+//======
+
 $q = isset($_REQUEST['q']) ? $_REQUEST['q'] : null;
 $fetchType = isset($_REQUEST['fetchType']) ? $_REQUEST['fetchType'] : PDO::FETCH_ASSOC;
 $show = isset($_REQUEST['show']) ? $_REQUEST['show'] : null;
@@ -77,6 +142,12 @@ if (!$link) {
     $info = serialize($dsn);
     $q = '#';
     $fetchType = PDO::FETCH_COLUMN;
+} else {
+    $links = include('../playground/config2.database.php');
+    if (isset($links[$link])) {
+        $dsn = $links[$link];
+        isset($_REQUEST['db']) && $dsn['NAME'] = $_REQUEST['db'];
+    }
 }
 
 if (!isset($_SESSION[$link]) && !isset($dsn)) {
@@ -233,7 +304,7 @@ function res($status = 0, $data = null, $message = '')
         'cookie' => $_COOKIE,
         'data' => $data,
         'message' => $message,
-    ]));
+    ], JSON_UNESCAPED_UNICODE));
 }
 
 // 显示不同的结果
