@@ -20,9 +20,9 @@
     <input type="text" name="value" id="value" placeholder="value">
     <textarea name="" id="input" cols="30" rows="3"></textarea><br>
     <div>link:<button onclick="document.cookie='link=0'">reset</button></div>
+    <div id="message"></div>
 </div>
 
-    <div id="message"></div>
     <div id="data"></div>
 </body>
 <script type="text/html" id="tpl_layer">
@@ -49,9 +49,7 @@
 `;
     $(function () {
         $.getJSON('dbq.php?act=links', function (res) {
-            if (res.message != '') {
-                $('#message').append('<li>' + res.message);
-            }
+            if (res.message != '') $('#message').prepend('<li>' + res.message);
             if (res.status) {
                 var links = $('#links');
                 links.html('');
@@ -62,9 +60,7 @@
         });
         $('#links').change(function () {
             $.getJSON('dbq.php?act=dbs&link=' + $(this).val(), function (res) {
-                if (res.message != '') {
-                    $('#message').append('<li>' + res.message);
-                }
+                if (res.message != '') $('#message').prepend('<li>' + res.message);
                 if (res.status) {
                     var dbs = $('#dbs');
                     dbs.html('');
@@ -79,12 +75,12 @@
                 link: $('#links').val(),
                 table: $('#table').val(),
             }, function (res) {
-                if (res.message != '') $('#message').append('<li>' + res.message);
+                if (res.message != '') $('#message').prepend('<li>' + res.message);
                 if (res.status) {
-                    if (res.message != '') $('#message').append('<li>' + res.message);
+                    if (res.message != '') $('#message').prepend('<li>' + res.message);
                     if (res.status) {
                         if (!res.data || res.data.length < 1) {
-                            $('#message').append('<b>x</b>');
+                            $('#message').prepend('<b>x</b>');
                             return;
                         }
                         render(renderTable(res.data, ['TABLE_SCHEMA','TABLE_NAME','TABLE_COMMENT']));
@@ -97,10 +93,10 @@
                 link: $('#links').val(),
                 field: $('#field').val(),
             }, function (res) {
-                if (res.message != '') $('#message').append('<li>' + res.message);
+                if (res.message != '') $('#message').prepend('<li>' + res.message);
                 if (res.status) {
                     if (!res.data || res.data.length < 1) {
-                        $('#message').append('<b>x</b>');
+                        $('#message').prepend('<b>x</b>');
                         return;
                     }
                     render(renderTable(res.data, ['TABLE_SCHEMA', 'TABLE_NAME', 'COLUMN_NAME', 'COLUMN_COMMENT']));
@@ -132,7 +128,7 @@
     var zIndex = 0;
     $('#input').change(function () {
         var o = $(this)
-        console.log(o.val())
+        if (o.val().trim() == '') return;
         $.ajax({
             url: 'dbq.php',//http://localhost/cqiu/tools/DBQ/
             type: 'get',
@@ -144,7 +140,7 @@
             dataType: 'json',
             success: function (res) {
                 if (res.message != '') {
-                    $('#message').append('<li>' + res.message);
+                    $('#message').prepend('<li>' + res.message);
                     if(res.message === '#'){
                         link = res.cookie.link;
                         lsh.set('currentLink', link);
@@ -160,7 +156,7 @@
         //regexp dsn..confirm to connect
         //query
         //function doSomething()
-    }).change();
+    });
     $(document).on('mousedown', '.coor', function (e) {
         var $box = $(this).parentsUntil('.box').parent();
         var posix = {
