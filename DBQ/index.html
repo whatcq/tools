@@ -33,18 +33,21 @@
 </script>
 <script src="http://localhost:9090/cqiu/static/jquery-3.5.1.min.js"></script>
 <script src="http://localhost:9090/cqiu/static/typeahead.jquery.min.js"></script>
+<script src="http://localhost:9090/cqiu/static/jquery.tablesort.min.js"></script>
 <script src="localStore.js"></script>
 <script>
     const renderTable = (data, fields) => `
   <table border="0" cellpadding="3">
-  <tr bgcolor="#dddddd" class="fixed-header">
+  <thead><tr bgcolor="#dddddd" class="fixed-header">
   ${fields.map(field => `<th>${field}</th>`).join('')}
-  </tr>
+  </tr></thead>
+  <tbody>
   ${data.map(item => `
     <tr>
     ${fields.map(field => `<td>${item[field]}</td>`).join('')}
     </tr>
   `).join('')}
+  </tbody>
   </table>
 `;
     $(function () {
@@ -121,7 +124,7 @@
         zIndex++;
         var _width = $('#' + _id).find('.body > table').width();
         console.log(_width)
-        $('#' + _id).width(Math.min(_width, 600));
+        $('#' + _id).width(Math.min(_width, 600)).find('table').tablesort();
     }
     var lsh = new LocalStorageHandler();
     var link = lsh.get('currentLink');

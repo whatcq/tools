@@ -120,6 +120,7 @@ window.onload = function() {
                     var msg = e.data;
                     localStorage.setItem(skey, msg);
                     setDataList();
+                    chat.close();
                 };
             }
         </script>
