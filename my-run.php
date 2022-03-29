@@ -12,8 +12,8 @@ var_dump(
     </form>
     <iframe src="" name="iframe" frameborder="0" style="width: 100%;height: 100%;"></iframe>
 </div>
-<script src="https://cdn.bootcss.com/ace/1.4.9/ace.js" type="text/javascript" charset="utf-8"></script>
-<script src="https://cdn.bootcdn.net/ajax/libs/ace/1.4.9/ext-language_tools.min.js"></script>
+<script src="http://localhost:9090/cqiu/static/ace-builds/src-min/ace.js"></script>
+<script src="http://localhost:9090/cqiu/static/ace-builds/src-min/ext-language_tools.js"></script>
 <script>
     // trigger extension
     ace.require("ace/ext/language_tools");

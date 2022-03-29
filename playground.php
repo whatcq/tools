@@ -84,6 +84,11 @@ if (isset($file)) {
         $msg = 'File not exists!';
     } else {
         $source = file_get_contents($file);
+        if ($_REQUEST['format']) {
+            include 'lib/php-formatter.php';
+            $formatter = new Formatter();
+            $source = $formatter->format($source);
+        }
     }
 }
 
@@ -160,8 +165,9 @@ foreach (glob("{$path}*.php") as $php_filename) {
                                style="width: 200px;position: absolute;left: 2px;top: 1px;border: none;height: 23px;" />
                     </div>
 
-                    <button onclick="openfile.location='?act=open_it_with_editplus&filename='+$('filename').value;return false;" title="Open it with Editplus">Source</button>
-                    <button onclick="location='?filename='+$('filename').value;return false;" title="Load this file=>">Load it</button>
+                    <button onclick="openfile.location='?act=open_it_with_editplus&filename='+$('filename').value;return false;" title="Open it with Editplus">Editplus</button>
+                    <input type="checkbox" id="format" title="format"<?php empty($_REQUEST['format']) or print(' checked');?>>
+                    <button onclick="location='?filename='+$('filename').value+'&format='+~~$('format').checked;return false;" title="Load this file=>">Load</button>
                     <button onclick="iframe.location='<?php echo $path; ?>'+$('filename').value+'.php';console.log($('filename').value);return false;" title="Run this file=>">Run</button>
                     <span title="- 赋值语句后加上#会打印出结果&#10;- Ctrl+j 复制当前行/选中文本&#10;- Ctrl+/(+Shift) 注释/取消中文本&#10;- 可以多行缩进/反缩进">?</span>
 
