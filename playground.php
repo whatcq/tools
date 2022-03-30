@@ -86,7 +86,7 @@ if (isset($file)) {
         $source = file_get_contents($file);
         if ($_REQUEST['format']) {
             include 'lib/php-formatter.php';
-            $formatter = new Formatter();
+            $formatter = new Formatter();//配置：['braceNewline' => [T_FUNCTION, T_CLASS]]
             $source = $formatter->format($source);
         }
     }
