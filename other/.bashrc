@@ -3,6 +3,7 @@ export LANG=zh_CN.utf-8
 export TIME_STYLE="+%Y.%m.%d %H:%M:%S"
 
 #PATH=$PATH:/C/Users/Administrator/AppData/Roaming/Composer/vendor/bin
+alias paths='echo $PATH|sed "s/:/\n/g"'
 
 alias ls='ls --show-control-chars --color=auto'
 alias ll='ls -lah'

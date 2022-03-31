@@ -31,9 +31,10 @@ if (!is_dir($dir)) {
 	return;
 }
 ?>
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 <title>File Server</title>
 <style type="text/css">
-	li{padding: 1px 3px}
+	li{padding: 1px 3px;max-width: 300px;}
 	li:nth-child(odd){background-color: #f2f2f2;}
 	li:nth-child(even),li:nth-child(even) {background-color: #fafafa;}
 	li:hover{background: #c3e9cb;}

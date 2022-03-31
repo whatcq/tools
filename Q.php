@@ -75,9 +75,9 @@ $shows = [
 *{font-family: 'Microsoft YaHei',Arial,serif;}
 a{display: inline-block; padding: 2px 5px;background: #c6dfff;border-radius: 3px;}
 label{clear:left; width: 130px;display: inline-block;color: gray;font-style: italic;}
-tr:nth-child(odd){background-color: #f2f2f2;}
+tr:nth-child(odd),li:nth-child(odd){background-color: #f2f2f2;}
 tr:nth-child(even),li:nth-child(even) {background-color: #fafafa;}
-tr:hover{background: #c3e9cb;}
+tr:hover,li:hover{background: #c3e9cb;}
 pre{margin:0;}
 i{font-size:60%;color:gray;}
 table{font-size:80%}
@@ -176,7 +176,7 @@ function parse($q)
 {
 	global $show;
 	if ($q === '#*') {
-		return ['SELECT TABLE_NAME,TABLE_COMMENT,TABLE_ROWS n,AVG_ROW_LENGTH l,INDEX_LENGTH idx,AUTO_INCREMENT i,TABLE_COLLATION,CREATE_TIME,UPDATE_TIME,TABLE_TYPE type,ENGINE e,ROW_FORMAT FROM information_schema.`TABLES` where TABLE_SCHEMA=?s', DB_NAME];
+		return ['SELECT TABLE_NAME,TABLE_COMMENT,TABLE_ROWS n,INDEX_LENGTH idx,AVG_ROW_LENGTH w,AUTO_INCREMENT i,TABLE_COLLATION,CREATE_TIME,UPDATE_TIME,TABLE_TYPE type,ENGINE e,ROW_FORMAT FROM information_schema.`TABLES` where TABLE_SCHEMA=?s', DB_NAME];
 	}
 
 	// table alias
