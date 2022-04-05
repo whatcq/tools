@@ -84,9 +84,9 @@ if ($content) {
     $content = $parsedown->makeHtml($content);
 
     $path = dirname($p) . DIRECTORY_SEPARATOR;
-    $content = preg_replace('#<img src="(?!((https?:)?//))(.*)"#i', '<img src="?src=' . $path . '\$3"', $content);
-    $content = preg_replace('#<a href="(?!(https?://))(.*\.md)"#i', '<a href="?p=' . $path . '\$2"', $content);
-    $content = preg_replace('#<a href="&lt;(.*\.md)>"#i', '<a href="?p=' . $path . '\$1"', $content);
+    $content = preg_replace('#<img src="(?!((https?:)?//))(.*?)"#i', '<img src="?src=' . $path . '\$3"', $content);
+    $content = preg_replace('#<a href="(?!(https?://))(.*?\.md)"#i', '<a href="?p=' . $path . '\$2"', $content);
+    $content = preg_replace('#<a href="&lt;(.*?\.md)>"#i', '<a href="?p=' . $path . '\$1"', $content);
 } else {
     $content = $html;
 }
