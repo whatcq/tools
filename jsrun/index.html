@@ -36,18 +36,21 @@
 
     <div class="editor-container editor-container-html">
         <div class="editor-container-label">HTML</div>
+
+        <button onclick="Editor.htmlFormat()" style="position: absolute; right: 10px; z-index: 2;">format</button>
         <pre id="editor-ace-html">&lt;!DOCTYPE html>&lt;html>&lt;head>&lt;meta charset="utf-8">&lt;title>&lt;/title>&lt;/head>&lt;body>
 
 &lt;h1&gt;Hello World!☺&lt;/h1&gt;
 </pre>
     </div>
-    <div class="editor-container editor-container-css" style="position: relative">
+    <div class="editor-container editor-container-css">
         <div class="editor-container-label">CSS</div>
         <button onclick="Editor.cssFormat()" style="position: absolute; right: 10px; z-index: 2;">format</button>
         <pre id="editor-ace-css"></pre>
     </div>
     <div class="editor-container editor-container-js">
         <div class="editor-container-label">JavaScript</div>
+        <button onclick="Editor.jsFormat()" style="position: absolute; right: 10px; z-index: 2;">format</button>
         <pre id="editor-ace-js"></pre>
     </div>
 
@@ -58,6 +61,9 @@ gla git@gitee.com:mirrors/ace-builds.git
 https://cdn.jsdelivr.net/gh/ajaxorg/ace-builds@1.4.12/src-min/ -->
 <script src="http://localhost:9090/cqiu/static/ace-builds/src-min/ace.js"></script>
 <script src="http://localhost:9090/cqiu/static/ace-builds/src-min/ext-language_tools.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.2/beautify.min.js"></script>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.2/beautify-css.min.js"></script>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.2/beautify-html.min.js"></script>
 <script src="live-editor.js"></script>
 <script>
   var Editor = new LiveEditor();

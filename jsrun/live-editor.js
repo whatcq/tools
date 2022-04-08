@@ -509,7 +509,7 @@ var LiveEditor = (function () {
     var html = editor.html.getValue();
     var css = editor.css.getValue();
     var js = editor.js.getValue();
-    let data = html + '<style>' + css + '</style>' + '<script>' + js + '</script>';
+    let data = html + "\n<style>" + css + "</style>\n<script>" + js + "</script>";
     let urlObject = window.URL || window.webkitURL || window;
     let export_blob = new Blob([data]);
     let save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
@@ -527,6 +527,13 @@ var LiveEditor = (function () {
     css = css.replace(/([^\s])\}([^\n]*)/g, "$1\n}\n$2");
     css = css.replace(/([^\s]);([^\s\}])/g, "$1;\n\t$2");
     editor.css.setValue(css.trim(), -1);
+  };
+
+  LiveEditor.prototype.jsFormat = function(){
+    editor.js.setValue(js_beautify(editor.js.getValue()), -1);
+  };
+  LiveEditor.prototype.htmlFormat = function(){
+    editor.html.setValue(html_beautify(editor.html.getValue()), -1);
   };
 
   return LiveEditor;

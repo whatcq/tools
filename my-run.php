@@ -20,7 +20,7 @@
 </div>
 <div style="position: fixed; right: 0; top: 0;max-width: 50%;width: 700px; height: 100%;">
     <form method="post" action="playground.php?act=save_run" target="iframe" style="display:inline;">
-        <input type="text" name="filename" id="filename" value="<?=$_REQUEST['f']?:'test'?>" style="position: fixed;right: 20px;">
+        <input type="text" name="filename" id="filename" value="<?=$_REQUEST['f']??'test'?>" style="position: fixed;right: 20px;">
         <textarea name="source" id="source" cols="30" rows="10" style="display:none;"></textarea>
     </form>
     <iframe src="" name="iframe" frameborder="0" style="width: 100%;height: 100%;"></iframe>
