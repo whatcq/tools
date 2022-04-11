@@ -77,6 +77,7 @@ a{display: inline-block; padding: 2px 5px;background: #c6dfff;border-radius: 3px
 label{clear:left; width: 130px;display: inline-block;color: gray;font-style: italic;}
 tr:nth-child(odd),li:nth-child(odd){background-color: #f2f2f2;}
 tr:nth-child(even),li:nth-child(even) {background-color: #fafafa;}
+tr:nth-child(5n+0),li:nth-child(5n+0) {background-color: #e9e6e6;}
 tr:hover,li:hover{background: #c3e9cb;}
 pre{margin:0;}
 i{font-size:60%;color:gray;}
