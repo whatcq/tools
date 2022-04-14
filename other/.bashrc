@@ -115,7 +115,6 @@ sonar(){
     start "http://172.16.10.32:19000/dashboard?id=${id}&branch=${branch}&resolved=false"
 }
 
-
 exfile(){
     if [ $# -eq 2 ]; then
         file1=$1
@@ -135,3 +134,13 @@ pkm(){
 dosh(){
 	docker exec -it $1 bash #/usr/bin/sh
 }
+
+# 简单跳转，like jump,z
+to(){
+    case $# in
+        1) cd $(cat ~/.cd/$1) ;;
+        2) cd $2 && echo `pwd -L` > ~/.cd/$1 ;;
+        *) grep --color=auto '/' -r ~/.cd/;; #head ~/.cd/* ;;
+    esac
+}
+wds=$(ls ~/.cd|xargs);complete -W "$wds" to
