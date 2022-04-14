@@ -139,7 +139,7 @@ dosh(){
 to(){
     case $# in
         1) cd $(cat ~/.cd/$1) ;;
-        2) cd $2 && echo `pwd -L` > ~/.cd/$1 ;;
+        2) cd $2; [ "$1" == "." ] && name=$(basename "$PWD") || name="$1"; echo `pwd -L` > "~/.cd/$name" ;;
         *) grep --color=auto '/' -r ~/.cd/;; #head ~/.cd/* ;;
     esac
 }
