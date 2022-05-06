@@ -1007,7 +1007,7 @@ class Formatter {
                 foreach ($lines as $i => $line) {
                     $line = trim($line);
                     if ($i > 0) {
-                        if ($line[0] === '*') {
+                        if (!empty($line[0]) && $line[0] === '*') {
                             $line = $this->newline . $this->getIndent() . ' ' . $line;
                         } else {
                             $line = $this->newline . $line;
