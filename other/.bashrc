@@ -128,7 +128,12 @@ exfile(){
 }
 
 pkm(){
-	grep -ani --color=auto "$1" /d/mysoft/mempad64/*.ls? /d/mysoft/ALTRun/*.ls?
+    files="/d/mysoft/mempad64/*.ls? /d/mysoft/ALTRun/*.ls?"
+    case $# in
+        1) grep -ani --color=auto "$1" $files ;;
+        2) grep -ani --color=auto "$1" -A "$2" $files ;;
+        3) grep -ani --color=auto "$1" -A "$2" -B "$3" $files ;;
+    esac
 }
 
 dosh(){
