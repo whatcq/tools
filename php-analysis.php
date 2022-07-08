@@ -115,6 +115,7 @@ register_shutdown_function(function () use ($debugOptions) {
     if (!$debugOptions
         || (isset($_SERVER['HTTP_REQUEST_TYPE']) && $_SERVER['HTTP_REQUEST_TYPE'] === 'ajax')
         || array_search('XMLHttpRequest', getallheaders()) === 'X-Requested-With'
+        || false !== stripos(implode('', headers_list()), 'Content-Type: application/json')
     ) {
         return;
     }
@@ -157,7 +158,7 @@ register_shutdown_function(function () use ($debugOptions) {
 small{font-size: 60%}
 #debugBar{padding:0;position:fixed;bottom:0;right:0;font-size:14px;width:100%;z-index:999999;color:#000;text-align:left;font-family:'微软雅黑',serif}
 #debugBar_tab{padding:0;display:none;background:white;margin:0;height:250px}
-#debugBar_tab_tit{height:30px;font:bold 16px/30px Georgia;padding:0 12px;background: #dadada;flex-grow: 1;cursor: n-resize;}
+#debugBar_tab_tit{background: #3c8dbc !important;background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #3c8dbc), color-stop(1, #67a8ce)) !important;text-shadow: -1px -1px 1px #000, 1px 1px 1px #fff;height:30px;font:bold 16px/30px Georgia;padding:0 12px;background: #dadada;flex-grow: 1;cursor: n-resize;}
 span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:20px;line-height:20px;display:inline-block;margin-right:3px;cursor:pointer;font-weight:700}
 #debugBar_tab_cont li{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
 #debugBar_tab_cont li pre{font-family: 'Courier New',serif;background: #e4e2e2;margin: 0;padding: 1px 12px;border-radius: 5px;line-height: 16px;}
@@ -263,7 +264,7 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
                 return function () {
                     for (var j = 0; j < tab_cont.length; j++) {
                         tab_cont[j].style.display = 'none';
-                        tab_tit[j].style.color = '#999';
+                        tab_tit[j].style.color = '#fff';
                     }
                     tab_cont[i].style.display = 'block';
                     tab_tit[i].style.color = '#000';
