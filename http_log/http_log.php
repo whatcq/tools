@@ -15,9 +15,13 @@ foreach ($_SERVER as $key => $value) {
 }
 
 fwrite($fh, "\r\n");
-isset($_SERVER['CONTENT_TYPE']) && fwrite($fh, strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') === 0
-    ? http_build_query($_POST)
-    : file_get_contents('php://input'));
+isset($_SERVER['CONTENT_TYPE'])
+&& fwrite(
+    $fh,
+    strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') === 0
+        ? http_build_query($_POST)
+        : file_get_contents('php://input')
+);
 fwrite($fh, "\r\n\r\n");
 fclose($fh);
 
@@ -27,8 +31,14 @@ echo '<pre>';
 // print_r($_POST);
 ?>
 <!-- multipart/form-data text/plain -->
-<form action="" method="post" enctype="application/x-www-form-urlencoded">
+<form action="<?= $_SERVER['REQUEST_URI'] ?>" method="post" enctype="<?=
+$_SERVER['CONTENT_TYPE'] ?? 'application/x-www-form-urlencoded' ?>">
     <input type="text" name="name" value="cqiu">
     <input type="text" name="happy" value="89">
+    <?php
+    foreach ($_POST as $k => $v) {
+        echo '<input type="text" name="' . $k . '" value="' . htmlspecialchars($v) . '"><br />';
+    }
+    ?>
     <input type="submit">
 </form>

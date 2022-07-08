@@ -15,7 +15,7 @@
     !empty($_REQUEST['f'])
     && file_exists($file = "playground/{$_REQUEST['f']}.php")
     && print(htmlspecialchars(getCode($file)))
-    or print("&lt;pre style=\"color:green\">&lt;?php\nvar_dump(\n    1\n);");
+    or print("&lt;pre style=\"color:#03b503;margin-top:30px;font: 14px/16px Consolas;\">&lt;?php\nvar_dump(\n    1\n);");
     ?>
 </div>
 <div style="position: fixed; right: 0; top: 0;max-width: 50%;width: 700px; height: 100%;">
