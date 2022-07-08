@@ -47,6 +47,6 @@ if ($input = $_REQUEST['input'] ?? null) {
 ?>
 <title>Done!</title>
 <form action="?set">
-    <textarea name="input" id="input" cols="200" rows="20" placeholder="输入" style="width:100%"><?= $output ?></textarea><br>
+    <textarea name="input" id="input" cols="200" rows="20" placeholder="输入" style="width:100%" onload="this.focus()"><?= $output ?></textarea><br>
     <input type="submit" value="Go">
 </form>

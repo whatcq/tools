@@ -7,6 +7,8 @@ use yii\web\Controller;
 
 /**
  * 打印路由 | 控制器方法，for develop/debug
+ * yii2-debug:2.1 已经有这功能了！
+ * debug/default/view?panel=router
  * @author  Cqiu
  * @date    2022-5-26
  */
