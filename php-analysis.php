@@ -16,6 +16,29 @@
  * Author: Cqiu
  * Date: 2017-10-28
  */
+
+//---------------------------------
+// pjax 注释/删除 掉测试代码
+if (
+    !empty($_GET['_t'])
+    && in_array($_GET['_t'], ['comment', 'delete'])
+    && !empty($_GET['target'])
+    && !empty($_GET['line'])
+) {
+    file_exists($file = $_GET['target']) or die('alert("文件不存在")');
+
+    $line = $_GET['line'];
+    $data = file($file);
+    substr(ltrim($data[$line - 1]), 0, 4) === '_log' or die('alert("有误 or 已处理")');
+
+    if ('comment' === $_GET['_t']) {
+        $data[$line - 1] = '//' . $data[$line - 1];
+    } else {
+        unset($data[$line - 1]);
+    }
+    file_put_contents($file, implode("", $data));
+    die('alert("处理成功")');
+}
 //---------------------------------
 ### trace err(from speedphp)
 function _err($msg)
@@ -82,10 +105,9 @@ function _log()
         $files[$caller['file']] = file($caller['file']);
     }
 
-    preg_match('#_log\(([^;]*)\)#i', $files[$caller['file']][$caller['line'] - 1], $params);
+    preg_match('#_log\(([^)]*)#i', $files[$caller['file']][$caller['line'] - 1], $params);
 
-    $key = $caller['file'] . ': ' . $caller['line'] . ": " . $params[1];
-    if (isset($logs[$key])) $key .= ':' . microtime(1);
+    $key = $caller['file'] . ': ' . $caller['line'] . ": " . $params[1] . ': ' . microtime(1);
     $logs[$key] = func_num_args() > 1
         ? var_export(func_get_args(), 1)
         : var_export(func_get_arg(0), 1);
@@ -180,9 +202,16 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
                         <?php
                         if (is_array($info)) {
                             foreach ($info as $k => $val) {
-                                echo '<li>',
-                                (/*is_numeric($k) ? '' :*/$k . ' : ');
-                                if ($key === 'vars')echo '<pre>';
+                                echo '<li>';
+                                if ($key === 'vars') {
+                                    list($file, $line) = explode(': ', $k);
+                                    $fileEscape = urlencode($file);
+                                    echo "<a href=\"ide://open?url=file://{$file}&line={$line}\">{$k}</a>"
+                                        . "<button onclick=\"loadJS('?_t=comment&target=$fileEscape&line=$line')\">//</button>"
+                                        . "<button onclick=\"loadJS('?_t=delete&target=$fileEscape&line=$line')\">×</button>"
+                                        . '<pre>';
+                                }
+                                else echo $k . ' : ';
                                 echo htmlentities(print_r($val, true), ENT_COMPAT, 'utf-8');
                                 if ($key === 'vars')echo '</pre>';
                                 echo '</li>';
@@ -204,6 +233,20 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
 </div>
 
 <script type="text/javascript">
+    function loadJS(url, success) {
+        var domScript = document.createElement('script');
+        domScript.src = url;
+        success = success || function () {
+        };
+        domScript.onload = domScript.onreadystatechange = function () {
+            if (!this.readyState || 'loaded' === this.readyState || 'complete' === this.readyState) {
+                success();
+                this.onload = this.onreadystatechange = null;
+                this.parentNode.removeChild(this);
+            }
+        }
+        document.getElementsByTagName('head')[0].appendChild(domScript);
+    }
     (function () {
         var $id = function(id){return document.getElementById(id)}
 
