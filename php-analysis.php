@@ -41,10 +41,9 @@ if (
 }
 //---------------------------------
 ### trace err(from speedphp)
-function _err($msg)
+function _err($msg, array $traces)
 {
     $msg = htmlspecialchars($msg);
-    $traces = debug_backtrace();
     if (ob_get_contents()) ob_end_clean();
     function _err_highlight_code($code)
     {
@@ -77,9 +76,15 @@ function _err($msg)
     exit;
 }
 
-if(!empty($_COOKIE['_trace']) || !empty($_REQUEST['_trace'])) {
-    set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-        _err($errstr);
+if (!empty($_COOKIE['_trace']) || !empty($_REQUEST['_trace'])) {
+    set_error_handler(function ($level, $message, $file, $line) {
+        _err($message, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+    });
+    set_exception_handler(function (Exception $exception) {
+        _err($exception->getMessage(), array_merge([[
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+        ]], $exception->getTrace()));
     });
     unset($_GET['_trace']);
 }
@@ -89,7 +94,7 @@ if(!empty($_COOKIE['_trace']) || !empty($_REQUEST['_trace'])) {
  * - 无参数：返回所有
  * - 一个普通值参数：直接打印
  * - 数组|对象|多参数：print_r
- * @todo 通过界面 注释/删除 掉测试代码
+ * 通过界面 注释/删除 掉测试代码
  */
 function _log()
 {
