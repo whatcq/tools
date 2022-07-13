@@ -80,7 +80,7 @@ if (!empty($_COOKIE['_trace']) || !empty($_REQUEST['_trace'])) {
     set_error_handler(function ($level, $message, $file, $line) {
         _err($message, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
     });
-    set_exception_handler(function (Exception $exception) {
+    set_exception_handler(function ($exception) {
         _err($exception->getMessage(), array_merge([[
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
@@ -110,7 +110,8 @@ function _log()
         $files[$caller['file']] = file($caller['file']);
     }
 
-    preg_match('#_log\(([^)]*)#i', $files[$caller['file']][$caller['line'] - 1], $params);
+    // 这个请您别换行:)
+    preg_match('#_log\((.*)\);#i', $files[$caller['file']][$caller['line'] - 1], $params);
 
     $key = $caller['file'] . ': ' . $caller['line'] . ": " . $params[1] . ': ' . microtime(1);
     $logs[$key] = func_num_args() > 1
