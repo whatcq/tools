@@ -20,6 +20,18 @@ alias -- -='cd -'
 alias cd.s='echo "`pwd`" > ~/.cdsave'  #cd save : save where i am  
 alias cd.b='cd "`cat ~/.cdsave`"'  # cd back
 
+# 简单跳转，like jump,z
+to(){
+    case $# in
+        1) cd $(cat ~/.cd/$1) ;;
+        # 跳转到该目录并加入快捷方式：to soft /d/mysoft
+        2) cd $2; [ "$1" == "." ] && name=$(basename "$PWD") || name="$1"; echo `pwd -L` > "$HOME/.cd/$name" ;;
+        # 显示所有快捷方式； 删除快捷方式需直接删文件
+        *) grep --color=auto '/' -r ~/.cd/;; #head ~/.cd/* ;;
+    esac
+}
+wds=$(ls ~/.cd|xargs);complete -W "$wds" to
+
 #git
 alias g='git'
 alias la='git pull'
@@ -131,7 +143,7 @@ pkm(){
     files="/d/mysoft/mempad64/*.ls? /d/mysoft/ALTRun/*.ls?"
     case $# in
         1) grep -ani --color=auto "$1" $files ;;
-        2) grep -ani --color=auto "$1" -A "$2" $files ;;
+        2) grep -ani --color=auto "$1" -A "$2" $files ; echo -e "=====\n"grep -ani --color=auto "$1" -A "$2" $files ;;
         # 显示搜索结果的前后多少行
         3) grep -ani --color=auto "$1" -A "$2" -B "$3" $files ;;
     esac
@@ -140,15 +152,3 @@ pkm(){
 dosh(){
 	docker exec -it $1 bash #/usr/bin/sh
 }
-
-# 简单跳转，like jump,z
-to(){
-    case $# in
-        1) cd $(cat ~/.cd/$1) ;;
-        # 跳转到该目录并加入快捷方式：to soft /d/mysoft
-        2) cd $2; [ "$1" == "." ] && name=$(basename "$PWD") || name="$1"; echo `pwd -L` > "$HOME/.cd/$name" ;;
-        # 显示所有快捷方式； 删除快捷方式需直接删文件
-        *) grep --color=auto '/' -r ~/.cd/;; #head ~/.cd/* ;;
-    esac
-}
-wds=$(ls ~/.cd|xargs);complete -W "$wds" to
