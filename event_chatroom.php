@@ -18,7 +18,7 @@ if (isset($_REQUEST['post'])) {
 			'from' => htmlspecialchars($data['user']),
 			//'to' => $data['to'],
 			'msg' => htmlspecialchars($data['msg']),
-			]), FILE_APPEND);
+			], JSON_UNESCAPED_UNICODE), FILE_APPEND);
 	header("content:application/json;chartset=uft-8");
 	exit(json_encode([
 			'status' => 1
