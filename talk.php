@@ -10,13 +10,32 @@ if (isset($_GET['talk'])) {
 	$words = json_decode($json, 1);
 	file_put_contents($file, "\n" . date('Y-m-d H:i:s') . ' ' . $text, FILE_APPEND);
 
+	$keyword = '';
+	$score = 0;
 	$_words = [];
 	foreach ($words as $word) {
 		if ($word['p'] > 0.6) {
 			$_words[] = $word['t'];
 		}
+		if ($word['p'] > $score) {
+			$score = $word['p'];
+			$keyword = $word['t'];
+		}
 	}
 	$responseText = implode(' ', array_unique($_words));
+	file_put_contents($file, "\n$keyword" . $text, FILE_APPEND);
+
+	$html = file_get_contents('https://hanyu.sogou.com/result?query=' . urlencode($keyword));
+	file_put_contents('hanyu.sogou.html', $html); // for test
+	if (strpos($html, '抱歉，没有找到')) {
+		$responseText = '--';
+	} else {
+		preg_match('#<div id="shiyiDiv".*>(.*)</div>#i', $html, $matches);
+		$responseText = strip_tags($matches[0]);
+	}
+
+	// $responseText = $keyword;
+	// file_put_contents($file, "\n" . date('Y-m-d H:i:s') . ' ' . print_r($matches, 448), FILE_APPEND);
 
 	die('<script>parent.response("bot", "' . $responseText . '")</script>');
 }
