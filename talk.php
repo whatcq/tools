@@ -2,6 +2,7 @@
 if (isset($_GET['talk'])) {
 	$file = 'talk.log';
 	$text = $_GET['talk'];
+
 	// 这个分词只给出词+概率，不承包最后结果
 	// param1:0-全部词 1-100%概念词
 	// param2:1-debug
@@ -9,25 +10,15 @@ if (isset($_GET['talk'])) {
 	$words = json_decode($json, 1);
 	file_put_contents($file, "\n" . date('Y-m-d H:i:s') . ' ' . $text, FILE_APPEND);
 
-	$responseText = '';
+	$_words = [];
 	foreach ($words as $word) {
 		if ($word['p'] > 0.6) {
-			$responseText .= ' ' . $word['t'];
+			$_words[] = $word['t'];
 		}
 	}
-
-	$vol = $_GET['vol'] ?? 9;
-	$speed = $_GET['speed'] ?? 8;
-	$per = $_GET['per'] ?? 3;
+	$responseText = implode(' ', array_unique($_words));
 
 	die('<script>parent.response("bot", "' . $responseText . '")</script>');
-
-	echo <<<EOF
-<audio controls autoplay xmuted id="audio"><!--  -->
-	<source src="https://tts.baidu.com/text2audio?tex={$responseText}&cuid=baike&lan=ZH&ie=utf-8&ctp=1&pdt=301&vol={$vol}&rate=32&per={$per}&spd={$speed}" type="audio/mpeg">
-</audio>
-EOF;
-	die;
 }
 ?>
 <!DOCTYPE html>
@@ -44,7 +35,7 @@ EOF;
 	.i-say u{background: lightgreen;float: right;}
 </style>
 
-<body style="/*display: flex;justify-content: center;align-items: center;*/">
+<body>
 	<div style="width: 700px;margin: 0 auto;">
 		<div id="chatroom"></div>
 
@@ -67,13 +58,14 @@ EOF;
 			<option value="0">标准女音</option>
 			<option value="1">标准男音</option>
 			<option value="3" selected>斯文男音</option>
-			<!--<option value="4">小萌萌</option>
-				<option value="5">知性女音</option>
-				<option value="6">老教授</option>
-				<option value="8">葛平音</option>
-				<option value="9">播音员</option>
-				<option value="10">京腔</option>
-				<option value="11">温柔大叔</option>
+			<!--
+			<option value="4">小萌萌</option>
+			<option value="5">知性女音</option>
+			<option value="6">老教授</option>
+			<option value="8">葛平音</option>
+			<option value="9">播音员</option>
+			<option value="10">京腔</option>
+			<option value="11">温柔大叔</option>
 			-->
 		</select>
 		<iframe name="talkFrame" id="talkFrame" width=100% height="20" src="about:blank" title="audio-play"></iframe>
@@ -107,7 +99,7 @@ EOF;
 	function chat(who, msg) {
 		var div = document.createElement("div");
 		div.className = 'chat';
-		if(who==nick)div.className += ' i-say';
+		if (who == nick) div.className += ' i-say';
 		div.innerHTML = ('<u>' + who + '</u>' + msg); //.trim();
 		chatroom.append(div);
 		input.scrollIntoView();
@@ -122,7 +114,9 @@ EOF;
 	}, 1000);
 
 	function speak(msg) {
-		var vol = $('vol').value, speed = $('speed').value, per = $('per').value;
+		var vol = $('vol').value,
+			speed = $('speed').value,
+			per = $('per').value;
 		speaker.src = `https://tts.baidu.com/text2audio?tex=${msg}&cuid=baike&lan=ZH&ie=utf-8&ctp=1&pdt=301&vol=${vol}&rate=32&per=${per}&spd=${speed}`;
 	}
 
@@ -130,7 +124,7 @@ EOF;
 		chat(who, msg);
 		speak(msg);
 		input.value = '';
-		input.focus();
+		setTimeout(function(){input.focus();}, 500 + msg.length * 100);
 	}
 </script>
 
