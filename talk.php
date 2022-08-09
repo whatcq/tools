@@ -1,7 +1,15 @@
 <?php
 if (isset($_GET['talk'])) {
+	session_start();
 	$file = 'talk.log';
 	$text = $_GET['talk'];
+	if (strpos($text, '开始成语接龙') !== false) $_SESSION['mode'] = '成语接龙';
+	if ($_SESSION['mode'] === '成语接龙') {
+		$responseText = include 'tasks/zici.php';
+		die('<script>parent.response("龙", "' . addslashes($responseText) . '")</script>');
+	}
+
+	include 'tasks/get_from_internet.php';
 
 	// 这个分词只给出词+概率，不承包最后结果
 	// param1:0-全部词 1-100%概念词
@@ -65,6 +73,7 @@ if (isset($_GET['talk'])) {
 			<input type="submit">
 			<input type="reset">
 			<input type="button" value="清屏" onclick="$('chatroom').innerHTML=''">
+			<input type="text" id="back_msg">
 		</form>
 		<br>
 		<audio controls autoplay xmuted id="speaker">
@@ -143,7 +152,9 @@ if (isset($_GET['talk'])) {
 		chat(who, msg);
 		speak(msg);
 		input.value = '';
-		setTimeout(function(){input.focus();}, 500 + msg.length * 100);
+		$('back_msg').value = '';
+		$('back_msg').focus();
+		setTimeout(function(){input.focus();}, 2500 + msg.length * 100);
 	}
 </script>
 
