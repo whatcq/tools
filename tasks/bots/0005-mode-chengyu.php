@@ -4,7 +4,9 @@ if ($_SESSION['mode'] !== '成语接龙') {
     return;
 }
 
-require_once __DIR__ . '/../lib/DB.php';
+$botName = '成语接龙';
+
+require_once __DIR__ . '/../../lib/DB.php';
 
 $links = [
     'local' => [
