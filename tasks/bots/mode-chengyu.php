@@ -1,5 +1,9 @@
 <?php
 
+if ($_SESSION['mode'] !== '成语接龙') {
+    return;
+}
+
 require_once __DIR__ . '/../lib/DB.php';
 
 $links = [
@@ -8,9 +12,7 @@ $links = [
         'database' => 'zici',
         'username' => 'root',
         'password' => '',
-        'color' => 'lightblue', # option bgcolor
         'charset' => 'utf8',
-        //'extend' => 'local', # extend config
     ]
 ];
 
@@ -25,7 +27,6 @@ define('DB_PASS', $config['password']);
 isset($config['charset']) && define('DB_CHAR', $config['charset']);
 DB::x('SET NAMES "' . DB_CHAR . '"');
 
-// start game?直接开始
 if (empty($_SESSION['step'])) {
     $_SESSION['step'] = 1;
     return '成语接龙开始！你先！';
@@ -33,16 +34,12 @@ if (empty($_SESSION['step'])) {
 
 $keyword = $text;
 
-
-// if(is not )return '你这是成语吗？重来一个'
-
 function jielong($keyword)
 {
     $items = DB::q('SELECT chengyu FROM chengyu WHERE chengyu LIKE ?s', mb_substr($keyword, -1) . '%')->fetchAll(PDO::FETCH_ASSOC);
     if (!$items) return null;
     return $_SESSION['chengyu'] =  current($items[array_rand($items)]);
 }
-// return jielong('荒无人烟')谁知他夫人却替他收
 
 if (in_array($keyword, ['不玩了', '退出', '我不想玩了'])) {
     $_SESSION['mode'] = null;

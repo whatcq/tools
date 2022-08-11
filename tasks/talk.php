@@ -1,51 +1,19 @@
 <?php
-if (isset($_GET['talk'])) {
-	session_start();
-	$file = 'talk.log';
+if (!empty($_GET['talk'])) {
+	$logFile = 'talk.log';
 	$text = $_GET['talk'];
-	if (strpos($text, '开始成语接龙') !== false) $_SESSION['mode'] = '成语接龙';
-	if ($_SESSION['mode'] === '成语接龙') {
-		$responseText = include 'tasks/zici.php';
-		die('<script>parent.response("龙", "' . addslashes($responseText) . '")</script>');
-	}
 
-	include 'tasks/get_from_internet.php';
+	file_put_contents($logFile, "\n" . date('Y-m-d H:i:s') . ' ' . $text, FILE_APPEND);
 
-	// 这个分词只给出词+概率，不承包最后结果
-	// param1:0-全部词 1-100%概念词
-	// param2:1-debug
-	$json = file_get_contents("http://api.pullword.com/get.php?source={$text}&param1=0&param2=1&json=1");
-	$words = json_decode($json, 1);
-	file_put_contents($file, "\n" . date('Y-m-d H:i:s') . ' ' . $text, FILE_APPEND);
-
-	$keyword = '';
-	$score = 0;
-	$_words = [];
-	foreach ($words as $word) {
-		if ($word['p'] > 0.6) {
-			$_words[] = $word['t'];
-		}
-		if ($word['p'] > $score) {
-			$score = $word['p'];
-			$keyword = $word['t'];
+	session_start();
+	$botName = 'bot';
+	foreach (glob('bots/*.php') as $script) {
+		if ($responseText = include $script) {
+			file_put_contents($logFile, "\n" . $script . ': ' . $responseText, FILE_APPEND);
+			die('<script>parent.response("' . $botName . '", "' . addslashes($responseText) . '")</script>');
 		}
 	}
-	$responseText = implode(' ', array_unique($_words));
-	file_put_contents($file, "\n$keyword" . $text, FILE_APPEND);
-
-	$html = file_get_contents('https://hanyu.sogou.com/result?query=' . urlencode($keyword));
-	file_put_contents('hanyu.sogou.html', $html); // for test
-	if (strpos($html, '抱歉，没有找到')) {
-		$responseText = '--';
-	} else {
-		preg_match('#<div id="shiyiDiv".*>(.*)</div>#i', $html, $matches);
-		$responseText = strip_tags($matches[0]);
-	}
-
-	// $responseText = $keyword;
-	// file_put_contents($file, "\n" . date('Y-m-d H:i:s') . ' ' . print_r($matches, 448), FILE_APPEND);
-
-	die('<script>parent.response("bot", "' . $responseText . '")</script>');
+	die;
 }
 ?>
 <!DOCTYPE html>
@@ -73,7 +41,7 @@ if (isset($_GET['talk'])) {
 			<input type="submit">
 			<input type="reset">
 			<input type="button" value="清屏" onclick="$('chatroom').innerHTML=''">
-			<input type="text" id="back_msg">
+			<input type="text" id="back_msg" size="70">
 		</form>
 		<br>
 		<audio controls autoplay xmuted id="speaker">
