@@ -105,6 +105,7 @@ if (isset($_GET['talk'])) {
 	}
 	var input = $('input');
 	var chatroom = $('chatroom');
+	var speaker = $('speaker');
 	var nick = 'cqiu'; //prompt("enter your name");
 
 	window.onload = function() {
@@ -127,7 +128,7 @@ if (isset($_GET['talk'])) {
 	function chat(who, msg) {
 		var div = document.createElement("div");
 		div.className = 'chat';
-		if (who == nick) div.className += ' i-say';
+		if (who === nick) div.className += ' i-say';
 		div.innerHTML = ('<u>' + who + '</u>' + msg); //.trim();
 		chatroom.append(div);
 		input.scrollIntoView();
