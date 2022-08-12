@@ -43,7 +43,7 @@ function jielong($keyword)
     return $_SESSION['chengyu'] =  current($items[array_rand($items)]);
 }
 
-if (in_array($keyword, ['不玩了', '退出', '我不想玩了'])) {
+if (in_array(trim($keyword, '。 '), ['不玩了', '退出', '我不想玩了'])) {
     $_SESSION['mode'] = null;
     $_SESSION['chengyu'] = null;
     $_SESSION['error'] = 0;
@@ -61,24 +61,7 @@ if (!empty($_SESSION['chengyu']) && mb_substr($keyword, 0, 1) !== $zi = mb_subst
     $_SESSION['error'] = ($_SESSION['error'] ?? 0) + 0.5;
 
     if ($_SESSION['error'] > 2) {
-        if (empty($_SESSION['chengyu'])) {
-            return '你就一个成语没说，还是我开始吧：'
-                . $_SESSION['chengyu'] = current(DB::q('SELECT chengyu FROM chengyu WHERE id=?i', mt_rand(1, 30804))->fetch(PDO::FETCH_ASSOC));
-        }
-        $next = jielong($_SESSION['chengyu']);
-        if (!$next) {
-            $zi = mb_substr($_SESSION['chengyu'], -1);
-            $_SESSION['chengyu'] = null;
-            return '算啦！没有' . $zi . '字开头的成语。重来，你先。';
-        }
-        $msg = '我帮你想到一个：' . $next;
-        $_SESSION['error'] = 0;
-        $next = jielong($next);
-        if (!$next) {
-            $_SESSION['chengyu'] = null;
-            return $msg . '……，然后呢，我接不上啦，呜呜！还是重来吧，你先';
-        }
-        return $msg . '，' . $next;
+        goto ERROR;
     }
 
     return ["需要“{$zi}”开头的", "你这不是{$zi}字开头的呀~"][mt_rand(1, 2) - 1];
@@ -88,24 +71,7 @@ if (!DB::q('SELECT chengyu FROM chengyu WHERE chengyu=?s', $keyword)->fetch(PDO:
     $_SESSION['error'] = ($_SESSION['error'] ?? 0) + 1;
 
     if ($_SESSION['error'] > 2) {
-        if (empty($_SESSION['chengyu'])) {
-            return '你就一个成语没说，还是我开始吧：'
-                . $_SESSION['chengyu'] = current(DB::q('SELECT chengyu FROM chengyu WHERE id=?i', mt_rand(1, 30804))->fetch(PDO::FETCH_ASSOC));
-        }
-        $next = jielong($_SESSION['chengyu']);
-        if (!$next) {
-            $zi = mb_substr($_SESSION['chengyu'], -1);
-            $_SESSION['chengyu'] = null;
-            return '算啦！没有' . $zi . '字开头的成语。重来，你先。';
-        }
-        $msg = '我帮你想到一个：' . $next;
-        $_SESSION['error'] = 0;
-        $next = jielong($next);
-        if (!$next) {
-            $_SESSION['chengyu'] = null;
-            return $msg . '……，然后呢，我接不上啦，呜呜！还是重来吧，你先';
-        }
-        return $msg . '，' . $next;
+        goto ERROR;
     }
 
     return ['你这是成语吗？重来一个', '再试一下'][$_SESSION['error'] - 1];
@@ -117,3 +83,23 @@ if (!$next) {
     return $msg . '……，然后呢，我接不上啦，呜呜！还是重来吧，你先';
 }
 return $next;
+
+ERROR:
+if (empty($_SESSION['chengyu'])) {
+    return '你就一个成语没说，还是我开始吧：'
+        . $_SESSION['chengyu'] = current(DB::q('SELECT chengyu FROM chengyu WHERE id=?i', mt_rand(1, 30804))->fetch(PDO::FETCH_ASSOC));
+}
+$next = jielong($_SESSION['chengyu']);
+if (!$next) {
+    $zi = mb_substr($_SESSION['chengyu'], -1);
+    $_SESSION['chengyu'] = null;
+    return '算啦！没有' . $zi . '字开头的成语。重来，你先。';
+}
+$msg = '我帮你想到一个：' . $next;
+$_SESSION['error'] = 0;
+$next = jielong($next);
+if (!$next) {
+    $_SESSION['chengyu'] = null;
+    return $msg . '……，然后呢，我接不上啦，呜呜！还是重来吧，你先';
+}
+return $msg . '，' . $next;
