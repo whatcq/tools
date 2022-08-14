@@ -92,7 +92,6 @@ if (!empty($_GET['talk'])) {
 		const _debounce = function() {
 			if (timer) clearTimeout(timer);
 			timer = setTimeout(() => {
-				console.log(+new Date)
 				fn()
 			}, delay);
 		};
@@ -123,16 +122,28 @@ if (!empty($_GET['talk'])) {
 		speaker.src = `https://tts.baidu.com/text2audio?tex=${msg}&cuid=baike&lan=ZH&ie=utf-8&ctp=1&pdt=301&vol=${vol}&rate=32&per=${per}&spd=${speed}`;
 	}
 
+	// speaker.addEventListener('ended', function(){
+	// 	setTimeout(function(){
+	// 		input.focus();
+	// 	}, 1500);
+	// });
+
+	var responseLength = 0;
 	function response(who, msg) {
 		chat(who, msg);
-		speak(decodeURIComponent(msg));
+		speak(encodeURIComponent(msg));
 		input.value = '';
 		$('back_msg').value = '';
 		$('back_msg').focus();
-		setTimeout(function() {
-			input.focus();
-		}, 2500 + msg.length * 100);
+		responseLength = msg.length;
+		// setTimeout(function() {
+		// 	input.focus();
+		// }, 2500 + msg.length * 100);
 	}
+
+	$('back_msg').oninput = debounce(function() {
+		input.focus();
+	}, 1500);
 </script>
 
 </html>

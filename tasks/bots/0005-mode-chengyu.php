@@ -69,6 +69,7 @@ if (!empty($_SESSION['chengyu']) && mb_substr($keyword, 0, 1) !== $zi = mb_subst
         if (!$next) {
             $zi = mb_substr($_SESSION['chengyu'], -1);
             $_SESSION['chengyu'] = null;
+            $_SESSION['error'] = 0;
             return '算啦！没有' . $zi . '字开头的成语。重来，你先。';
         }
         $msg = '我帮你想到一个：' . $next;
@@ -76,6 +77,7 @@ if (!empty($_SESSION['chengyu']) && mb_substr($keyword, 0, 1) !== $zi = mb_subst
         $next = jielong($next);
         if (!$next) {
             $_SESSION['chengyu'] = null;
+            $_SESSION['error'] = 0;
             return $msg . '……，然后呢，我接不上啦，呜呜！还是重来吧，你先';
         }
         return $msg . '，' . $next;
@@ -111,7 +113,7 @@ if (!DB::q('SELECT chengyu FROM chengyu WHERE chengyu=?s', $keyword)->fetch(PDO:
     return ['你这是成语吗？重来一个', '再试一下'][$_SESSION['error'] - 1];
 }
 
-$next = jielong($next);
+$next = jielong($keyword);
 if (!$next) {
     $_SESSION['chengyu'] = null;
     return $msg . '……，然后呢，我接不上啦，呜呜！还是重来吧，你先';
