@@ -6,15 +6,39 @@ require_once __DIR__ . '/../../lib/functions.php';
 
 $urls = [
     'sm' => [
-        'url' => 'https://quark.sm.cn/s?q=%s&from=smor&safe=1&snum=0',
+        'url' => 'https://quark.sm.cn/s?q=%s&from=smor&safe=1&by=submit&snum=0',
+        'header' => <<<HEADERS
+accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+accept-encoding: gzip
+accept-language: zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6
+cookie: sm_diu=94463918377ae9dbcd01540306f8101f%7C%7C11eef1ee73e005ee0f%7C1659966719; sm_uuid=66fa6a973a09f00e6f24e12befb29f69%7C%7C%7C1659966787; __itrace_wid=8a245aae-8297-4e15-a368-ae00d1d6cbfc; sm_ruid=f69c2a151e5e575806ed3af33baceaf0%7C%7C%7C1659970745; lsmap2=1a03M14U07S1CE1Nn0Ps0Tx0Wk0Yw0900; isg=BDQ0YRXX6pZgiH5aa_gQO176BfKmDVj39HPGYc6UD7_nOdaD9B3qhzqwuTFEwZBP
+sec-ch-ua: "Chromium";v="104", " Not A;Brand";v="99", "Microsoft Edge";v="104"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Windows"
+sec-fetch-dest: document
+sec-fetch-mode: navigate
+sec-fetch-site: none
+sec-fetch-user: ?1
+upgrade-insecure-requests: 1
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.81 Safari/537.36 Edg/104.0.1293.54
+HEADERS,
         'fn' => function ($content) {
-            // echo htmlspecialchars(substr($content, 500, 100));
-            preg_match_all('#<h3>[\s\S\n]*?</h3>#im', $content, $matches, PREG_PATTERN_ORDER, 30000);
+            $content = str_replace("</a></div>", "</a></div>\n", $content);
+            $text = strip_tags($content);
+            $a = $b = [];
+            foreach (explode("\n", $text) as $line) {
+                $line = trim($line);
+                if (!$line) continue;
+                if (strpos($line, ',') || strpos($line, '，') || strpos($line, '、')) {
+                    $a[] = $line;
+                } else {
+                    $b[] = $line;
+                }
+            }
+            unset($a[0]); // head
+            $result = &$a;
 
-            $result = $matches[0];
-            array_walk($result, fn (&$item) => $item = trim(strip_tags($item)));
-
-            return $result ? $result[array_rand($result)] : 'no result';
+            return $result ? $result[array_rand($result)] : null;
         }
     ],
     '163' => [
@@ -25,7 +49,7 @@ $urls = [
             $result = $matches[0];
             array_walk($result, fn (&$item) => $item = trim(strip_tags($item)));
 
-            return $result ? $result[array_rand($result)] : 'no result';
+            return $result ? $result[array_rand($result)] : null;
         }
     ],
     'baidu' => [
@@ -68,14 +92,12 @@ Upgrade-Insecure-Requests: 1
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.81 Safari/537.36 Edg/104.0.1293.54
 HEADERS,
         'fn' => function ($content) {
-            // $text = preg_replace('#^[ \t\r]*\n#im', '', strip_tags($content));
             $text = strip_tags($content);
-
             $a = $b = [];
             foreach (explode("\n", $text) as $line) {
                 $line = trim($line);
                 if (!$line) continue;
-                if (strpos($line, ',') || strpos($line, '、')) {
+                if (strpos($line, ',') || strpos($line, '，') || strpos($line, '、')) {
                     $a[] = $line;
                 } else {
                     $b[] = $line;
@@ -84,7 +106,7 @@ HEADERS,
             unset($a[0]); // 搜狗已为您找到约178,351条相关结果
             $result = &$a;
 
-            return $result ? $result[array_rand($result)] : 'no result';
+            return $result ? $result[array_rand($result)] : null;
         }
     ],
     'zhidao' => [
@@ -100,20 +122,26 @@ Upgrade-Insecure-Requests: 1
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.81 Safari/537.36 Edg/104.0.1293.47
 HEADERS,
         'fn' => function ($content) {
+            $text = strip_tags($content);
+            $a = $b = [];
+            foreach (explode("\n", $text) as $line) {
+                $line = trim($line);
+                if (!$line) continue;
+                if (strpos($line, '答：') === 0) {
+                    $a[] = substr($line, strlen('答：'));
+                } else {
+                    $b[] = $line;
+                }
+            }
+            unset($a[0]); // 搜狗已为您找到约178,351条相关结果
+            $result = &$a;
 
-            // @todo decomporess
-            // echo htmlspecialchars(substr($content, 500, 100));
-            preg_match_all('#<h3>[\s\S\n]*?</h3>#im', $content, $matches, PREG_PATTERN_ORDER, 30000);
-
-            $result = $matches[0];
-            array_walk($result, fn (&$item) => $item = trim(strip_tags($item)));
-
-            return $result; // ? $result[array_rand($result)] : 'no result';
+            return $result ? $result[array_rand($result)] : null;
         }
     ],
 ];
 
-$botName = $engine = 'sogou';
+$botName = $engine = 'sm';
 $cacheFile = __DIR__ . '/cache-' . $engine . '.html';
 
 $keyword = $text; // = '今天中午吃什么？' = '重庆天气'; //无住生心
@@ -123,17 +151,24 @@ $content = curl_get(
     sprintf($urls[$engine]['url'], urlencode($keyword)),
     header2array($urls[$engine]['header'] ?? '')
 );
+in_array($engine, ['baidu', 'sogou', 'sm']) && $content = gzdecode($content);
+'zhidao' == $engine && $content = str_replace(
+    '<meta http-equiv="content-type" content="text/html;charset=gb2312" />',
+    '<meta http-equiv="content-type" content="text/html;charset=utf-8" />',
+    iconv('GB2312', 'UTF-8//IGNORE', $content)
+);
+
 function clearHtml($content)
 {
     return preg_replace(['#<style[\s\S\r]*?</style>#i', '#<script[\s\S\r]*?</script>#i', '#^[ \t\r]*\n#im'], '', $content);
 }
-in_array($engine, ['baidu', 'sogou']) && $content = clearHtml(gzdecode($content));
+$content = clearHtml($content);
 file_put_contents($cacheFile, $content);
 
 /*/
 $content = file_get_contents($cacheFile);
 //*/
 
+$outHtml = $content . '<style>ul{display: inline-flex;}</style>';
 
-// echo '<pre>', print_r($urls[$engine]['fn']($content));
 return $urls[$engine]['fn']($content);

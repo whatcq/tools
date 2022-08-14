@@ -7,10 +7,11 @@ if (!empty($_GET['talk'])) {
 
 	session_start();
 	$botName = 'bot';
+	$outHtml = '';
 	foreach (glob('bots/*.php') as $script) {
 		if ($responseText = include $script) {
 			file_put_contents($logFile, "\n" . $script . ': ' . $responseText, FILE_APPEND);
-			die('<script>parent.response("' . $botName . '", "' . addslashes($responseText) . '")</script>');
+			die('<script>parent.response("' . $botName . '", "' . addslashes($responseText) . '")</script>' . $outHtml);
 		}
 	}
 	die;
@@ -28,6 +29,11 @@ if (!empty($_GET['talk'])) {
 	.chat u{background: darkorange; border-radius: 3px; padding: 1px 4px; text-decoration: none;}
 	.i-say{float:right;}
 	.i-say u{background: lightgreen;float: right;}
+	.chat u.q-baidu{color: blue}
+	.chat u.q-zhidao{color: blue}
+	.chat u.q-sogou{color: #fe6811}
+	.chat u.q-163{color: #c22b30}
+	.chat u.q-sm{color: #fe6811}
 </style>
 
 <body>
@@ -36,7 +42,7 @@ if (!empty($_GET['talk'])) {
 
 		<form id="talk-form" target="talkFrame">
 			<div>
-				<textarea name="talk" id="input" rows="8" cols="80" style="width: 100%;font: 20px/24px Verdana;"></textarea>
+				<textarea name="talk" id="input" rows="4" cols="80" style="width: 100%;font: 20px/24px Verdana;"></textarea>
 			</div>
 			<input type="submit">
 			<input type="reset">
@@ -64,7 +70,7 @@ if (!empty($_GET['talk'])) {
 			<option value="11">温柔大叔</option>
 			-->
 		</select>
-		<iframe name="talkFrame" id="talkFrame" width=100% height="20" src="about:blank" title="audio-play"></iframe>
+		<iframe name="talkFrame" id="talkFrame" width=100% height="420" src="about:blank" title="audio-play"></iframe>
 	</div>
 </body>
 <script>
@@ -97,7 +103,7 @@ if (!empty($_GET['talk'])) {
 		var div = document.createElement("div");
 		div.className = 'chat';
 		if (who === nick) div.className += ' i-say';
-		div.innerHTML = ('<u>' + who + '</u>' + msg); //.trim();
+		div.innerHTML = ('<u class="q-' + who + '">' + who + '</u>' + msg); //.trim();
 		chatroom.append(div);
 		input.scrollIntoView();
 	}
@@ -119,11 +125,13 @@ if (!empty($_GET['talk'])) {
 
 	function response(who, msg) {
 		chat(who, msg);
-		speak(msg);
+		speak(decodeURIComponent(msg));
 		input.value = '';
 		$('back_msg').value = '';
 		$('back_msg').focus();
-		setTimeout(function(){input.focus();}, 2500 + msg.length * 100);
+		setTimeout(function() {
+			input.focus();
+		}, 2500 + msg.length * 100);
 	}
 </script>
 
