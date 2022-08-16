@@ -25,15 +25,46 @@ if (!empty($_GET['talk'])) {
 	<title>说话</title>
 </head>
 <style>
-	.chat{display: block;clear:both;}
-	.chat u{background: darkorange; border-radius: 3px; padding: 1px 4px; text-decoration: none;}
-	.i-say{float:right;}
-	.i-say u{background: lightgreen;float: right;}
-	.chat u.q-baidu{color: blue}
-	.chat u.q-zhidao{color: blue}
-	.chat u.q-sogou{color: #fe6811}
-	.chat u.q-163{color: #c22b30}
-	.chat u.q-sm{color: #fe6811}
+	.chat {
+		display: block;
+		clear: both;
+	}
+
+	.chat u {
+		background: darkorange;
+		border-radius: 3px;
+		padding: 1px 4px;
+		text-decoration: none;
+	}
+
+	.i-say {
+		float: right;
+	}
+
+	.i-say u {
+		background: lightgreen;
+		float: right;
+	}
+
+	.chat u.q-baidu {
+		color: blue
+	}
+
+	.chat u.q-zhidao {
+		color: blue
+	}
+
+	.chat u.q-sogou {
+		color: #fe6811
+	}
+
+	.chat u.q-163 {
+		color: #c22b30
+	}
+
+	.chat u.q-sm {
+		color: #fe6811
+	}
 </style>
 
 <body>
@@ -107,14 +138,6 @@ if (!empty($_GET['talk'])) {
 		input.scrollIntoView();
 	}
 
-	input.oninput = debounce(function() {
-		var msg = input.value;
-		if (!msg.trim()) return;
-		chat(nick, msg);
-		$('talk-form').submit();
-		$('talkFrame').focus();
-	}, 1000);
-
 	function speak(msg) {
 		var vol = $('vol').value,
 			speed = $('speed').value,
@@ -122,13 +145,8 @@ if (!empty($_GET['talk'])) {
 		speaker.src = `https://tts.baidu.com/text2audio?tex=${msg}&cuid=baike&lan=ZH&ie=utf-8&ctp=1&pdt=301&vol=${vol}&rate=32&per=${per}&spd=${speed}`;
 	}
 
-	// speaker.addEventListener('ended', function(){
-	// 	setTimeout(function(){
-	// 		input.focus();
-	// 	}, 1500);
-	// });
-
 	var responseLength = 0;
+
 	function response(who, msg) {
 		chat(who, msg);
 		speak(encodeURIComponent(msg));
@@ -141,9 +159,29 @@ if (!empty($_GET['talk'])) {
 		// }, 2500 + msg.length * 100);
 	}
 
-	$('back_msg').oninput = debounce(function() {
+	input.oninput = debounce(function() {
+		var msg = input.value;
+		if (!msg.trim()) return;
+		chat(nick, msg);
+		$('talk-form').submit();
+		$('talkFrame').focus();
+	}, 1000);
+
+	document.onkeydown = function(e) {
+		// console.log(e.key)
+		if (e.key === 'Escape') {
+			speaker.pause();
+			$('talk-form').reset();
+			return false;
+		}
+	};
+
+	speaker.onended = speaker.onpause = debounce(function() {
 		input.focus();
 	}, 1500);
+	// $('back_msg').oninput = debounce(function() {
+	// 	input.focus();
+	// }, 1500);
 </script>
 
 </html>

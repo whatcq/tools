@@ -1,7 +1,10 @@
 <?php
 
-
-if (!empty($_SESSION['mode']) && in_array($text, ['不玩了', '退出', '我不想玩了', '再见', '拜拜', '喜欢土豆。'])) {
+if (
+    !empty($_SESSION['mode'])
+    && strlen($text) < 30
+    && in_array($text, ['不玩了', '退出', '我不想玩了', '再见', '拜拜', '喜欢土豆。', '我喜欢土豆。'])
+) {
     $_SESSION['mode'] = null;
     return '好的！bye';
 }
