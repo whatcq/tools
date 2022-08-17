@@ -191,6 +191,6 @@ file_put_contents($cacheFile, $content);
 $content = file_get_contents($cacheFile);
 //*/
 
-$outHtml = '<style>ul{display: inline-flex;}</style>' . $content;
+$outHtml = '<link rel="stylesheet" href="../../lib/base.css" />' . $content;
 
 return $urls[$engine]['fn']($content);
