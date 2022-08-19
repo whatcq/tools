@@ -152,9 +152,10 @@ $engineNames = [
     'bing' => '必应同学'
 ];
 if ($engine = array_search(mb_substr($text, 0, 4), $engineNames)) {
+    $_SESSION['engine'] = $engine;
     $text = ltrim(str_replace($engineNames[$engine], '', $text), '?？,，.。 ');
 } else {
-    $engine = 'bing';
+    $engine = $_SESSION['engine'] ?? 'bing';
 }
 
 $botName = $engine;
@@ -185,12 +186,15 @@ function clearHtml($content)
     ], '', $content);
 }
 $content = clearHtml($content);
+if ('bing' === $engine) {
+    $content = preg_replace('#<cite>(.*?)</cite>#i', '<a href="$1" target="bing">$1</a>', $content);
+}
 file_put_contents($cacheFile, $content);
 
 /*/
 $content = file_get_contents($cacheFile);
 //*/
 
-$outHtml = '<link rel="stylesheet" href="../../lib/base.css" />' . $content;
+$outHtml = '<link rel="stylesheet" href="../lib/base.css" />' . $content;
 
 return $urls[$engine]['fn']($content);

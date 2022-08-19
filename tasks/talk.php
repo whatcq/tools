@@ -9,6 +9,7 @@ if (!empty($_GET['talk'])) {
 	$botName = 'bot';
 	$outHtml = '';
 	foreach (glob('bots/*.php') as $script) {
+		// @todo return json with rich content
 		if ($responseText = include $script) {
 			file_put_contents($logFile, "\n" . $script . ': ' . $responseText, FILE_APPEND);
 			die('<script>parent.response("' . $botName . '", "' . addslashes($responseText) . '")</script>' . $outHtml);
