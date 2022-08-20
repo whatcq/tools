@@ -102,7 +102,7 @@ if (!empty($_GET['talk'])) {
 			<option value="11">温柔大叔</option>
 			-->
 		</select>
-		<iframe name="talkFrame" id="talkFrame" width=100% height="420" src="about:blank" title="audio-play"></iframe>
+		<iframe name="talkFrame" id="talkFrame" width=100% height="420" src="about:blank" title="audio-play" style="border: 1px solid #bfbfbf;"></iframe>
 	</div>
 </body>
 <script>
