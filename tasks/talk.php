@@ -83,7 +83,6 @@ if (!empty($_GET['talk'])) {
 		</form>
 		<br>
 		<audio controls autoplay xmuted id="speaker">
-			<!--  -->
 			<source src="" type="audio/mpeg">
 		</audio>
 		speed:<input type="number" name="speed" id="speed" value="8" min=0 max=15 width="20" />
@@ -160,16 +159,22 @@ if (!empty($_GET['talk'])) {
 		// }, 2500 + msg.length * 100);
 	}
 
-	input.oninput = debounce(function() {
+	var form = $('talk-form');
+
+	form.onsubmit = function() {
 		var msg = input.value;
-		if (!msg.trim()) return;
+		if (!msg.trim()) return false;
 		chat(nick, msg);
-		$('talk-form').submit();
+		return true;
+	}
+
+	input.oninput = debounce(function() {
+		if (!form.onsubmit()) return;
+		form.submit();
 		$('talkFrame').focus();
 	}, 1000);
 
 	document.onkeydown = function(e) {
-		// console.log(e.key)
 		if (e.key === 'Escape') {
 			speaker.pause();
 			$('talk-form').reset();
