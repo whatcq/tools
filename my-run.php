@@ -29,8 +29,8 @@
     </form>
     <iframe src="" name="iframe" frameborder="0" style="width: 100%;height: 100%;"></iframe>
 </div>
-<script src="http://localhost:9090/cqiu/static/ace-builds/src-min/ace.js"></script>
-<script src="http://localhost:9090/cqiu/static/ace-builds/src-min/ext-language_tools.js"></script>
+<script src="/cqiu/static/ace-builds/src-min/ace.js"></script>
+<script src="/cqiu/static/ace-builds/src-min/ext-language_tools.js"></script>
 <script>
     // trigger extension
     ace.require("ace/ext/language_tools");
