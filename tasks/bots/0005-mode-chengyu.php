@@ -1,6 +1,6 @@
 <?php
 
-if ($_SESSION['mode'] !== '成语接龙') {
+if (empty($_SESSION['mode']) || $_SESSION['mode'] !== '成语接龙') {
     return;
 }
 
