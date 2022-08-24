@@ -44,7 +44,7 @@ function serviceLoginAuth2($user, $pass, $_sign)
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
     $output = curl_exec($ch);
-    $outhead = curl_getinfo($ch);
+    // $outhead = curl_getinfo($ch);
 
     curl_close($ch);
     preg_match('/location":"(.*?)"/', $output, $matches, PREG_OFFSET_CAPTURE);
@@ -80,7 +80,7 @@ function login_miai($url, $clientSign)
     );
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     $output = curl_exec($ch);
-    $outhead = curl_getinfo($ch);
+    // $outhead = curl_getinfo($ch);
     curl_close($ch);
     preg_match('/serviceToken=(.*?);/', $output, $matches, PREG_OFFSET_CAPTURE);
     if (!isset($matches[1])) {
@@ -129,9 +129,9 @@ function serviceToken($nonce, $secrity)
 
 function text_to_speech($cookie, $deviceId, $message)
 {
-    $url = "https://api.mina.mi.com/remote/ubus?deviceId=$deviceId&message=%7B%22text%22%3A%22" . urlencode(
-            $message
-        ) . "%22%7D&method=text_to_speech&path=mibrain&requestId=rb1gB2aATpRd7jfOpaT3pxp85ndZ7t";
+    $url = "https://api.mina.mi.com/remote/ubus?deviceId=$deviceId&message=%7B%22text%22%3A%22"
+        . urlencode($message)
+        . "%22%7D&method=text_to_speech&path=mibrain&requestId=rb1gB2aATpRd7jfOpaT3pxp85ndZ7t";
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -144,7 +144,7 @@ function text_to_speech($cookie, $deviceId, $message)
     curl_close($ch);
     $resp = json_decode($output);
 
-    return !$resp->code; // success code=0
+    return $resp && !$resp->code; // success code=0
 }
 
 function speech($user, $pass, $text)
