@@ -1,6 +1,6 @@
 <?php
 
-function curl_post($url, $postfields = [], $headers = [], $timeout = 20, $file = 0)
+function curl_post($url, $postFields = [], $headers = [], $timeout = 20, $file = 0)
 {
     $ch = curl_init();
     $options = array(
@@ -14,10 +14,10 @@ function curl_post($url, $postfields = [], $headers = [], $timeout = 20, $file =
         CURLOPT_SSL_VERIFYHOST => 0,
         CURLOPT_SSL_VERIFYPEER => 0
     );
-    if ($postfields && $file == 0) {
-        $options[CURLOPT_POSTFIELDS] = http_build_query($postfields);
+    if ($postFields && $file == 0) {
+        $options[CURLOPT_POSTFIELDS] = http_build_query($postFields);
     } else {
-        $options[CURLOPT_POSTFIELDS] = $postfields;
+        $options[CURLOPT_POSTFIELDS] = $postFields;
     }
     curl_setopt_array($ch, $options);
     if ($headers) {
