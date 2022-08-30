@@ -1,0 +1,9 @@
+.chat {display:block;clear:both;}
+.chat u {background:darkorange;border-radius:3px;padding:1px 4px;text-decoration:none;}
+.i-say {float:right;}
+.i-say u {background:lightgreen;float:right;}
+.chat u.q-baidu {color:blue}
+.chat u.q-zhidao {color:blue}
+.chat u.q-sogou {color:#fe6811}
+.chat u.q-163 {color:#c22b30}
+.chat u.q-sm {color:#fe6811}

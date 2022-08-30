@@ -24,49 +24,8 @@ if (!empty($_GET['talk'])) {
 <head>
 	<meta charset="utf-8">
 	<title>说话</title>
+    <link href="talk.css" type="text/css" />
 </head>
-<style>
-	.chat {
-		display: block;
-		clear: both;
-	}
-
-	.chat u {
-		background: darkorange;
-		border-radius: 3px;
-		padding: 1px 4px;
-		text-decoration: none;
-	}
-
-	.i-say {
-		float: right;
-	}
-
-	.i-say u {
-		background: lightgreen;
-		float: right;
-	}
-
-	.chat u.q-baidu {
-		color: blue
-	}
-
-	.chat u.q-zhidao {
-		color: blue
-	}
-
-	.chat u.q-sogou {
-		color: #fe6811
-	}
-
-	.chat u.q-163 {
-		color: #c22b30
-	}
-
-	.chat u.q-sm {
-		color: #fe6811
-	}
-</style>
 
 <body>
 	<div style="width: 700px;margin: 0 auto;">
