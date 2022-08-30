@@ -45,6 +45,8 @@
     </div>
     <div class="editor-container editor-container-css">
         <div class="editor-container-label">CSS</div>
+        <button onclick="Editor.cssPack()" style="position: absolute; right: 70px; z-index: 2;">pack</button>
+        <input type="checkbox" id="css_in_line" style="position: absolute; right: 55px; z-index: 2;" title="in-line" />
         <button onclick="Editor.cssFormat()" style="position: absolute; right: 10px; z-index: 2;">format</button>
         <pre id="editor-ace-css"></pre>
     </div>
