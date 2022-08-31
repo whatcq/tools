@@ -161,7 +161,7 @@ if ($engine = array_search(mb_substr($text, 0, 4), $engineNames)) {
 $botName = $engine;
 $cacheFile = __DIR__ . '/cache-' . $engine . '.html';
 
-$keyword = $text; // = '今天中午吃什么？' = '重庆天气'; //无住生心
+$keyword = $text;
 if (!$keyword) return '你要抓啊子？';
 
 // /*

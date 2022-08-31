@@ -10,6 +10,7 @@ if (!empty($_GET['talk'])) {
 	$outHtml = '';
 	foreach (glob('bots/*.php') as $script) {
 		// @todo return json with rich content
+        // @todo 功能列表-使用说明-自我介绍
 		if ($responseText = include $script) {
 			file_put_contents($logFile, "\n" . $script . ': ' . $responseText, FILE_APPEND);
 			die('<script>parent.response("' . $botName . '", "' . addslashes($responseText) . '")</script>' . $outHtml);
@@ -24,7 +25,7 @@ if (!empty($_GET['talk'])) {
 <head>
 	<meta charset="utf-8">
 	<title>说话</title>
-    <link href="talk.css" type="text/css" />
+    <link rel="stylesheet" href="talk.css" />
 </head>
 
 <body>
@@ -39,8 +40,9 @@ if (!empty($_GET['talk'])) {
 			<input type="reset">
 			<input type="button" value="清屏" onclick="$('chatroom').innerHTML=''">
 			<input type="text" id="back_msg" size="70">
+            <input type="checkbox" id="speak-out" title="说话开关" checked />
 		</form>
-		<br>
+		<div id="speaker-div">
 		<audio controls autoplay xmuted id="speaker">
 			<source src="" type="audio/mpeg">
 		</audio>
@@ -60,6 +62,7 @@ if (!empty($_GET['talk'])) {
 			<option value="11">温柔大叔</option>
 			-->
 		</select>
+        </div>
 		<iframe name="talkFrame" id="talkFrame" width=100% height="420" src="about:blank" title="audio-play" style="border: 1px solid #bfbfbf;"></iframe>
 	</div>
 </body>
@@ -98,6 +101,7 @@ if (!empty($_GET['talk'])) {
 	}
 
 	function speak(msg) {
+	    if (!$('speak-out').checked) return;
 		var vol = $('vol').value,
 			speed = $('speed').value,
 			per = $('per').value;
@@ -125,7 +129,7 @@ if (!empty($_GET['talk'])) {
 		if (!msg.trim()) return false;
 		chat(nick, msg);
 		return true;
-	}
+	};
 
 	input.oninput = debounce(function() {
 		if (!form.onsubmit()) return;
@@ -147,6 +151,15 @@ if (!empty($_GET['talk'])) {
 	// $('back_msg').oninput = debounce(function() {
 	// 	input.focus();
 	// }, 1500);
+
+    var speakerDiv = $('speaker-div');
+    $('speak-out').onclick = function () {
+        if (this.checked) {
+            speakerDiv.style.display = '';
+        } else {
+            speakerDiv.style.display = 'none';
+        }
+    };
 </script>
 
 </html>
