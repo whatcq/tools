@@ -9,7 +9,17 @@ require '../lib/DB.php';
 $act = $_GET['act'] ?? '';
 if ($act) {
     $data = (function () use ($act) {
-        $links = include('../playground/config2.database.php');
+        $links = [
+            'local' => [
+                'HOST' => '127.0.0.1:33066',
+                'NAME' => 'zici',
+                'USER' => 'root',
+                'PASS' => '',
+                'CHAR' => 'utf8',
+            ],
+        ];
+        file_exists($configFile = 'playground/config2.database.php')
+        && $links = array_merge($links, include $configFile);
         if ($act === 'links') {
             return array_keys($links);
         }

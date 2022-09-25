@@ -20,7 +20,7 @@ if (!empty($_GET['talk'])) {
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 
 <head>
 	<meta charset="utf-8">
