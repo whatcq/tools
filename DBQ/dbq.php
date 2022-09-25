@@ -18,7 +18,7 @@ if ($act) {
                 'CHAR' => 'utf8',
             ],
         ];
-        file_exists($configFile = 'playground/config2.database.php')
+        file_exists($configFile = '../playground/config2.database.php')
         && $links = array_merge($links, include $configFile);
         if ($act === 'links') {
             return array_keys($links);
