@@ -36,7 +36,7 @@ wds=$(ls ~/.cd|xargs);complete -W "$wds" to
 alias g='git'
 alias la='git pull'
 alias tui='git push'
-alias tui1='git push origin $(git symbolic-ref --short HEAD)'
+alias tui1='git push origin HEAD' #$(git symbolic-ref --short HEAD)
 alias gla='git clone --depth=1'
 
 #tools
