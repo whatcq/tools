@@ -15,7 +15,7 @@
     !empty($_REQUEST['f'])
     && file_exists($file = "playground/{$_REQUEST['f']}.php")
     && print(htmlspecialchars(getCode($file)))
-    or print("&lt;pre style=\"color:#03b503;margin-top:30px;font: 14px/16px Consolas;\">&lt;?php\nvar_dump(\n    1\n);");
+    or print("&lt;?php\n\nvar_dump(\n    1\n);");
     ?>
 </div>
 <div style="position: fixed; right: 0; top: 0;max-width: 50%;width: 700px; height: 100%;">
@@ -46,7 +46,10 @@
     });
     document.onkeydown = function (e) {
         if (e.key==='s' && e.ctrlKey) {
-            document.getElementById('source').value=window.e.getValue();
+            let pre = document.getElementById('format').checked
+                ? '<pre style="color:#03b503;margin-top:30px;font: 14px/16px Consolas;white-space: pre-wrap;word-wrap: break-word;">'
+                : '';
+            document.getElementById('source').value=pre+window.e.getValue();
             document.forms[0].submit();
             return false;
         }
