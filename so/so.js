@@ -122,6 +122,60 @@ function documentReady() {
 		}, false)
 	}
 }
+
+//---------------
+/* Baidu Suggest API: http://suggestion.baidu.com/su?wd=keyWords */
+/*
+var searchIpt = document.querySelector('#text');
+var listWrap = document.querySelector('#sq');
+// jsonp 中的回调函数 callback
+window.baidu = {
+		sug: function(data) {
+				console.log(data);
+				var htm = '';
+				if (data.s.length) {
+						data.s.forEach(function(item, i, array) {
+								htm += "<li>" + item + "</li>";
+						});
+						listWrap.classList.remove('hidden');
+						listWrap.innerHTML = htm;
+				} else {
+						listWrap.classList.add('hidden');
+						listWrap.innerHTML = '';
+				}
+		}
+}
+function pullResource(keyWords) {
+		var script = null;
+		script = document.querySelector('#baiduSut');
+		if (script) {
+				document.body.removeChild(script);
+		}
+		script = document.createElement('script');
+		script.id = 'baiduSut';
+		script.src = 'http://suggestion.baidu.com/su?callback=window.baidu.sug&wd=' + keyWords;
+		document.body.appendChild(script);
+}
+searchIpt.addEventListener('keydown', debounce.bind(null, pullResource, null, 300, null), false);
+// 防抖函数
+function debounce(fn, context, delay, param) {
+		clearTimeout(fn.timer);
+		fn.timer = setTimeout(function() {
+				var param = param || searchIpt.value.trim();
+				// console.log("keyWords: "+ param);
+				if (!param) {
+						listWrap.classList.add('hidden');
+						listWrap.innerHTML = '';
+				} else {
+						if (Array.isArray(param)) {
+								fn.apply(context, param);
+						} else {
+								fn.call(context, param);
+						}
+				}
+		}, delay || 400);
+}
+/**/
 //---------------
 //google auto suggestion
 var f = $('text');
@@ -131,8 +185,8 @@ function s(o) {
 		o.href += "#" + escape(f.value)
 	}
 }
-var qu = location.hash.replace('#', '');
-if (qu) f.value = unescape(qu);
+//var qu = location.hash.replace('#', '');
+//if (qu) f.value = unescape(qu);
 
 var h = $('sq'),
 	l = m = 0,
@@ -179,12 +233,35 @@ function mh() {
 		if (gx) gx.parentNode.removeChild(gx);
 		sg = document.createElement('script');
 		sg.charset = 'utf-8';
-		sg.src = 'http://google.cn/complete/search?callback=gd&client=serp&hl=zh-CN&js=true&q=' + encodeURIComponent(f.value);
+		//2022-10google不能用了
+		//sg.src = 'http://google.cn/complete/search?callback=gd&client=serp&hl=zh-CN&js=true&q=' + encodeURIComponent(f.value);
+		sg.src = 'http://suggestion.baidu.com/su?callback=window.baidu.sug&wd=' + encodeURIComponent(f.value);
 		document.body.appendChild(sg);
 		gx = $('gz')
 	}
 }
+
+window.baidu = {
+	sug: function (data) {
+		var tl = data.s.length,
+			ih = '';
+		if (!tl) {
+			h.style.display = 'none';
+			return
+		}
+		if (tl > 9) tl = 9;
+		for (var j = 0; j < tl; ++j) {
+			try {
+				ih += "<tr style=cursor:default onmouseover=style.background='#D4E2FF' onclick=\"f.value='" + data.s[j] + "';go_iframe()\" onmouseout=style.background='#fff'><td>" + data.s[j] + "</td></tr>"
+			} catch (err) {
+			}
+		}
+		h.innerHTML = "<table width=100% cellpadding=0 cellspacing=0>" + ih + "</table>";
+		h.style.display = "block"
+	}
+}
+//---the end-----
+/**/
 function mn() {
 	$('sq').style.display = 'none'
 }
-//---the end-----
