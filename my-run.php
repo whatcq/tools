@@ -22,7 +22,7 @@
     <form method="post" action="playground.php?act=save_run" target="iframe" style="display:inline;">
         <div style="position: fixed;right: 20px;">
         <input type="text" name="filename" id="filename" value="<?=$_REQUEST['f']??'test'?>">
-        <input type="checkbox" id="format" title="format"<?php empty($_REQUEST['format']) or print(' checked');?>>
+        <input type="checkbox" id="format" title="format" checked>
         <button onclick="location='?f='+encodeURIComponent(document.getElementById('filename').value)+'&format='+~~document.getElementById('format').checked;return false;" title="Load this file=>">Load</button>
         <textarea name="source" id="source" cols="30" rows="10" style="display:none;"></textarea>
         </div>
