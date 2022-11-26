@@ -24,3 +24,5 @@ if (str_starts_with($text, '打开')) {
         }
     }
 }
+
+return;

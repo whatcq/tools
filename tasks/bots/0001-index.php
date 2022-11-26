@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../../lib/functions.php';
+
 if (
     !empty($_SESSION['mode'])
     && strlen($text) < 30
