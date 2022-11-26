@@ -2,8 +2,6 @@
 
 $botName = '搜';
 
-require_once __DIR__ . '/../../lib/functions.php';
-
 $urls = [
     'sm' => [
         'url' => 'https://quark.sm.cn/s?q=%s&from=smor&safe=1&by=submit&snum=0',
