@@ -32,14 +32,24 @@ to(){
 }
 wds=$(ls ~/.cd|xargs);complete -W "$wds" to
 
+#git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+#~/.fzf/install
+#搜文件：Ctrl+T(=everything)!
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
 #git
 alias g='git'
 alias la='git pull'
 alias tui='git push'
 alias tui1='git push origin HEAD' #$(git symbolic-ref --short HEAD)
 alias gla='git clone --depth=1'
+#alias gla2='_a(){ git clone --depth=1 https://ghproxy.com/$1 ; }; _a'
+gla2(){
+    git clone --depth=1 https://ghproxy.com/$1
+}
 
 #tools
+alias h='help_fun(){ $@ --help | less ;};help_fun $1' # eg. h grep
 #https://github.com/Russell91/sshrc.git
 alias sshrc='~/sshrc/sshrc'
 
