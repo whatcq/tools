@@ -32,6 +32,19 @@
 	}
 	//复制到剪切板
 	function copyToClipboard(txt) {
+		// chrome/edge
+		if (navigator != null || window.location.toString().toUpperCase().indexOf("HTTPS") > -1) {
+			navigator.permissions.query({name: "clipboard-write"}).then(result => {
+				if (result.state === "granted" || result.state == "prompt") {
+					navigator.clipboard.writeText(txt)
+							.then(() => console.log('文本已经成功复制到剪切板'))
+							.catch(err => console.error('无法复制此文本：', err));
+				} else {
+					console.log("当前无操作权限。请使用最新版本Chrome浏览器，并在浏览器高级设置-页面设置中允许访问剪切板");
+				}
+			});
+		}
+		return;
 		if (window.clipboardData) {
 			window.clipboardData.clearData();
 			window.clipboardData.setData("Text", txt);
@@ -72,7 +85,18 @@
 	}
 
 	function paste() {
-		$('string1').value = window.clipboardData.getData("Text");
+		if (navigator != null || window.location.toString().toUpperCase().indexOf("HTTPS") > -1) {//不要使用F12跟踪 F12 跟踪时此逻辑报错，为浏览器的防止泄露方式
+			navigator.permissions.query({name: "clipboard-read"}).then(result => {
+				if (result.state === "granted" || result.state == "prompt") {
+					navigator.clipboard.readText()
+							.then(text => $('string1').value = text)
+							.catch(err => console.log("粘贴操作失败，请使用快捷键CTRL+V进行粘贴"));
+				} else {
+					console.log("当前无操作权限。请使用最新版本Chrome浏览器，并在浏览器高级设置-页面设置中允许访问剪切板");
+				}
+			});
+		}
+		// $('string1').value = window.clipboardData.getData("Text");
 	}
 	/*
 	批量生成
@@ -117,7 +141,7 @@ A=>'B',
 	<input type="checkbox" name="implode" id="implode" checked>连接
 	by:<input type="text" name="substr" id="substr"> &nbsp;
 	<button onclick="convert()">转化</button>&nbsp;
-	<input type="checkbox" name="d" id="copy" checked>复制到剪切板&nbsp;
+	<label><input type="checkbox" name="d" id="copy" checked>复制到剪切板&nbsp;</label>
 	<button onclick="batch_generate()">批量生成</button>
 	<!-- <button onclick="copyToClipboard($('string2').value)"></button> -->
 	<br>
