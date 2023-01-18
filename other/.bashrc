@@ -4,6 +4,14 @@ export TIME_STYLE="+%Y.%m.%d %H:%M:%S"
 
 #PATH=$PATH:/C/Users/Administrator/AppData/Roaming/Composer/vendor/bin
 alias paths='echo $PATH|sed "s/:/\n/g"'
+pathadd(){
+    if [ -n "$1" ] ; then
+        new_path="$1"
+    else
+        new_path=$(pwd)
+    fi
+    export PATH="$new_path:$PATH"
+}
 
 alias ls='ls --show-control-chars --color=auto'
 alias ll='ls -lah'
@@ -143,7 +151,6 @@ exfile(){
         mv $2 $2.bak.cqiu
         mv $1 $2
         mv $2.bak.cqiu $file1
-        exit
     else
         echo 'Usage: exfile file1 file2\n'
     fi
