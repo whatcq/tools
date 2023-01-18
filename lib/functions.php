@@ -60,8 +60,14 @@ function curl_get($url, $headers = [], $timeout = 3)
 function header2array($headers)
 {
     if (is_string($headers)) {
-        return explode("\n", str_replace("\r", '', trim($headers)));
+        $headers = explode("\n", str_replace("\r", '', rtrim($headers)));
+        if (false !== $p = strpos($headers[0], "'")) {
+            foreach ($headers as &$item) {
+                $item = substr($item, $p + 1, -3);
+            }
+        }
     }
+
     return $headers;
 }
 
