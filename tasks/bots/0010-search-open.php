@@ -13,8 +13,10 @@ $urls = [
     '百科' => 'https://baike.baidu.com/item/%E7%8E%8B%E5%B0%8F%E5%B7%9D/7813874?fromModule=lemma_search-box', //https://baike.baidu.com/search/none?word={key}&pn=0&rn=10&enc=utf8&fromModule=lemma_search-box',
     '知道' => 'http://zhidao.baidu.com/search?lm=0&rn=10&pn=0&fr=search&word={key}',
     '地图' => 'http://map.baidu.com/m?ie=utf-8&fr=bks0000&word={key}',
+    '翻译' => 'https://fanyi.so.com/#{key}',
 ];
 
+/** @var $text string */
 if (str_starts_with($text, '打开')) {
     $_text = mb_substr($text, 2);
     foreach ($urls as $site => $url) {
