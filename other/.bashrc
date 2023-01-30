@@ -56,6 +56,11 @@ gla2(){
     git clone --depth=1 https://ghproxy.com/$1
 }
 
+visit(){
+    path=`pwd`
+    start "http://localhost:9090/"${path/*\/www\//}
+}
+
 #tools
 alias h='help_fun(){ $@ --help | less ;};help_fun $1' # eg. h grep
 #https://github.com/Russell91/sshrc.git
