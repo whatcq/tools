@@ -34,6 +34,3 @@ $answers = [
 ];
 
 return $answers[array_rand($answers)];
-
-
-return null;
