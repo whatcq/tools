@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * 百度翻译，需要js：sign,Acs-Token @todo
+ */
+
 $curlBash = <<<'CURL'
 curl 'https://fanyi.baidu.com/v2transapi?from=en&to=zh' \
   -H 'Accept: */*' \
