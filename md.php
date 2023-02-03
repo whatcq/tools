@@ -10,6 +10,7 @@ file_put_contents("{$_SERVER['DOCUMENT_ROOT']}/.htaccess", <<<SETTING
 
 # display Markdown as HTML by default
 RewriteEngine on
+RewriteCond %{REQUEST_URI} !^/cqiu/leetcode($|/)
 RewriteRule (.+\.(markdown|mdown|md|mkd))$ {$_SERVER['PHP_SELF']}
 RewriteRule (.+\.(markdown|mdown|md|mkd)\-text)$ {$_SERVER['PHP_SELF']} [L]
 IndexIgnore .??* *~ HEADER* README.html readme.txt RCS CVS *,v *,t *#
