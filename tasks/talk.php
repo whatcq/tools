@@ -13,7 +13,7 @@ if (!empty($_GET['talk'])) {
         // @todo 功能列表-使用说明-自我介绍
 		if ($responseText = include $script) {
 			file_put_contents($logFile, "\n" . $script . ': ' . $responseText, FILE_APPEND);
-			die('<script>parent.response("' . $botName . '", "' . addslashes($responseText) . '")</script>' . $outHtml);
+			die('<script>parent.response("' . $botName . '", "' . str_replace("\n", '\\n', addslashes($responseText)) . '")</script>' . $outHtml);
 		}
 	}
 	die;
@@ -111,8 +111,8 @@ if (!empty($_GET['talk'])) {
 	var responseLength = 0;
 
 	function response(who, msg) {
-		chat(who, msg);
-		speak(encodeURIComponent(msg));
+		chat(who, msg.replace(/\n/g, '<br>').replace('  ', '&nbsp;&nbsp'));
+		speak(encodeURIComponent(msg.replace(/<[^>]+/g, '')));
 		input.value = '';
 		$('back_msg').value = '';
 		$('back_msg').focus();
