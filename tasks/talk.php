@@ -13,7 +13,8 @@ if (!empty($_GET['talk'])) {
         // @todo 功能列表-使用说明-自我介绍
 		if ($responseText = include $script) {
 			file_put_contents($logFile, "\n" . $script . ': ' . $responseText, FILE_APPEND);
-			die('<script>parent.response("' . $botName . '", "' . str_replace("\n", '\\n', addslashes($responseText)) . '")</script>' . $outHtml);
+            $responseText = str_replace(["\n", "\r"], ['\\n', ''], addslashes($responseText));
+            die('<script>parent.response("' . $botName . '", "' . $responseText . '")</script>' . $outHtml);
 		}
 	}
 	die;
