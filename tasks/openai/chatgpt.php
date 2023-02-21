@@ -11,14 +11,14 @@ if (!empty($_REQUEST['prompt'])) {
     header("Access-Control-Allow-Origin:*");
 
     $log = './chatgpt.log';
-    $token = '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';
+    $token = 'sk-g*************************X';
 
     $prompt = $_REQUEST['prompt'];
 
     $openAi = new OpenAi($token);
     file_put_contents($log, "==========\n$prompt\n", FILE_APPEND);
     $str = '';
-    // 终于找到eventSource,error原因: 这个请求报错了：php证书过期!
+    // 终于找到eventSource,error原因: 这个请求报错了：php-ssl证书过期!
     $response = $openAi->completion([
         'prompt'            => urldecode($prompt),
         'temperature'       => 0.9,
@@ -30,12 +30,14 @@ if (!empty($_REQUEST['prompt'])) {
         'stop'              => [" Human:", " AI:"],
         "stream"            => true,
     ], function ($curl_info, $data) use (&$str, &$empty, $log) {
-        // file_put_contents($log, "------------$curl_info\n$data\n", FILE_APPEND);
         if ($data === "data: [DONE]\n\n") {
             echo $data;
         } else {
             $json = json_decode(substr($data, 6), 1);
             $text = $json['choices'][0]['text'] ?? '';
+            if (empty($text)) {
+                file_put_contents($log . '.debug', "------------$curl_info\n$data\n", FILE_APPEND);
+            }
             if (empty($str) && $text[0] === "\n") {
                 $text = ltrim($text);
             }
@@ -118,15 +120,9 @@ if (!empty($_REQUEST['prompt'])) {
                     input.select();
                     return;
                 }
-                var text = e.data; //JSON.parse(e.data).choices[0].text;
-                // if (emptyChar) {
-                //     if (text[0] === "\n") {
-                //         text = text.trimStart();
-                //         emptyChar = false;
-                //     }
-                // }
+                var text = e.data;
                 sentance += text;
-                if (text.indexOf('<br />') > -1) {
+                if (text.indexOf('<br />') > -1 || text.indexOf('。') > -1) {
                     sentances.push(strip(sentance));
                     sentance = '';
                     read();

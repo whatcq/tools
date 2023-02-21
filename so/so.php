@@ -11,8 +11,7 @@ $maps = [
     'php' => 'playground.php',
     'jsrun' => 'jsrun',
     'talk' => 'tasks/talk.php',
+    'chat' => 'tasks/openai/chatgpt.php',
 ];
 
-isset($maps[$q]) && header('location: ../' . $maps[$q]) && die('');
-
-die('<a href="../">index</a>');
+header('location: ../' . ($maps[$q] ?? ''));
