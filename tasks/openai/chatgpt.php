@@ -35,7 +35,7 @@ if (!empty($_REQUEST['prompt'])) {
         } else {
             $json = json_decode(substr($data, 6), 1);
             $text = $json['choices'][0]['text'] ?? '';
-            if (empty($text)) {
+            if (!isset($json['choices'][0]['text'])) {
                 file_put_contents($log . '.debug', "------------$curl_info\n$data\n", FILE_APPEND);
             }
             if (empty($str) && $text[0] === "\n") {
@@ -61,9 +61,22 @@ if (!empty($_REQUEST['prompt'])) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>ChatGPT</title>
 <style>
-    body {
+    body,
+    #bar {
+        margin: 0 auto 30px;
+        width: 800px;
+        font: 16px/21px Consolas;
+    }
+
+    #bar {
+        position: fixed;
+        bottom: 0;
         margin: 0 auto;
-        width: 600px;
+        width: 800px;
+    }
+
+    #bar input {
+        font: 16px/21px Consolas;
     }
 
     div>div {
@@ -108,7 +121,6 @@ if (!empty($_REQUEST['prompt'])) {
             input.scrollIntoView();
 
             var chat = new window.EventSource("?prompt=" + input.value);
-            // var emptyChar = true;
             chat.onmessage = function(e) {
                 if (e.data == "[DONE]") {
                     chat.close();
@@ -147,8 +159,8 @@ if (!empty($_REQUEST['prompt'])) {
     };
 </script>
 
-<div style="position: fixed;bottom: 0;width:80%" id="bar">
+<div id="bar">
     <span id="toggle_read" style="cursor:pointer">🕪</span>
-    <input id='input' style="width:80%" onkeydown="if(event.keyCode == 13){bt.click()}" />
+    <input id='input' accesskey="Z" style="width:85%" onkeydown="if(event.keyCode == 13){bt.click()}" />
     <input type='button' value="send" label="send" id="bt" />
 </div>
