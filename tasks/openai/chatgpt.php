@@ -29,17 +29,19 @@ if (!empty($_REQUEST['prompt'])) {
         'presence_penalty'  => 0.6,
         'stop'              => [" Human:", " AI:"],
         "stream"            => true,
-    ], function ($curl_info, $data) use (&$str, $log) {
-        if ($data === 'data: [DONE]') {
+    ], function ($curl_info, $data) use (&$str, &$empty, $log) {
+        // file_put_contents($log, "------------$curl_info\n$data\n", FILE_APPEND);
+        if ($data === "data: [DONE]\n\n") {
             echo $data;
         } else {
             $json = json_decode(substr($data, 6), 1);
             $text = $json['choices'][0]['text'] ?? '';
-            if(empty($json['choices'][0]['text'])){
-                file_put_contents($log, "------------\n$data\n", FILE_APPEND);
+            if (empty($str) && $text[0] === "\n") {
+                $text = ltrim($text);
             }
             $str .= $text;
-            echo "data: $text";
+            $text = nl2br(str_replace('  ', '&nbsp;&nbsp;', htmlspecialchars($text)));
+            echo "data: $text\n";
         }
         echo PHP_EOL;
         ob_flush();
@@ -48,57 +50,109 @@ if (!empty($_REQUEST['prompt'])) {
         return strlen($data);
     });
 
-    file_put_contents($log, "------------\n" . print_r($str, 1) . "\n", FILE_APPEND);
-    die('');
+    file_put_contents($log, "------------\n$str\n", FILE_APPEND);
+    die("data: [DONE]\n\n");
 }
 ?>
 <!DOCTYPE HTML>
 <html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>Chatroom</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>ChatGPT</title>
+<style>
+    body {
+        margin: 0 auto;
+        width: 600px;
+    }
+
+    div>div {
+        border-radius: 5px;
+        background-color: #f3ecd9;
+        padding: 5px;
+        margin-bottom: 10px;
+    }
+</style>
 <script>
-    window.onload = function () {
-        var nick = 'cqiu';//prompt("enter your name");
+    var sentances = [],
+        sentance = '';
+
+    function read() {
+        let text = sentances.shift();
+        if (!text) return;
+        if (document.getElementById('toggle_read').innerText == '🕪') {
+            speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+        }
+        read();
+    }
+
+    function strip(html) {
+        let doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+    }
+    window.onload = function() {
+        var nick = 'cqiu'; //prompt("enter your name");
+        var bar = document.getElementById('bar');
         var input = document.getElementById('input');
         var bt = document.getElementById('bt');
         var i = 1;
 
-        bt.onclick = function () {
+        bt.onclick = function() {
             var div = document.createElement("div");
-            div.innerHTML = ('<u>' + nick + '</u>:' + input.value);
-            document.body.insertBefore(div, input);
+            div.innerHTML = ('<u>' + nick + '</u>: ' + input.value);
+            document.body.insertBefore(div, bar);
             div = document.createElement("div");
             var botId = 'msg_' + (i++);
             div.innerHTML = ('<u>bot</u>:<div id="' + botId + '"></div>');
-            document.body.insertBefore(div, input);
+            document.body.insertBefore(div, bar);
             input.scrollIntoView();
 
             var chat = new window.EventSource("?prompt=" + input.value);
-            var emptyChar = true;
-            chat.onmessage = function (e) {
+            // var emptyChar = true;
+            chat.onmessage = function(e) {
                 if (e.data == "[DONE]") {
                     chat.close();
+                    if (sentance.length > 10) {
+                        sentances.push(strip(sentance));
+                        sentance = '';
+                        read();
+                    }
+                    input.select();
                     return;
                 }
-                var text = e.data;//JSON.parse(e.data).choices[0].text;
-                if (emptyChar) {
-                    if (text[0] === "\n") {
-                        text = text.trimStart();
-                        emptyChar = false;
-                    }
+                var text = e.data; //JSON.parse(e.data).choices[0].text;
+                // if (emptyChar) {
+                //     if (text[0] === "\n") {
+                //         text = text.trimStart();
+                //         emptyChar = false;
+                //     }
+                // }
+                sentance += text;
+                if (text.indexOf('<br />') > -1) {
+                    sentances.push(strip(sentance));
+                    sentance = '';
+                    read();
                 }
-                document.getElementById(botId).innerHTML += text.replace("\n", "<br>");
+                document.getElementById(botId).innerHTML += text;
                 console.log(text)
                 input.scrollIntoView();
             };
-            chat.onerror = function (e) {
+            chat.onerror = function(e) {
                 console.log(e);
                 chat.close();
                 alert('EventSource Error');
             };
-        }
+        };
+        document.getElementById('toggle_read').onclick = function() {
+            if (this.innerText == '🕨') {
+                this.innerText = '🕪';
+            } else {
+                this.innerText = '🕨';
+            }
+        };
     };
 </script>
 
-<input id='input' style="width:70%" onkeydown="if(event.keyCode == 13){bt.click()}"/>
-<input type='button' value="send" label="send" id="bt"/>
+<div style="position: fixed;bottom: 0;width:80%" id="bar">
+    <span id="toggle_read" style="cursor:pointer">🕪</span>
+    <input id='input' style="width:80%" onkeydown="if(event.keyCode == 13){bt.click()}" />
+    <input type='button' value="send" label="send" id="bt" />
+</div>
