@@ -14,12 +14,7 @@ use yii\web\Controller;
  */
 class RouteController extends Controller
 {
-    /**
-     * 所有路由规则
-     */
-    public function actionIndex()
-    {
-        echo '<style>*{font: 80% Consolas;}
+    private $style = '<style>*{font: 80% Consolas;}
 a{display: inline-block; padding: 2px 5px;background: #c6dfff;border-radius: 3px;}
 label{clear:left; width: 130px;display: inline-block;color: gray;font-style: italic;}
 tr:nth-child(odd){background-color: #f2f2f2;}
@@ -35,6 +30,13 @@ b.PUT,b.POST{background: lightsalmon}
 b.DELETE{background: orange}
 u{text-decoration: none;display: inline-block;min-width: 300px}</style>
 <pre><ol>';
+    /**
+     * 所有路由规则
+     */
+    public function actionIndex()
+    {
+        echo '<title>路由规则</title>';
+        echo $this->style;
         foreach (Yii::$app->urlManager->rules as $rule) {
             echo '<li>';
             if ($rule instanceof yii\rest\UrlRule) {
@@ -63,8 +65,18 @@ u{text-decoration: none;display: inline-block;min-width: 300px}</style>
      */
     public function actionActions()
     {
+        echo '<title>所有模块/控制器 的方法</title>';
+        echo $this->style;
+        foreach($this->getAppRoutes() as $route => $desc) {
+            echo '<li>';
+            echo '<span>';
+            echo '</span>';
+            echo '<u>', $route, '</u>';
+            echo ' => ', $desc, "\n";
+            echo '</li>';
+        }
         echo '<pre>';
-        print_r(array_keys($this->getAppRoutes()));
+        // print_r(array_keys($this->getAppRoutes()));
         die;
     }
 
@@ -147,11 +159,13 @@ u{text-decoration: none;display: inline-block;min-width: 300px}</style>
         }
         $class = new \ReflectionClass($controller);
         foreach ($class->getMethods() as $method) {
+            $comment = $method->getDocComment();
+            $desc = trim(explode("\n", $comment)[1] ?? '', " *\r");
             $name = $method->getName();
             if ($method->isPublic() && !$method->isStatic() && strpos($name, 'action') === 0 && $name !== 'actions') {
                 $name = strtolower(preg_replace('/(?<![A-Z])[A-Z]/', ' \0', substr($name, 6)));
                 $id = $prefix . ltrim(str_replace(' ', '-', $name), '-');
-                $result[$id] = $id;
+                $result[$id] = $desc;
             }
         }
     }
