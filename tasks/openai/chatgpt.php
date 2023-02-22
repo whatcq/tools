@@ -11,7 +11,7 @@ if (!empty($_REQUEST['prompt'])) {
     header("Access-Control-Allow-Origin:*");
 
     $log = './chatgpt.log';
-    $token = 'sk-g*************************X';
+    $token = file_get_contents('./chatgpt.token');
 
     $prompt = $_REQUEST['prompt'];
 
@@ -90,15 +90,6 @@ if (!empty($_REQUEST['prompt'])) {
     var sentances = [],
         sentance = '';
 
-    function read() {
-        let text = sentances.shift();
-        if (!text) return;
-        if (document.getElementById('toggle_read').innerText == '🕪') {
-            speechSynthesis.speak(new SpeechSynthesisUtterance(text));
-        }
-        read();
-    }
-
     function strip(html) {
         let doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || "";
@@ -108,11 +99,21 @@ if (!empty($_REQUEST['prompt'])) {
         var bar = document.getElementById('bar');
         var input = document.getElementById('input');
         var bt = document.getElementById('bt');
+        var toggle_speech = document.getElementById('toggle_speech');
         var i = 1;
+
+        function read() {
+            let text = sentances.shift();
+            if (!text) return;
+            if (toggle_speech.innerText === '🕪') {
+                speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+            }
+            read();
+        }
 
         bt.onclick = function() {
             var div = document.createElement("div");
-            div.innerHTML = ('<u>' + nick + '</u>: ' + input.value);
+            div.innerHTML = ('<u>' + nick + '</u>: <i>' + i + '</i>' + input.value);
             document.body.insertBefore(div, bar);
             div = document.createElement("div");
             var botId = 'msg_' + (i++);
@@ -149,8 +150,8 @@ if (!empty($_REQUEST['prompt'])) {
                 alert('EventSource Error');
             };
         };
-        document.getElementById('toggle_read').onclick = function() {
-            if (this.innerText == '🕨') {
+        toggle_speech.onclick = function() {
+            if (this.innerText === '🕨') {
                 this.innerText = '🕪';
             } else {
                 this.innerText = '🕨';
@@ -160,7 +161,7 @@ if (!empty($_REQUEST['prompt'])) {
 </script>
 
 <div id="bar">
-    <span id="toggle_read" style="cursor:pointer">🕪</span>
+    <span id="toggle_speech" style="cursor:pointer">🕪</span>
     <input id='input' accesskey="Z" style="width:85%" onkeydown="if(event.keyCode == 13){bt.click()}" />
-    <input type='button' value="send" label="send" id="bt" />
+    <input type='button' value="send" id="bt" />
 </div>
