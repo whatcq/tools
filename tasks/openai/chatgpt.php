@@ -114,7 +114,7 @@ if (!empty($_REQUEST['prompt'])) {
     if (speechSynthesis.onvoiceschanged !== undefined) {
         speechSynthesis.onvoiceschanged = function () {
             voices = synth.getVoices().filter((v, i) => /Online.*Chinese/.test(v.name));
-            console.log(voices);
+            // console.log(voices);
         };
     }
 
@@ -126,17 +126,29 @@ if (!empty($_REQUEST['prompt'])) {
         var bt = document.getElementById('bt');
         var toggle_speech = document.getElementById('toggle_speech');
         var i = 1;
+        var reading = false;
 
-        function read() {
-            let text = sentances.shift();
-            if (!text) return;
+        // 半天理不清这个逻辑：if(🕪){add queue;if(!playing)play();}
+        function readQueue(sentence) {
             if (toggle_speech.innerText === '🕪') {
+                if (sentence) sentances.push(sentence);
+                if (reading) return;
+
+                let text;
+                while (sentances.length > 0) {
+                    text = sentances.shift();
+                    if (text) break; // until text not empty
+                }
+                if (!text) return;
                 let msg = new SpeechSynthesisUtterance(text);
                 msg.voice = voices[10];
                 speechSynthesis.speak(msg);
-                setTimeout(read)
+                setTimeout(function () {
+                    reading = false;
+                    readQueue('');
+                }, 1000 * text.length / 4); // 4字/s
+                reading = true;
             }
-            read();
         }
 
         bt.onclick = function () {
@@ -151,12 +163,11 @@ if (!empty($_REQUEST['prompt'])) {
 
             var chat = new window.EventSource("?prompt=" + input.value);
             chat.onmessage = function (e) {
-                if (e.data == "[DONE]") {
+                if (e.data === "[DONE]") {
                     chat.close();
                     if (sentance.length > 10) {
-                        sentances.push(strip(sentance));
+                        readQueue(strip(sentance))
                         sentance = '';
-                        read();
                     }
                     input.select();
                     return;
@@ -164,12 +175,11 @@ if (!empty($_REQUEST['prompt'])) {
                 var text = e.data;
                 sentance += text;
                 if (text.indexOf('<br />') > -1 || text.indexOf('。') > -1) {
-                    sentances.push(strip(sentance));
+                    readQueue(strip(sentance))
                     sentance = '';
-                    read();
                 }
                 document.getElementById(botId).innerHTML += text;
-                console.log(text)
+                // console.log(text)
                 here.scrollIntoView();
             };
             chat.onerror = function (e) {
@@ -183,6 +193,7 @@ if (!empty($_REQUEST['prompt'])) {
                 this.innerText = '🕪';
             } else {
                 this.innerText = '🕨';
+                sentances = []; // clear queue
             }
         };
     };
