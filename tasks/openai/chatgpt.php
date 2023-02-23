@@ -96,13 +96,13 @@ if (!empty($_REQUEST['prompt'])) {
 <div id="here"></div>
 <div id="bar">
     <span id="toggle_speech" style="cursor:pointer">🕪</span>
-    <input id='input' accesskey="Z" style="width:85%" onkeydown="if(event.keyCode == 13){bt.click()}"/>
+    <input id='input' accesskey="Z" style="width:85%" onkeydown="if(event.keyCode == 13){document.getElementById('bt').click()}"/>
     <input type='button' value="send" id="bt"/>
 </div>
 
 <script>
-    var sentances = [],
-        sentance = '',
+    var sentences = [],
+        sentence = '',
         synth = window.speechSynthesis,
         voices = [];
 
@@ -120,7 +120,6 @@ if (!empty($_REQUEST['prompt'])) {
 
     window.onload = function () {
         var nick = 'cqiu'; //prompt("enter your name");
-        var bar = document.getElementById('bar');
         var here = document.getElementById('here');
         var input = document.getElementById('input');
         var bt = document.getElementById('bt');
@@ -130,25 +129,30 @@ if (!empty($_REQUEST['prompt'])) {
 
         // 半天理不清这个逻辑：if(🕪){add queue;if(!playing)play();}
         function readQueue(sentence) {
-            if (toggle_speech.innerText === '🕪') {
-                if (sentence) sentances.push(sentence);
-                if (reading) return;
-
-                let text;
-                while (sentances.length > 0) {
-                    text = sentances.shift();
-                    if (text) break; // until text not empty
-                }
-                if (!text) return;
-                let msg = new SpeechSynthesisUtterance(text);
-                msg.voice = voices[10];
-                speechSynthesis.speak(msg);
-                setTimeout(function () {
-                    reading = false;
-                    readQueue('');
-                }, 1000 * text.length / 4); // 4字/s
-                reading = true;
+            if (toggle_speech.innerText !== '🕪') {
+                sentences = []; // clear queue
+                return;
             }
+
+            if (sentence) sentences.push(sentence);
+            if (reading) return;
+
+            let text;
+            while (sentences.length > 0) {
+                text = sentences.shift();
+                if (text) break; // until text not empty
+            }
+            if (!text) return;
+
+            let msg = new SpeechSynthesisUtterance(text);
+            msg.voice = voices[10];
+            speechSynthesis.speak(msg);
+            reading = true;
+
+            setTimeout(function () {
+                reading = false;
+                readQueue('');
+            }, 1000 * text.length / 6); // 5字/s
         }
 
         bt.onclick = function () {
@@ -165,18 +169,18 @@ if (!empty($_REQUEST['prompt'])) {
             chat.onmessage = function (e) {
                 if (e.data === "[DONE]") {
                     chat.close();
-                    if (sentance.length > 10) {
-                        readQueue(strip(sentance))
-                        sentance = '';
+                    if (sentence.length > 10) {
+                        readQueue(strip(sentence))
+                        sentence = '';
                     }
                     input.select();
                     return;
                 }
                 var text = e.data;
-                sentance += text;
+                sentence += text;
                 if (text.indexOf('<br />') > -1 || text.indexOf('。') > -1) {
-                    readQueue(strip(sentance))
-                    sentance = '';
+                    readQueue(strip(sentence))
+                    sentence = '';
                 }
                 document.getElementById(botId).innerHTML += text;
                 // console.log(text)
@@ -193,7 +197,6 @@ if (!empty($_REQUEST['prompt'])) {
                 this.innerText = '🕪';
             } else {
                 this.innerText = '🕨';
-                sentances = []; // clear queue
             }
         };
     };
