@@ -102,11 +102,20 @@ if (!empty($_REQUEST['prompt'])) {
 
 <script>
     var sentances = [],
-        sentance = '';
+        sentance = '',
+        synth = window.speechSynthesis,
+        voices = [];
 
     function strip(html) {
         let doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || "";
+    }
+
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = function () {
+            voices = synth.getVoices().filter((v, i) => /Online.*Chinese/.test(v.name));
+            console.log(voices);
+        };
     }
 
     window.onload = function () {
@@ -122,7 +131,10 @@ if (!empty($_REQUEST['prompt'])) {
             let text = sentances.shift();
             if (!text) return;
             if (toggle_speech.innerText === '🕪') {
-                speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+                let msg = new SpeechSynthesisUtterance(text);
+                msg.voice = voices[10];
+                speechSynthesis.speak(msg);
+                setTimeout(read)
             }
             read();
         }
