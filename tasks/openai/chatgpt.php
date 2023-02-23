@@ -38,7 +38,7 @@ if (!empty($_REQUEST['prompt'])) {
             if (!isset($json['choices'][0]['text'])) {
                 file_put_contents($log . '.debug', "------------$curl_info\n$data\n", FILE_APPEND);
             }
-            if (empty($str) && $text[0] === "\n") {
+            if (empty($str) && isset($text[0]) && $text[0] === "\n") {
                 $text = ltrim($text);
             }
             $str .= $text;
