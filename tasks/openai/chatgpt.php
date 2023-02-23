@@ -58,7 +58,7 @@ if (!empty($_REQUEST['prompt'])) {
 ?>
 <!DOCTYPE HTML>
 <html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>ChatGPT</title>
 <style>
     body {
@@ -78,47 +78,78 @@ if (!empty($_REQUEST['prompt'])) {
         font: 16px/21px Consolas;
     }
 
-    div > div {
+    div>div {
         border-radius: 5px;
         background-color: #f3ecd9;
         padding: 5px;
         margin-bottom: 10px;
     }
 
-    div > i {
+    div>i {
         background: lightblue;
         border-radius: 10px;
         padding: 0px 5px;
         color: whitesmoke;
     }
+
+    #voi {
+        width: 20px
+    }
+
+    #voi:focus {
+        width: 50px
+    }
 </style>
 
 <div id="here"></div>
 <div id="bar">
+    <select id="voi"></select>
     <span id="toggle_speech" style="cursor:pointer">🕪</span>
-    <input id='input' accesskey="Z" style="width:85%" onkeydown="if(event.keyCode == 13){document.getElementById('bt').click()}"/>
-    <input type='button' value="send" id="bt"/>
+    <input id='input' accesskey="Z" style="width:80%" onkeydown="if(event.keyCode == 13){document.getElementById('bt').click()}" />
+    <input type='button' value="send" id="bt" />
 </div>
 
 <script>
     var sentences = [],
         sentence = '',
         synth = window.speechSynthesis,
-        voices = [];
+        voices = [],
+        vi = 8;
 
     function strip(html) {
         let doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || "";
     }
 
+    function getLen(str) {
+        let len = 0;
+        for (let i = 0; i < str.length; i++) {
+            if (str[i].match(/^[\u4e00-\u9fa5]+$/)) {
+                len += 1;
+            } else {
+                len += 0.2; // 英文该按单词论长短，这里用于发音
+            }
+        }
+        return Math.floor(len);
+    }
+
     if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = function () {
+        speechSynthesis.onvoiceschanged = function() {
             voices = synth.getVoices().filter((v, i) => /Online.*Chinese/.test(v.name));
             // console.log(voices);
+            let voiceSelect = document.getElementById('voi');
+            voiceSelect.innerHTML = "";
+            for (let i = 0; i < voices.length; i++) {
+                let tmp = voices[i].name.replace(/(Microsoft | Online \(Natural\)|Chinese )/g, '');
+                const option = document.createElement("option");
+                option.textContent = tmp;
+                voiceSelect.appendChild(option);
+            }
+            voiceSelect.selectedIndex = vi;
         };
     }
 
-    window.onload = function () {
+    window.onload = function() {
         var nick = 'cqiu'; //prompt("enter your name");
         var here = document.getElementById('here');
         var input = document.getElementById('input');
@@ -143,19 +174,21 @@ if (!empty($_REQUEST['prompt'])) {
                 if (text) break; // until text not empty
             }
             if (!text) return;
+            console.log(text)
 
             let msg = new SpeechSynthesisUtterance(text);
-            msg.voice = voices[10];
+            vi = document.getElementById('voi').selectedIndex;
+            msg.voice = voices[vi];
             speechSynthesis.speak(msg);
             reading = true;
 
-            setTimeout(function () {
+            setTimeout(function() {
                 reading = false;
                 readQueue('');
-            }, 1000 * text.length / 6); // 5字/s
+            }, 1000 * getLen(text) / 5); // 5字/s
         }
 
-        bt.onclick = function () {
+        bt.onclick = function() {
             var div = document.createElement("div");
             div.innerHTML = ('<u>' + nick + '</u>: <i>' + i + '</i>' + input.value);
             document.body.insertBefore(div, here);
@@ -166,10 +199,10 @@ if (!empty($_REQUEST['prompt'])) {
             here.scrollIntoView();
 
             var chat = new window.EventSource("?prompt=" + input.value);
-            chat.onmessage = function (e) {
+            chat.onmessage = function(e) {
                 if (e.data === "[DONE]") {
                     chat.close();
-                    if (sentence.length > 10) {
+                    if (sentence.length > 2) {
                         readQueue(strip(sentence))
                         sentence = '';
                     }
@@ -186,13 +219,13 @@ if (!empty($_REQUEST['prompt'])) {
                 // console.log(text)
                 here.scrollIntoView();
             };
-            chat.onerror = function (e) {
+            chat.onerror = function(e) {
                 console.log(e);
                 chat.close();
                 alert('EventSource Error');
             };
         };
-        toggle_speech.onclick = function () {
+        toggle_speech.onclick = function() {
             if (this.innerText === '🕨') {
                 this.innerText = '🕪';
             } else {
