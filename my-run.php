@@ -1,6 +1,30 @@
-<title>Run PHP</title>
-<style type="text/css">#e{position: absolute;top:0;right:0;bottom:0;left:0;font-size:16px;}</style>
-<div id="e"><?php
+<?php
+
+$ip = $_SERVER['REMOTE_ADDR'];
+if ($ip !== '127.0.0.1' && $ip !== '::1') {
+    die('403-' . $ip);
+}
+
+$act = $_REQUEST['act'] ?? '';
+$path = 'playground/';
+if ($act === 'save_run') {
+    $file = $path . $_REQUEST['filename'] . '.php';
+    $code = $_REQUEST['source'] ?? '';
+    $code = preg_replace('/((\$\w+)\s?=.*)#(\r?\n)/', "\$1var_dump(\$2);\$3", $code);
+    file_put_contents($file, $code);
+    header('location:' . $file);
+    exit;
+}
+if ($act === 'files') {
+    echo 'test';
+    foreach (glob("{$path}*.php") as $php_filename) {
+        $php_filename = basename($php_filename, '.php');
+        echo ",$php_filename";
+    }
+    die;
+}
+
+if (!empty($_REQUEST['f']) && file_exists($file = "$path{$_REQUEST['f']}.php")) {
     function getCode($file)
     {
         $source = file_get_contents($file);
@@ -11,23 +35,26 @@
         }
         return $source;
     }
+    $content = htmlspecialchars(getCode($file));
+} else {
+    $content = "&lt;?php\ninclude 'include.php';\n\n\n\nvar_dump(\n    1\n);";
+}
 
-    !empty($_REQUEST['f'])
-    && file_exists($file = "playground/{$_REQUEST['f']}.php")
-    && print(htmlspecialchars(getCode($file)))
-    or print("&lt;?php\n\nvar_dump(\n    1\n);");
-    ?>
-</div>
+?>
+<title>Run PHP</title>
+<style type="text/css">#e{position: absolute;top:0;right:0;bottom:0;left:0;font-size:16px;}</style>
+<div id="e"><?= $content?></div>
 <div style="position: fixed; right: 0; top: 0;max-width: 50%;width: 700px; height: 100%;">
-    <form method="post" action="playground.php?act=save_run" target="iframe" style="display:inline;">
+    <form method="post" action="?act=save_run" target="iframe" style="display:inline;">
         <div style="position: fixed;right: 20px;">
-        <input type="text" name="filename" id="filename" value="<?=$_REQUEST['f']??'test'?>">
+        <input type="text" list="files" name="filename" id="filename" value="<?=$_REQUEST['f']??'test'?>">
+            <datalist id="files"></datalist>
         <input type="checkbox" id="format" title="format" checked>
         <button onclick="location='?f='+encodeURIComponent(document.getElementById('filename').value)+'&format='+~~document.getElementById('format').checked;return false;" title="Load this file=>">Load</button>
         <textarea name="source" id="source" cols="30" rows="10" style="display:none;"></textarea>
         </div>
     </form>
-    <iframe src="" name="iframe" frameborder="0" style="width: 100%;height: 100%;"></iframe>
+    <iframe src="" name="iframe" frameborder="0" style="width: 100%;height: 100%;color: #fff;background: #52525052;"></iframe>
 </div>
 <script src="/cqiu/static/ace-builds/src-min/ace.js"></script>
 <script src="/cqiu/static/ace-builds/src-min/ext-language_tools.js"></script>
@@ -46,12 +73,22 @@
     });
     document.onkeydown = function (e) {
         if (e.key==='s' && e.ctrlKey) {
-            let pre = document.getElementById('format').checked
-                ? '<pre style="color:#03b503;margin-top:30px;font: 14px/16px Consolas;white-space: pre-wrap;word-wrap: break-word;">'
-                : '';
-            document.getElementById('source').value=pre+window.e.getValue();
+            document.getElementById('source').value=window.e.getValue();
             document.forms[0].submit();
             return false;
         }
     };
+    filename.onfocus = function () {
+        this.select();
+        if (filename.list.options.length > 0) return;
+        fetch('?act=files')
+            .then(response => response.text())
+            .then(data => {
+                data.split(',').forEach(function (item) {
+                    let option = document.createElement('option');
+                    option.value = item;
+                    filename.list.appendChild(option);
+                });
+            });
+    }
 </script>
