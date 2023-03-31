@@ -10,7 +10,6 @@ $path = 'playground/';
 if ($act === 'save_run') {
     $file = $path . $_REQUEST['filename'] . '.php';
     $code = $_REQUEST['source'] ?? '';
-    $code = str_replace('#green#', 'echo \'<pre style="color:#03b503;margin-top:30px;font: 14px/16px Consolas;white-space: pre-wrap;word-wrap: break-word;">\';',$code);
     $code = preg_replace('/((\$\w+)\s?=.*)#(\r?\n)/', "\$1var_dump(\$2);\$3", $code);
     file_put_contents($file, $code);
     header('location:' . $file);
@@ -38,7 +37,7 @@ if (!empty($_REQUEST['f']) && file_exists($file = "$path{$_REQUEST['f']}.php")) 
     }
     $content = htmlspecialchars(getCode($file));
 } else {
-    $content = "&lt;?php\n#green#\nvar_dump(\n    1\n);";
+    $content = "&lt;?php\ninclude 'include.php';\n\n\n\nvar_dump(\n    1\n);";
 }
 
 ?>
@@ -55,7 +54,7 @@ if (!empty($_REQUEST['f']) && file_exists($file = "$path{$_REQUEST['f']}.php")) 
         <textarea name="source" id="source" cols="30" rows="10" style="display:none;"></textarea>
         </div>
     </form>
-    <iframe src="" name="iframe" frameborder="0" style="width: 100%;height: 100%;"></iframe>
+    <iframe src="" name="iframe" frameborder="0" style="width: 100%;height: 100%;color: #fff;background: #52525052;"></iframe>
 </div>
 <script src="/cqiu/static/ace-builds/src-min/ace.js"></script>
 <script src="/cqiu/static/ace-builds/src-min/ext-language_tools.js"></script>
