@@ -7,3 +7,13 @@
 .chat u.q-sogou {color:#fe6811}
 .chat u.q-163 {color:#c22b30}
 .chat u.q-sm {color:#fe6811}
+
+#input{width: 100%;font: 20px/24px Verdana;}
+
+#voi {
+    width: 20px
+}
+
+#voi:focus {
+    width: 50px
+}

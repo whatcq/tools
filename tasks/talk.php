@@ -35,15 +35,17 @@ if (!empty($_GET['talk'])) {
 
 		<form id="talk-form" target="talkFrame">
 			<div>
-				<textarea name="talk" id="input" rows="4" cols="80" style="width: 100%;font: 20px/24px Verdana;"></textarea>
+				<textarea name="talk" id="input" rows="4" cols="80" accesskey="Z"></textarea>
 			</div>
 			<input type="submit">
 			<input type="reset">
 			<input type="button" value="清屏" onclick="$('chatroom').innerHTML=''">
-			<input type="text" id="back_msg" size="70">
-            <input type="checkbox" id="speak-out" title="说话开关" checked />
+			<input type="text" id="back_msg" size="60">
+			<span id="toggle_speech" style="cursor:pointer">🕪</span>
+			<select id="voi"></select>
+			<input type="checkbox" id="speak-out" title="说话开关" xchecked />
 		</form>
-		<div id="speaker-div">
+		<div id="speaker-div" style="display:none">
 		<audio controls autoplay xmuted id="speaker">
 			<source src="" type="audio/mpeg">
 		</audio>
@@ -75,9 +77,89 @@ if (!empty($_GET['talk'])) {
 	var chatroom = $('chatroom');
 	var speaker = $('speaker');
 	var nick = 'cqiu'; //prompt("enter your name");
+	
+    var sentences = [],
+        sentence = '',
+        synth = window.speechSynthesis,
+        voices = [],
+        vi = 8;
+
+    function strip(html) {
+        let doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+    }
+
+    function getLen(str) {
+        let len = 0;
+        for (let i = 0; i < str.length; i++) {
+            if (str[i].match(/^[\u4e00-\u9fa5]+$/)) {
+                len += 1;
+            } else {
+                len += 0.3; // 英文该按单词论长短，这里用于发音
+            }
+        }
+        return Math.floor(len);
+    }
+
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = function() {
+            voices = synth.getVoices().filter((v, i) => /Online.*Chinese/.test(v.name));
+            // console.log(voices);
+            let voiceSelect = document.getElementById('voi');
+            voiceSelect.innerHTML = "";
+            for (let i = 0; i < voices.length; i++) {
+                let tmp = voices[i].name.replace(/(Microsoft | Online \(Natural\)|Chinese )/g, '');
+                const option = document.createElement("option");
+                option.textContent = tmp;
+                voiceSelect.appendChild(option);
+            }
+            voiceSelect.selectedIndex = vi;
+        };
+    }
+
+	var toggle_speech = document.getElementById('toggle_speech');
+	var i = 1;
+	var reading = false;
+
+	// 半天理不清这个逻辑：if(🕪){add queue;if(!playing)play();}
+	function readQueue(sentence) {
+		if (toggle_speech.innerText !== '🕪') {
+			sentences = []; // clear queue
+			return;
+		}
+
+		if (sentence) sentences.push(sentence);
+		if (reading) return;
+
+		let text;
+		while (sentences.length > 0) {
+			text = sentences.shift();
+			if (text) break; // until text not empty
+		}
+		if (!text) return;
+		console.log(text)
+
+		let msg = new SpeechSynthesisUtterance(text);
+		vi = document.getElementById('voi').selectedIndex;
+		msg.voice = voices[vi];
+		speechSynthesis.speak(msg);
+		reading = true;
+
+		setTimeout(function() {
+			reading = false;
+			readQueue('');
+		}, 1000 * getLen(text) / 5); // 5字/s
+	}
 
 	window.onload = function() {
 		$('input').focus();
+        toggle_speech.onclick = function() {
+            if (this.innerText === '🕨') {
+                this.innerText = '🕪';
+            } else {
+                this.innerText = '🕨';
+            }
+        };
 	};
 
 	// 防抖动函数
@@ -102,10 +184,13 @@ if (!empty($_GET['talk'])) {
 	}
 
 	function speak(msg) {
+		return readQueue(strip(msg));
+
 	    if (!$('speak-out').checked) return;
 		var vol = $('vol').value,
 			speed = $('speed').value,
 			per = $('per').value;
+		msg = encodeURIComponent(msg.replace(/<[^>]+/g, ''));
 		speaker.src = `https://tts.baidu.com/text2audio?tex=${msg}&cuid=baike&lan=ZH&ie=utf-8&ctp=1&pdt=301&vol=${vol}&rate=32&per=${per}&spd=${speed}`;
 	}
 
@@ -113,7 +198,7 @@ if (!empty($_GET['talk'])) {
 
 	function response(who, msg) {
 		chat(who, msg.replace(/\n/g, '<br>').replace('  ', '&nbsp;&nbsp'));
-		speak(encodeURIComponent(msg.replace(/<[^>]+/g, '')));
+		speak(msg);
 		input.value = '';
 		$('back_msg').value = '';
 		$('back_msg').focus();
