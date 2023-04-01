@@ -107,7 +107,8 @@ HEADERS,
         'fn' => function ($content) {
             preg_match('#<ol id="b_results" class="">[\s\S\r]*?<p\b.*?>(.*?)</p>[\s\S\r]*?</li>#i', $content, $matches);
             $firstP = str_replace('<span class="algoSlug_icon" data-priority="2">网页</span>', '', $matches[1]);
-            return preg_replace(['/\d{4}\-\d{1,2}\-\d{1,2}/', '/&#?\w{4,5};/i'], '', strip_tags($firstP));
+            $firstP = preg_replace('#<span class="news_dt">.*?</span>#i', '', $firstP);
+            return preg_replace(['#^\d+年\d+月\d+日#', '/\d{4}\-\d{1,2}\-\d{1,2}/', '/&#?\w{4,5};/i', '# 展开$#'], '', strip_tags($firstP));
         }
     ],
     'zhidao' => [
