@@ -84,6 +84,7 @@ if (!empty($_GET['talk'])) {
         sentence = '',
         synth = window.speechSynthesis,
         voices = [],
+        rate = 1.5,
         vi = 10;
 
     function strip(html) {
@@ -144,6 +145,8 @@ if (!empty($_GET['talk'])) {
         let msg = new SpeechSynthesisUtterance(text);
         vi = document.getElementById('voi').selectedIndex;
         msg.voice = voices[vi];
+        msg.rate = rate;// 0.5~2
+        // msg.pitch = 1;// 0~2 free online voice不支持
         speechSynthesis.speak(msg);
         reading = true;
 
