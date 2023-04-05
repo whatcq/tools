@@ -80,12 +80,10 @@ if (!empty($_GET['talk'])) {
     var speaker = $('speaker');
     var nick = 'cqiu'; //prompt("enter your name");
 
-    var sentences = [],
-        sentence = '',
-        synth = window.speechSynthesis,
+    var synth = window.speechSynthesis,
         voices = [],
         rate = 1.5,
-        vi = 10;
+        vi = 6;
 
     function strip(html) {
         let doc = new DOMParser().parseFromString(html, 'text/html');
@@ -106,8 +104,10 @@ if (!empty($_GET['talk'])) {
 
     if (speechSynthesis.onvoiceschanged !== undefined) {
         speechSynthesis.onvoiceschanged = function () {
-            voices = synth.getVoices().filter((v, i) => /Online.*Chinese/.test(v.name));
-            // console.log(voices);
+            if (voices.length > 0) return;
+            voices = synth.getVoices().filter((v, i) => ['zh-CN', 'zh-TW'].includes(v.lang))
+                .sort((a, b) => b.name.includes('Online') - a.name.includes('Online'));
+            console.log(voices);
             let voiceSelect = document.getElementById('voi');
             voiceSelect.innerHTML = "";
             for (let i = 0; i < voices.length; i++) {
@@ -121,39 +121,23 @@ if (!empty($_GET['talk'])) {
     }
 
     var toggle_speech = document.getElementById('toggle_speech');
-    var i = 1;
-    var reading = false;
 
-    // 半天理不清这个逻辑：if(🕪){add queue;if(!playing)play();}
     function readQueue(sentence) {
         if (toggle_speech.innerText !== '🕪') {
             sentences = []; // clear queue
             return;
         }
 
-        if (sentence) sentences.push(sentence);
-        if (reading) return;
+        if (!sentence) return;
+        console.log(sentence)
 
-        let text;
-        while (sentences.length > 0) {
-            text = sentences.shift();
-            if (text) break; // until text not empty
-        }
-        if (!text) return;
-        console.log(text)
-
-        let msg = new SpeechSynthesisUtterance(text);
+        speechSynthesis.cancel();
+        let msg = new SpeechSynthesisUtterance(sentence);
         vi = document.getElementById('voi').selectedIndex;
         msg.voice = voices[vi];
-        msg.rate = rate;// 0.5~2
+        msg.rate = rate; // 0.5~2
         // msg.pitch = 1;// 0~2 free online voice不支持
         speechSynthesis.speak(msg);
-        reading = true;
-
-        setTimeout(function () {
-            reading = false;
-            readQueue('');
-        }, 1000 * getLen(text) / 5); // 5字/s
     }
 
     window.onload = function () {
@@ -163,20 +147,18 @@ if (!empty($_GET['talk'])) {
                 this.innerText = '🕪';
             } else {
                 this.innerText = '🕨';
+                speechSynthesis.cancel();
             }
         };
     };
 
     // 防抖动函数
-    const debounce = function (fn, delay) {
-        let timer = null;
-        const _debounce = function () {
-            if (timer) clearTimeout(timer);
-            timer = setTimeout(() => {
-                fn()
-            }, delay);
+    const debounce = function (func, delay) {
+        let timeoutId;
+        return function (...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(this, args), delay);
         };
-        return _debounce;
     };
 
     function chat(who, msg) {
