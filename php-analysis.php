@@ -231,7 +231,7 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
             <?php } ?>
         </div>
     </div>
-    <div id="debugBar_close"><span title="ctrl+q  显示/隐藏面板&#10;alt+,  增高面板&#10;alt+.  缩小面板">✕</span></div>
+    <div id="debugBar_close"><span title="alt+q  显示/隐藏面板&#10;alt+,  增高面板&#10;alt+.  缩小面板&#10;alt+o  ide打开选中文本的文件">✕</span></div>
 </div>
 <div id="debugBar_open">
     <div style="background:#2ba230;color:#FFF;padding:0 6px 0 0;float:right;line-height:30px;font-size:14px"><?php echo $runtime; ?></div>
@@ -315,21 +315,26 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
         if (typeof tab_tit[history[1]] !== 'undefined') tab_tit[history[1]].click();
         else tab_tit[0].click();
 
-        document.onkeydown = function (event) {
-            var a = window.event.keyCode;
-            if ((a === 81) && (event.ctrlKey)) {//Ctrl+q
-                if(open.style.display === 'block')open.click();
+        document.onkeydown = function (e) {
+            if (e.key === 'o' && e.altKey) {
+                let file = window.getSelection() + '';
+                if (!file) return false;
+                window.open(`ide://open?url=file://${file}&line=50`);
+                return;
+            }
+            if (e.key === 'q' && e.altKey) {
+                if (open.style.display === 'block') open.click();
                 else close.click();
                 return;
             }
             var h = trace.clientHeight
-                ,ht = dom_tab_tit.clientHeight - 6;
-            if ((a === 188) && (event.altKey)) {//alt+,
+                , ht = dom_tab_tit.clientHeight - 6;
+            if (e.key === ',' && e.altKey) {//alt+,
                 trace.style.height = (h + 100) + 'px';
                 dom_tab_cont.style.height = (h + 100 - ht) + 'px';
                 return;
             }
-            if ((a === 190) && (event.altKey)) {//alt+.
+            if (e.key === '.' && e.altKey) {//alt+.
                 trace.style.height = (h - 100) + 'px';
                 dom_tab_cont.style.height = (h - 100 - ht) + 'px';
                 return;
