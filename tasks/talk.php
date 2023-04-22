@@ -70,6 +70,7 @@ if (!empty($_GET['talk'])) {
             style="border: 1px solid #bfbfbf;"></iframe>
 </div>
 </body>
+<script src="open-web.js"></script>
 <script>
     function $(str) {
         return document.getElementById(str);
@@ -133,6 +134,10 @@ if (!empty($_GET['talk'])) {
 
         speechSynthesis.cancel();
         let msg = new SpeechSynthesisUtterance(sentence);
+        msg.onend = function (event) {
+            console.log("SpeechSynthesisUtterance.onend");
+            setTimeout(() => input.focus(), 1500);
+        };
         vi = document.getElementById('voi').selectedIndex;
         msg.voice = voices[vi];
         msg.rate = rate; // 0.5~2
@@ -161,7 +166,7 @@ if (!empty($_GET['talk'])) {
         };
     };
 
-    function chat(who, msg) {
+    function renderChat(who, msg) {
         var div = document.createElement("div");
         div.className = 'chat';
         if (who === nick) div.className += ' i-say';
@@ -184,7 +189,7 @@ if (!empty($_GET['talk'])) {
     var responseLength = 0;
 
     function response(who, msg) {
-        chat(who, msg.replace(/\n/g, '<br>').replace('  ', '&nbsp;&nbsp'));
+        renderChat(who, msg.replace(/\n/g, '<br>').replace('  ', '&nbsp;&nbsp'));
         speak(msg);
         input.value = '';
         $('back_msg').value = '';
@@ -197,7 +202,11 @@ if (!empty($_GET['talk'])) {
     form.onsubmit = function () {
         var msg = input.value;
         if (!msg.trim()) return false;
-        chat(nick, msg);
+        renderChat(nick, msg);
+        if (openWeb(msg)) {
+            input.value = '';
+            return false;
+        }
         return true;
     };
 
@@ -209,15 +218,16 @@ if (!empty($_GET['talk'])) {
 
     document.onkeydown = function (e) {
         if (e.key === 'Escape') {
-            speaker.pause();
+            speechSynthesis.cancel();
+            // speaker.pause();
             $('talk-form').reset();
             return false;
         }
     };
 
-    speaker.onended = speaker.onpause = debounce(function () {
-        input.focus();
-    }, 1500);
+    // speaker.onended = speaker.onpause = debounce(function () {
+    //     input.focus();
+    // }, 1500);
 
     var speakerDiv = $('speaker-div');
     $('speak-out').onclick = function () {

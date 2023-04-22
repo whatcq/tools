@@ -108,6 +108,7 @@ function header2array($headers)
 {
     if (is_string($headers)) {
         $headers = explode("\n", str_replace("\r", '', rtrim($headers)));
+        // 处理这种：-H 'Cookie: test=1'
         if (false !== $p = strpos($headers[0], "'")) {
             foreach ($headers as &$item) {
                 $item = substr($item, $p + 1, -3);

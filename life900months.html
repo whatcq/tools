@@ -128,7 +128,10 @@
         border-bottom: 1px solid gray;
     }
     li.y-7 {
-        border-bottom: 1px solid gray;
+        border-bottom: 1px dashed gray;
+    }
+    li.y-8 {
+        border-bottom: 1px dashed #000;
     }
 </style>
 <body>
@@ -141,7 +144,7 @@
             <li v-for="month in months"
                 :class="'y-'+Math.ceil((month+1)/120)"
                 :title="~~((month+1)/12)+'岁'+(Math.ceil((month+1)%12))+'月'"
-                :style="'background:'+(Math.ceil(month/12)<38?'gray':'white')">
+                :style="'background:'+(Math.ceil(month/12)<38?'gray':'lightblue')">
                 <!-- {{ month }} -->
             </li>
         </ol>
