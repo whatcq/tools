@@ -24,9 +24,25 @@ if (isset($_GET['file'])) {
 	readfile($file);
 	die;
 }
+// 去掉路径里的.和..
+function normalizePath($path)
+{
+    $path = str_replace('\\', '/', $path);
+    $stack = [];
+    foreach (explode('/', $path) as $part) {
+        if ($part == '..') {
+            $last = end($stack);
+            (!$last || $last == '..') && ($stack[] = $part) || array_pop($stack);
+        } elseif ($part != '.' && $part != '') {
+            $stack[] = $part;
+        }
+    }
 
+    return ($path[0] == '/' ? '/' : '') . implode('/', $stack) ?: $path;
+}
 # list
 $dir = $_GET['dir'] ?? '.';
+$dir = normalizePath($dir);
 if (!is_dir($dir)) {
 	return;
 }
@@ -44,7 +60,7 @@ if (!is_dir($dir)) {
 if ($dh = opendir($dir)) {
 	echo '<ol>';
 	while (($file = readdir($dh)) !== false) {
-		$path = $dir . DIRECTORY_SEPARATOR . $file;
+		$path = "$dir/$file";
 		$type = is_dir($path)?'dir':'file';
 		echo "<li><a href='?$type=$path'>$file</a>";
 		if ($type === 'file')echo " <a href=\"?down=$path\" class=\"right\">⇓</a>";
