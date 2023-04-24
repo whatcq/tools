@@ -10,47 +10,62 @@
 ;+ Shift 
 ;&  用于连接两个按键(含鼠标按键) 合并成一个自定义热键.  
 
+queueFile := "queue.txt"
 
 #n::
-	selection:= GetSelection()
+    InputBox, UserInput, Phone Number, Please enter a phone number., , 640, 120
+    if ErrorLevel
+        return
 
-	if (selection = "") {
-		InputBox, UserInput, Phone Number, Please enter a phone number., , 640, 120
-		if ErrorLevel
-			return
+    ;MsgBox, You entered "%UserInput%"
+    FileAppend, %A_YYYY%-%A_MM%-%A_DD% %A_Hour%:%A_Min%:%A_Sec% "%UserInput%" `r`n, %queueFile%,UTF-8
+    return
 
-		;MsgBox, You entered "%UserInput%"
-		FileAppend, %A_YYYY%-%A_MM%-%A_DD% %A_Hour%:%A_Min%:%A_Sec% "%UserInput%" `n, queue.log,UTF-8
-		return
-	}
+#c::
+    input := OnelineText(GetSelection())
+    if (input != "") {
+        FileAppend, %A_YYYY%-%A_MM%-%A_DD% %A_Hour%:%A_Min%:%A_Sec% "%input%" `r`n, %queueFile%, UTF-8
 
-	FileAppend, %A_YYYY%-%A_MM%-%A_DD% %A_Hour%:%A_Min%:%A_Sec% "%selection%" `n, picker.log,UTF-8
+        MyTrayTip("Selected!")
+    }
+    return
 
-	saveResult := "Saved!"
+#b::
+    input = OnelineText(%clipboard%)   ; 把任何复制的文件, HTML 或其他格式的文本转换为纯文本.
+    if (input != "") {
+        FileAppend, %A_YYYY%-%A_MM%-%A_DD% %A_Hour%:%A_Min%:%A_Sec% "%input%" `r`n, %queueFile%, UTF-8
 
-	; 要更精确的控制显示的时间
-	; 而不使用 Sleep 的方法 (它停止了当前线程):
-	#Persistent
+        MyTrayTip("Pushed!")
 
-	; 托盘提示
-	TrayTip, Timed TrayTip, %saveResult%
-	SetTimer, HideTrayTip, -3000
+    }
+    return
 
-HideTrayTip() {  ; NOTE: For Windows 10, replace this function with the one defined above.
-	TrayTip
+OnelineText(rawString) {
+    replaced := StrReplace(rawString, "`n", "\n")
+    replaced := StrReplace(replaced, "`r", "\r")
+    return replaced
 }
 
 
-GetSelection(timeoutSeconds:= 0.5)
+MyTrayTip(info) {
+    ; 托盘提示
+    TrayTip, "===", %info%
+    SetTimer, HideTrayTip, -3000
+}
+HideTrayTip() {  ; NOTE: For Windows 10, replace this function with the one defined above.
+    TrayTip
+}
+
+GetSelection(timeoutSeconds:= 0.3)
 {
-	Clipboard:= ""  ; Clear clipboard for ClipWait to function.
-	Send ^c  ; Send Ctrl+C to get selection on clipboard.
-	ClipWait %timeoutSeconds% ; Wait for the copied text to arrive at the clipboard.
-	return Clipboard
+    Clipboard := ""  ; Clear clipboard for ClipWait to function.
+    Send ^c  ; Send Ctrl+C to get selection on clipboard.
+    ClipWait %timeoutSeconds% ; Wait for the copied text to arrive at the clipboard.
+    return Clipboard
 }
 
 PasteText(s)
 {
-	Clipboard:=s  ; Put the text on the clipboard.
-	Send ^v  ; Paste the text with Ctrl+V.
+    Clipboard :=s  ; Put the text on the clipboard.
+    Send ^v  ; Paste the text with Ctrl+V.
 }
