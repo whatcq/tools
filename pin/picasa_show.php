@@ -87,6 +87,8 @@ $shit_domains = file_get_contents('shit_domain.txt');
 for($start = $i = ($p-1) * $n, $end = min($start + $n, $total); $i < $end; $i++) {
 	$item = json_decode($d[$i], true);
 
+	if (empty($item['img'])) continue;
+
 	// fix daolian tupian
 	if(preg_match('#//('.$shit_domains.'xxx)/#i', $item['img'])){
 		$item['img'] = "getimg.php?url={$item['img']}";
@@ -129,7 +131,7 @@ if($p < $lastP) {
 
 </div>
 
-<script language="javascript" src="/test/KODExplorer/static/js/lib/jquery-1.8.0.min.js?ver=2.8"></script>
+<script language="javascript" src="/cqiu/static/jquery-3.6.0.min.js"></script>
 <script language="javascript" src="picasa/picasa.js?ver=2.8"></script>
 <script language="javascript" src=""></script>
 
