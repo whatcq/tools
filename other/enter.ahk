@@ -22,7 +22,7 @@ queueFile := "queue.txt"
     return
 
 #c::
-    input := OnelineText(GetSelection())
+    input := OneLineText(GetSelection())
     if (input != "") {
         FileAppend, %A_YYYY%-%A_MM%-%A_DD% %A_Hour%:%A_Min%:%A_Sec% "%input%" `r`n, %queueFile%, UTF-8
 
@@ -31,16 +31,15 @@ queueFile := "queue.txt"
     return
 
 #b::
-    input = OnelineText(%clipboard%)   ; 把任何复制的文件, HTML 或其他格式的文本转换为纯文本.
+    input = OneLineText(%clipboard%)   ; 把任何复制的文件, HTML 或其他格式的文本转换为纯文本.
     if (input != "") {
         FileAppend, %A_YYYY%-%A_MM%-%A_DD% %A_Hour%:%A_Min%:%A_Sec% "%input%" `r`n, %queueFile%, UTF-8
 
         MyTrayTip("Pushed!")
-
     }
     return
 
-OnelineText(rawString) {
+OneLineText(rawString) {
     replaced := StrReplace(rawString, "`n", "\n")
     replaced := StrReplace(replaced, "`r", "\r")
     return replaced
