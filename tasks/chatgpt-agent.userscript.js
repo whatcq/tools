@@ -11,25 +11,21 @@
     'use strict';
 
     console.log('ajax intercept');
-    // @todo connect ssr to get directive
 
     let myService = 'http://localhost/cqiu/tools/tasks/chatgpt-agent-service.php';
-    // let inputBox = document.querySelector('#Top > section:nth-child(1) > div.fucView.flex.justifyCenter > div > div > textarea');
-    // let sendButton = document.querySelector('.el-icon-s-promotion');
 
     setTimeout(() => {
         var chat = new window.EventSource(myService + "?act=get_question");
         chat.onmessage = function (e) {
             console.log(e.data);
-            // inputBox.value = e.data;
-            // sendButton.click();
-            let $vm = $vm || document.querySelector('#Top').__vue__;
-            if (typeof $vm == 'undefined') {
-                console.error('$vm is undefined');
+            let _vm = document.querySelector('#Top').__vue__;
+            console.log(_vm)
+            if (typeof _vm == 'undefined') {
+                console.error('_vm is undefined');
                 return;
             }
-            $vm.question = e.data;
-            $vm.sureSendWay();
+            _vm.question = e.data;
+            _vm.sureSendWay();
         };
     }, 500);
 

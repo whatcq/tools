@@ -54,25 +54,38 @@ if ('save_response' === $act) {
     $response = file_get_contents('php://input');
     $json = json_decode($response, 1);
     $sentPoint = intval($redis->get($sentKey)); // 已经发送的答案字符串位置
-    if ($json['code'] == 200 && !empty($json['resp_data']['answer'])) {
-        $answer = $json['resp_data']['answer'];
-        ($p = strpos($answer, '。', $sentPoint)) or $p = strpos($answer, "\n\n", $sentPoint);
-        if ($p - $sentPoint < 10) {
-            ($p = strpos($answer, '。', $p)) or $p = strpos($answer, "\n\n", $p);
+    if ($json['code'] != 200 || empty($json['resp_data']['answer'])) {
+        die('empty');
+    }
+
+    function strposUntil($string, $chars = ['。', '；', "\n\n"], $offset = 0)
+    {
+        foreach ($chars as $char) {
+            $pos = strpos($string, $char, $offset);
+            if ($pos !== false) {
+                return $pos + strlen($char);
+            }
         }
-        $results = [];
-        if ($p !== false) {
-            ($answerSentence = trim(substr($answer, $sentPoint, $p - $sentPoint)))
-                && $results[] = $answerSentence;
-        }
-        if ($json['resp_data']['status'] == 3) {
-            $results[] = 'over';
-            $p = 0;
-        }
-        if ($results) {
-            $redis->lpush($answerKey, ...$results);
-            $redis->set($sentKey, $p);
-        }
+        return 0;
+    }
+
+    $answer = $json['resp_data']['answer'];
+    $p = strposUntil($answer, ['；', '。', "\n\n"], $sentPoint);
+    if ($p - $sentPoint < 10) {
+        $p = strposUntil($answer, ['；', '。', "\n\n"], $p);
+    }
+    $results = [];
+    if ($p !== false) {
+        ($answerSentence = trim(substr($answer, $sentPoint, $p - $sentPoint)))
+        && $results[] = trim($answerSentence);
+    }
+    if ($json['resp_data']['status'] == 3) {
+        $results[] = 'over';
+        $p = 0;
+    }
+    if ($results) {
+        $redis->lpush($answerKey, ...$results);
+        $redis->set($sentKey, $p);
     }
     echo file_put_contents($answerFile, "\n$response", FILE_APPEND), 'saved';
 }
