@@ -23,6 +23,11 @@
             console.log(e.data);
             // inputBox.value = e.data;
             // sendButton.click();
+            let $vm = $vm || document.querySelector('#Top').__vue__;
+            if (typeof $vm == 'undefined') {
+                console.error('$vm is undefined');
+                return;
+            }
             $vm.question = e.data;
             $vm.sureSendWay();
         };
