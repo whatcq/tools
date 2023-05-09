@@ -54,18 +54,28 @@ if (!is_dir($dir)) {
 	li:nth-child(odd){background-color: #f2f2f2;}
 	li:nth-child(even),li:nth-child(even) {background-color: #fafafa;}
 	li:hover{background: #c3e9cb;}
-	.right{float:right;}
+	.right{float:right;padding: 0 5px;background: yellowgreen;border-radius: 5px;}
 </style>
 <?php
 if ($dh = opendir($dir)) {
-	echo '<ol>';
-	while (($file = readdir($dh)) !== false) {
-		$path = "$dir/$file";
-		$type = is_dir($path)?'dir':'file';
-		echo "<li><a href='?$type=$path'>$file</a>";
-		if ($type === 'file')echo " <a href=\"?down=$path\" class=\"right\">⇓</a>";
-		echo "</li>", PHP_EOL;
-	}
-	echo '</ol>';
-	closedir ($dh);
+    $items = ['dir' => [], 'file' => []];
+    while (($file = readdir($dh)) !== false) {
+        $path = "$dir/$file";
+        $type = is_dir($path) ? 'dir' : 'file';
+        $items[$type][] = $path;
+    }
+    closedir($dh);
+
+    echo '<ol>';
+    sort($items['dir']); // fix sort for linux
+    foreach ($items['dir'] as $path) {
+        $file = basename($path);
+        echo "<li><a href='?dir=$path'>$file</a></li>\n";
+    }
+    sort($items['file']);
+    foreach ($items['file'] as $path) {
+        $file = basename($path);
+        echo "<li><a href='?file=$path'>$file</a> <a href=\"?down=$path\" class=\"right\">⇓</a></li>\n";
+    }
+    echo '</ol>';
 }
