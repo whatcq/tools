@@ -15,18 +15,20 @@ if (isset($_GET['down'])) {
 		//header('X-Sendfile: ' . $file);
 		exit;
 	}
+    die('file not found');
 }
 // view file
 if (isset($_GET['file'])) {
 	$file = $_GET['file'];
 	header('Content-Type: ' . mime_content_type($file));
 	header('Content-Disposition: inline; filename="' . basename($file) . '"');
-	readfile($file);
+	file_exists($file) && readfile($file) || die('file not found');
 	die;
 }
 // 去掉路径里的.和..
 function normalizePath($path)
 {
+    if (empty($path)) return $path;
     $path = str_replace('\\', '/', $path);
     $stack = [];
     foreach (explode('/', $path) as $part) {
