@@ -59,8 +59,8 @@ if (!is_dir($dir)) {
 <?php
 if ($dh = opendir($dir)) {
     $items = ['dir' => [], 'file' => []];
-    while (($file = readdir($dh)) !== false) {
-        $path = "$dir/$file";
+    while (($item = readdir($dh)) !== false) {
+        $path = "$dir/$item";
         $type = is_dir($path) ? 'dir' : 'file';
         $items[$type][] = $path;
     }
@@ -69,8 +69,8 @@ if ($dh = opendir($dir)) {
     echo '<ol>';
     sort($items['dir']); // fix sort for linux
     foreach ($items['dir'] as $path) {
-        $file = basename($path);
-        echo "<li><a href='?dir=$path'>$file</a></li>\n";
+        $folder = basename($path);
+        echo "<li><a href='?dir=$path'>$folder</a></li>\n";
     }
     sort($items['file']);
     foreach ($items['file'] as $path) {
