@@ -7,7 +7,8 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
     <title>DBQ</title>
     <link rel="stylesheet" href="dbq.css" />
-<!--    <style>-->
+    <script src="../../static/jquery.tablesort.min.js"></script>
+    <!--    <style>-->
 <!--        @import url('dbq.css');-->
 <!--    </style>-->
 </head>
@@ -124,7 +125,10 @@
         zIndex++;
         var _width = $('#' + _id).find('.body > table').width();
         console.log(_width)
-        $('#' + _id).width(Math.min(_width, 600)).find('table').tablesort();
+        $('#' + _id).width(Math.min(_width, 600)).find('table').tablesort()
+            .find('thead th.number').data('sortBy', function (th, td, sorter) {
+            return parseInt(td.text(), 10);
+        });
     }
     var lsh = new LocalStorageHandler();
     var link = lsh.get('currentLink');

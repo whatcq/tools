@@ -348,11 +348,11 @@ function render($data)
         return;
     }
     echo '<table border="0" cellpadding="3">';
-    echo '<tr bgcolor="#dddddd" class="fixed-header"><th>#</th>';
+    echo '<thead><tr bgcolor="#dddddd" class="fixed-header"><th class="number">#</th>';
     foreach (current($data) as $key => $null) {
         echo "<th>$key</th>";
     }
-    echo '</tr>';
+    echo '</tr></thead><tbody>';
     foreach ($data as $_key => $_data) {
         echo "<tr><td><i>$_key</i></td>";
         foreach ($_data as $key => $value) {
@@ -361,7 +361,7 @@ function render($data)
         }
         echo '</tr>';
     }
-    echo '</table>';
+    echo '</tbody></table>';
 }
 
 function renderHtml($data)

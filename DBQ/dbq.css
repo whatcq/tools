@@ -33,6 +33,8 @@ tr:hover,li:hover{background: #c3e9cb;}
 pre{margin:0;}
 i{font-size:60%;color:gray;}
 table{font-size:80%}
+td {white-space: nowrap;overflow: hidden;text-overflow: ellipsis;max-width: 0;}
+td span {display: inline-block;max-width: 100%;}
 .fixed-header {position: relative;}
 .fixed-header > * {position: sticky;top: 0;resize: horizontal;overflow: auto;background: #c3e9cb;}
 
