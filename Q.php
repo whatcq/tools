@@ -83,6 +83,8 @@ pre{margin:0;}
 i{font-size:60%;color:gray;}
 table{font-size:80%}
 td{word-break: break-all}
+td {white-space: nowrap;overflow: hidden;text-overflow: ellipsis;max-width: 0;}
+td span {display: inline-block;max-width: 100%;}
 .fixed-header thead tr {position: relative;}
 .fixed-header thead th {position: sticky;top: 0;resize: horizontal;overflow: auto;text-shadow: 1px 1px 0 #fff;background: #3c8dbc !important;background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #3c8dbc), color-stop(1, #67a8ce)) !important;}
 </style>
