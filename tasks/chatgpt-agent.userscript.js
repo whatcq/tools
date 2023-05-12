@@ -2,7 +2,10 @@
 // @name         chatgpt-agent
 // @version      1.0
 // @description  agent web chatgpt to my service
-// @match        *://*/*
+// @match        *://chatgptbot.space/*
+// @match        *://chatgptbot.me/*
+// @match        *://chatgptbot.cc/*
+// #include      /\.*:\/\/chatgpt.*\/.*/
 // @grant        GM_xmlhttpRequest
 // @connect      *
 // ==/UserScript==
@@ -35,10 +38,14 @@
             url: myService + "?act=save_response",
             data: resp,
             onload: function (response) {
-                console.log('保存的结果：', response);
+                console.log('保存的结果：', response.responseText);
             },
             onerror: function (error) {
-                console.log('保存的结果err：', error);
+                function strip(html) {
+                    let doc = new DOMParser().parseFromString(html, 'text/html');
+                    return doc.body.textContent || "";
+                }
+                console.log('保存的结果err：', strip(error.responseText));
             }
         });
     }
@@ -55,10 +62,8 @@
             if (self.readyState == 4 /* complete */) {
                 if (/\/v1\/chat\/result/.test(self.responseURL)) {
                     saveResponse(self.responseText);
-                    // console.log('[XHR]', url, self.getAllResponseHeaders(), self.responseText);
-                    console.log('URL: ' + self.responseURL);
-                    // console.log('Headers: ' + self.getAllResponseHeaders());
-                    console.log('Response: ' + self.responseText);
+                    // console.log('URL: ' + self.responseURL);
+                    // console.log('Response: ' + self.responseText);
                 }
             }
 
