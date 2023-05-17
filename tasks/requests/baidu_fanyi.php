@@ -2,6 +2,7 @@
 
 /**
  * 百度翻译，需要js：sign,Acs-Token @todo
+ * http://fanyi.baidu.com/#en/zh/bookmarks%0Ais%0Aready
  */
 
 $curlBash = <<<'CURL'

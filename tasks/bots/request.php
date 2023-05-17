@@ -6,14 +6,16 @@
  * @var $text    string
  */
 
-$file = "../requests/$request.php";
+$file = __DIR__ . "/../requests/$request.php";
 isset($cacheFile) or $cacheFile = $file . '.json';
 is_file($file) or die("$file not exists!");
 
+// 文件配置从chrome复制出来的curl信息，以及预处理函数，结果处理函数
 $setting = include $file;
-$setting += parseCurl($setting['curl']);
+$setting += parseCurl($setting['curl']); // 从curl中解析出header,data-body
 print_r($setting);
 
+// 预处理
 isset($setting['prepare']) && $setting['prepare']($setting, $text);
 if ($setting['data']) {
     $result = curl_post(
@@ -32,6 +34,7 @@ if ($setting['data']) {
 
 file_put_contents($cacheFile, $result);
 
+// 结果处理
 return $setting['callback']($result);
 
 function parseCurl($str)

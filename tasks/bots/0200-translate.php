@@ -10,7 +10,8 @@ STR;
 $botName = '译';
 
 $engineNames = [
-    'youdao'          => '网易有道', // 结果需处理 todo
+    'youdao'          => '网易有道', // 结果需处理base64+?? todo
+    'caiyun_fanyi'    => '彩云小译', // refresh-token todo
     '360_fanyi'       => '360翻译',
     'baidu_fanyi'     => '百度翻译', // sign,header差点弄好 todo
     'sogou_translate' => '搜狗翻译',
@@ -19,7 +20,7 @@ $engineNames = [
     'qq_transmart'    => '腾讯交互',
     // google_translate, volcengine...
 ];
-function_exists('curl_post') or include '../../lib/functions.php';
+function_exists('curl_post') or include __DIR__ . '/../../lib/functions.php';
 
 if ($engine = array_search(mb_substr($text, 0, 4), $engineNames)) {
     $_SESSION['engine'] = $engine;
@@ -27,7 +28,7 @@ if ($engine = array_search(mb_substr($text, 0, 4), $engineNames)) {
 } else {
     $engine = $_SESSION['engine'] ?? 'qq_transmart';
 }
-$request = $engine; // 'baidu_fanyi';
+$request = 'caiyun_fanyi';//$engine; // 'baidu_fanyi';
 $botName = $engineNames[$engine];
 $cacheFile = __DIR__ . '/cache-' . $engine . '-trans.json';
 
