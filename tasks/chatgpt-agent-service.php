@@ -58,7 +58,7 @@ if ('save_response' === $act) {
         die('empty');
     }
 
-    function strposUntil($string, $chars = ['。', '；', "\n\n"], $offset = 0)
+    function strposUntil($string, $offset = 0, $chars = ['。', '；', '!', '！', "\n\n"])
     {
         foreach ($chars as $char) {
             $pos = strpos($string, $char, $offset);
@@ -66,18 +66,23 @@ if ('save_response' === $act) {
                 return $pos + strlen($char);
             }
         }
-        return 0;
+        return false;
     }
 
-    $answer = $json['resp_data']['answer'];
-    $p = strposUntil($answer, ['；', '。', "\n\n"], $sentPoint);
-    if ($p - $sentPoint < 10) {
-        $p = strposUntil($answer, ['；', '。', "\n\n"], $p);
-    }
     $results = [];
-    if ($p !== false) {
+    $answer = $json['resp_data']['answer'];
+    // 依次获取答案句子
+    while (1) {
+        $p = strposUntil($answer, $sentPoint);
+        if ($p !== false && $p - $sentPoint < 10) {
+            $p = strposUntil($answer, $p);
+        }
+        if ($p === false) {
+            break;
+        }
         ($answerSentence = trim(substr($answer, $sentPoint, $p - $sentPoint)))
-        && $results[] = trim($answerSentence);
+        && $results[] = $answerSentence;
+        $sentPoint = $p;
     }
     if ($json['resp_data']['status'] == 3) {
         $results[] = 'over';
