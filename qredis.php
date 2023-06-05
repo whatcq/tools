@@ -41,7 +41,7 @@ $shows = [
 	'monitor',
 ];
 ?>
-<link href='//redis.io/images/favicon.png' rel='shortcut icon'>
+<link href='https://redis.io/images/favicons/favicon-16x16.png' rel='shortcut icon'>
 <title>Redis Quick Query</title>
 <style type="text/css">
 a{display: inline-block; padding: 2px 5px;background: #c6dfff;border-radius: 3px;}
