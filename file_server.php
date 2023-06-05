@@ -18,7 +18,7 @@ if (isset($_GET['down'])) {
     die('file not found');
 }
 // view file
-if (isset($_GET['file'])) {
+if (isset($_GET['file']) && is_file($_GET['file'])) {
 	$file = $_GET['file'];
 	header('Content-Type: ' . mime_content_type($file));
 	header('Content-Disposition: inline; filename="' . basename($file) . '"');
@@ -43,7 +43,7 @@ function normalizePath($path)
     return ($path[0] == '/' ? '/' : '') . implode('/', $stack) ?: $path;
 }
 # list
-$dir = $_GET['dir'] ?? '.';
+$dir = $_GET['dir'] ?? $_GET['file'] ?? '.';
 $dir = normalizePath($dir);
 if (!is_dir($dir)) {
 	return;
