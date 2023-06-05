@@ -6,7 +6,7 @@
  * - send question to chatgpt agent by eventsource
  * - get response from chatgpt agent (ajax post)
  * @author Fuer Liu <gdaymate@126.com>
- * @date 2023-05-03
+ * @date   2023-05-03
  */
 $answerFile = 'answer.txt';
 
@@ -53,9 +53,15 @@ if ('get_question' === $act) {
 if ('save_response' === $act) {
     $response = file_get_contents('php://input');
     $json = json_decode($response, 1);
-    $sentPoint = intval($redis->get($sentKey)); // 已经发送的答案字符串位置
     if ($json['code'] != 200 || empty($json['resp_data']['answer'])) {
         die('empty');
+    }
+
+    echo file_put_contents($answerFile, "\n$response", FILE_APPEND), 'saved';
+
+    $sent2redis = 0; // 是否报错到redis
+    if (empty($sent2redis)) {
+        return;
     }
 
     function strposUntil($string, $offset = 0, $chars = ['。', '；', '!', '！', "\n\n"])
@@ -66,11 +72,13 @@ if ('save_response' === $act) {
                 return $pos + strlen($char);
             }
         }
+
         return false;
     }
 
-    $results = [];
     $answer = $json['resp_data']['answer'];
+    $sentPoint = intval($redis->get($sentKey)); // 已经发送的答案字符串位置
+    $results = [];
     // 依次获取答案句子
     while (1) {
         $p = strposUntil($answer, $sentPoint);
@@ -85,12 +93,14 @@ if ('save_response' === $act) {
         $sentPoint = $p;
     }
     if ($json['resp_data']['status'] == 3) {
+        ($leftSentence = trim(substr($answer, $sentPoint))) && $results[] = $leftSentence;
         $results[] = 'over';
-        $p = 0;
+        $sentPoint = 0;
     }
     if ($results) {
-        $redis->lpush($answerKey, ...$results);
-        $redis->set($sentKey, $p);
+        $redis->multi()
+            ->lpush($answerKey, ...$results)
+            ->set($sentKey, $sentPoint)
+            ->exec();
     }
-    echo file_put_contents($answerFile, "\n$response", FILE_APPEND), 'saved';
 }
