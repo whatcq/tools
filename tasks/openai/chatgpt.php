@@ -16,7 +16,8 @@ if (!empty($_REQUEST['prompt'])) {
     $prompt = $_REQUEST['prompt'];
 
     $openAi = new OpenAi($token);
-    file_put_contents($log, "==========\n$prompt\n", FILE_APPEND);
+    $time = date('y-m-d H:i');
+    file_put_contents($log, "==========$time\n$prompt\n", FILE_APPEND);
     $str = '';
     // 终于找到eventSource,error原因: 这个请求报错了：php-ssl证书过期!
     $response = $openAi->completion([
@@ -127,7 +128,7 @@ if (!empty($_REQUEST['prompt'])) {
             if (str[i].match(/^[\u4e00-\u9fa5]+$/)) {
                 len += 1;
             } else {
-                len += 0.2; // 英文该按单词论长短，这里用于发音
+                len += 0.3; // 英文该按单词论长短，这里用于发音
             }
         }
         return Math.floor(len);

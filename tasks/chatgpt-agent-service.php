@@ -59,7 +59,7 @@ if ('save_response' === $act) {
 
     echo file_put_contents($answerFile, "\n$response", FILE_APPEND), 'saved';
 
-    $sent2redis = 0; // 是否报错到redis
+    $sent2redis = 0; // 是否保存到redis
     if (empty($sent2redis)) {
         return;
     }
