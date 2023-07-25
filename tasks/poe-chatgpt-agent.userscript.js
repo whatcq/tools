@@ -20,9 +20,6 @@
         // 创建 WebSocket 实例
         var ws = new WS(url, protocols);
 
-        // 保存 onmessage 回调函数的引用
-        var originalOnMessage = ws.onmessage;
-
         // 加上message监听
         ws.addEventListener("message", (event) => {
             console.log("===> ", event.data);
