@@ -13,9 +13,18 @@
     <textarea id="input" style="width:100%;height:500px;font: 14px/1.5 Consola,MicrosoftYaHei"></textarea>
     </div>
     <script>
+        // 防抖动函数
+        const debounce = function (func, delay) {
+            let timeoutId;
+            return function (...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => func.apply(this, args), delay);
+            };
+        };
+
         const input = document.getElementById('input');
         var i = 0;
-        input.addEventListener('input', () => {
+        input.addEventListener('input', debounce(() => {
             var text = input.value.trimEnd();
             const lastChar = text[text.length - 1];
             if (lastChar === '。' || lastChar === '？' || lastChar === '！' || lastChar === '.' || lastChar === '?' || lastChar === '!' || lastChar === '…') {
@@ -26,7 +35,7 @@
             }
             input.value = text;
             localStorage.setItem('cqiu_text', text);
-        });
+        }, 1000));
         window.onload = () => {
             var text = localStorage.getItem('cqiu_text');
             input.value = text;
