@@ -5,10 +5,10 @@
 // @match        *://chatgptbot.space/*
 // @match        *://chatgptbot.me/*
 // @match        *://chatgptbot.cc/*
-// #include      /\.*:\/\/chatgpt.*\/.*/
 // @grant        GM_xmlhttpRequest
 // @connect      *
 // ==/UserScript==
+// #include      /\.*:\/\/chatgpt.*\/.*/
 
 (function () {
     'use strict';
