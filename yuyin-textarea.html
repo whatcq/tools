@@ -6,11 +6,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>语音分段</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
 </head>
 
 <body>
-    <div style="width: 700px;margin: 0 auto;">
-    <textarea id="input" style="width:100%;height:500px;font: 14px/1.5 Consola,MicrosoftYaHei"></textarea>
+    <div style="width: 700px;height: 100%;margin: 0 auto;">
+        <textarea id="input" style="width:100%;height: 92%;font: 14px/1.5 Consola,MicrosoftYaHei"></textarea>
+        <br><input type="button" value="保存" id="saveBtn">
     </div>
     <script>
         // 防抖动函数
@@ -32,6 +41,9 @@
                 if (i++ % 5 === 0) {
                     text += "\n" + (new Date()).toLocaleTimeString() + "\n";
                 }
+                if (text.length > 1000) {
+                    setTimeout(() => save(), 10);
+                }
             }
             input.value = text;
             localStorage.setItem('cqiu_text', text);
@@ -40,6 +52,36 @@
             var text = localStorage.getItem('cqiu_text');
             input.value = text;
         }
+        // 提取关键字/标题
+        // 生成的关键词：语音输入、保存内容、关键字、时间、清除屏幕、页面保存。
+        // 缩句生成的标题：语音输入实时保存内容并生成关键字和时间
+
+        // 自动保存：数据量大，新时段
+        const saveBtn = document.querySelector('#saveBtn');
+
+        const save = () => {
+            const content = input.value;
+
+            fetch('./yuyin.php', {
+                method: 'POST',
+                // headers: {
+                //     'Content-Type': 'application/json'
+                // },
+                body: content //JSON.stringify({ content })
+            })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data)
+                    if (data > 0) {
+                        input.value = "";
+                        localStorage.setItem('cqiu_text', input.value);
+                    }
+                })
+                .catch(error => console.error(error));
+        };
+
+        saveBtn.addEventListener('click', save);
+
     </script>
 </body>
 
