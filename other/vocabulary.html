@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>背单词</title>
+  <script src="http://localhost:9090/cqiu/static/vue-3.2.29.global.prod.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 95%;
+      margin: 0 auto;
+    }
+
+    li {
+      font-size: 30px;
+      border: 1px solid #dde5ed;
+      border-radius: 5px;
+      background-color: aliceblue;
+      list-style: none;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+
+    .error {
+      background-color: bisque;
+    }
+
+    h3 {
+      font: 30px/2 'Georgia', 'Segoe Print', 'Microsoft YaHei';
+    }
+
+    #click-effect {
+      position: absolute;
+      display: none;
+      font-size: 24px;
+      color: red;
+      transition: opacity 1s, transform 1s;
+      pointer-events: none;
+    }
+
+    .fade-out {
+      opacity: 0;
+    }
+
+    #speaker {
+      display: inline-block;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <!-- <h2>背单词</h2> -->
+    <div style="background-color: darkgray;">正确：{{right}} 错误: {{wrong}}</div>
+    <div v-if="currentWord">
+      <h3>{{ currentWord.word }}</h3>
+      <audio id="audio" src=""></audio>
+      <ul>
+        <li v-for="option in options" :key="option" @click="checkAnswer(option)" v-html="option">
+          <!-- {{ option }} -->
+        </li>
+      </ul>
+    </div>
+    <div v-else>
+      <p>恭喜！你已经完成了所有单词。</p>
+    </div>
+  </div>
+  <div id="click-effect"></div>
+  <audio controls autoplay muted id="speaker">
+    <source src="" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const clickEffect = document.getElementById('click-effect');
+    const audio = document.getElementById('speaker');
+    const app = Vue.createApp({
+      data() {
+        return {
+          right: 0,
+          wrong: 0,
+          // { word: 'apple', definition: '苹果' },
+          // { word: 'banana', definition: '香蕉' },
+          // { word: 'cat', definition: '猫' },
+          // { word: 'dog', definition: '狗' },
+          // 添加更多单词...
+          words: [],
+          currentIndex: 0,
+          options: []
+        };
+      },
+      computed: {
+        currentWord() {
+          return this.words[this.currentIndex];
+        }
+      },
+      mounted() {
+        fetch('vocabulary.json')
+          .then(response => response.json())
+          .then(data => {
+            this.words = data;
+            this.generateOptions();
+          })
+          .catch(error => {
+            // 处理加载错误
+            console.error('Error:', error);
+          });
+      },
+      methods: {
+        generateOptions() {
+          const correctOption = this.currentWord.definition;
+          const options = [correctOption];
+          while (options.length < 4) {
+            const randomIndex = Math.floor(Math.random() * this.words.length);
+            const randomDefinition = this.words[randomIndex].definition;
+            if (!options.includes(randomDefinition)) {
+              options.push(randomDefinition);
+            }
+          }
+          this.options = this.shuffleArray(options);
+          audio.src = 'http://dict.youdao.com/dictvoice?type=0&audio=' + encodeURIComponent(this.currentWord.word);
+          audio.play();
+        },
+        shuffleArray(array) {
+          return array.sort(() => Math.random() - 0.5);
+        },
+        checkAnswer(option) {
+          if (option === this.currentWord.definition) {
+            this.right++;
+            event.srcElement.style.borderColor = "lightgreen";
+            this.add1(event);
+            setTimeout(() => this.nextWord(), 500);
+          } else {
+            this.wrong++;
+            event.srcElement.style.background = "bisque";
+          }
+        },
+        add1(event) {
+          var x = event.clientX;
+          var y = event.clientY;
+
+          clickEffect.style.left = x + 'px';
+          clickEffect.style.top = y + 'px';
+
+          clickEffect.innerHTML = '+1';
+          clickEffect.style.display = 'block';
+
+          setTimeout(function () {
+            clickEffect.classList.add('fade-out');
+            clickEffect.style.transform = 'translateY(-50px)';
+          }, 10);
+
+          setTimeout(function () {
+            clickEffect.style.display = 'none';
+            clickEffect.classList.remove('fade-out');
+            clickEffect.style.transform = 'translateY(0)';
+          }, 2000);
+        },
+        nextWord() {
+          // this.currentIndex++;
+          // if (this.currentIndex === this.words.length) {
+          //   this.currentIndex = 0;
+          // }
+          this.currentIndex = Math.floor(Math.random() * this.words.length);
+          console.log(this.currentIndex)
+          this.generateOptions();
+        }
+      }
+    });
+
+    app.mount('#app');
+  </script>
+</body>
+
+</html>
