@@ -6,6 +6,7 @@
 // @author       Cqiu
 // @match        https://poe.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=poe.com
+// @connect      http://localhost
 // @grant        unsafeWindow
 // @grant        GM_xmlhttpRequest
 // @run-at       document-start
@@ -82,8 +83,9 @@
         if (/api\/gql_POST/.test(url)) {
             // print request data
             console.log('[fetch]', url, options);
-            if (options.body.variables && typeof options.body.variables.query === 'string' && options.body.variables.query.length > 0) {
-                saveResponse(options.body.variables.query);
+            const data = JSON.parse(options.body);
+            if (data.variables && typeof data.variables.query === 'string' && data.variables.query.length > 0) {
+                saveResponse(data.variables.query);
             }
         }
         return oldFetch.apply(this, arguments);/*.then(function (response) {
@@ -92,5 +94,16 @@
         });*/
     };
 
-    // @todo 输入问题:如何操作react的界面元素？触发方法。
+    // 输入问题:如何操作react的界面元素？触发方法。
+    setTimeout(() => {
+        var chat = new window.EventSource(myService + "?act=get_question");
+        chat.onmessage = function (e) {
+            // @todo 改为json格式，内容可以更丰富
+            console.log(e.data);
+            document.querySelector('#__next > div.PageWithSidebarLayout_centeringDiv___L9br > div > section > div.PageWithSidebarLayout_scrollSection__IRP9Y.PageWithSidebarLayout_startAtBottom__wKtfz > div > div > footer > div > div > div.GrowingTextArea_growWrap___1PZM.ChatMessageInputContainer_textArea__kxuJi > textarea')
+                .value = e.data;
+            document.querySelector('#__next > div.PageWithSidebarLayout_centeringDiv___L9br > div > section > div.PageWithSidebarLayout_scrollSection__IRP9Y.PageWithSidebarLayout_startAtBottom__wKtfz > div > div > footer > div > div > button.Button_buttonBase__0QP_m.Button_primary__pIDjn.ChatMessageSendButton_sendButton__OMyK1.ChatMessageInputContainer_sendButton__s7XkP')
+                .click();
+        };
+    }, 500);
 })();
