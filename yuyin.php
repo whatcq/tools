@@ -11,4 +11,5 @@ if ($_GET['act'] ?? '' === 'list') {
     die('');
 }
 
+date_default_timezone_set('Asia/Chongqing');
 echo file_put_contents($folder . date('YmdHi') . '.txt', file_get_contents('php://input'));

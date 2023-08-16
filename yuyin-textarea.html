@@ -44,8 +44,11 @@
                 if (text.length > 1000) {
                     setTimeout(() => save(), 10);
                 }
+                // 将文本区域滚动到输入处
+                input.scrollIntoView();
             }
             input.value = text;
+            input.scrollTop = input.scrollHeight;
             localStorage.setItem('cqiu_text', text);
         }, 1000));
         window.onload = () => {
