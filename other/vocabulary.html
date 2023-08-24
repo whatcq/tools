@@ -126,6 +126,7 @@
           }
           this.options = this.shuffleArray(options);
           audio.src = 'http://dict.youdao.com/dictvoice?type=0&audio=' + encodeURIComponent(this.currentWord.word);
+          audio.muted = false;
           audio.play();
         },
         shuffleArray(array) {
