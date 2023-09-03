@@ -1,4 +1,4 @@
-#chatroom{max-height: 100px;overflow: auto;}
+#chatroom{max-height: 200px;overflow: auto;}
 .chat {display:block;clear:both;}
 .chat u {background:darkorange;border-radius:3px;padding:1px 4px;text-decoration:none;}
 .i-say {float:right;}

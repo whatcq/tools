@@ -94,7 +94,6 @@
         }
 
         recognition.startOn = () => {
-            console.log(toggle_recognize.checked)
             if (!toggle_recognize.checked) return;
             console.log('start recognition');
             console.log(recognition.status); // recognition.status === "inactive" &&
@@ -119,7 +118,7 @@
         div.innerHTML = ('<u class="q-' + who + '">' + who + '</u>' + msg); //.trim();
         chatroom.append(div);
         chatroom.scrollTop = chatroom.scrollHeight;
-        input.scrollIntoView();
+        // input.scrollIntoView();
     }
 
 
