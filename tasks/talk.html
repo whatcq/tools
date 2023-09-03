@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <title>说话</title>
+    <link rel="stylesheet" href="talk.css"/>
+</head>
+
+<body>
+<div style="width: 700px;margin: 0 auto;">
+    <div id="chatroom"></div>
+
+    <form id="talk-form" action="talk.php" target="talkFrame">
+        <div>
+            <textarea name="talk" id="input" rows="4" cols="80" accesskey="Z"></textarea>
+        </div>
+        <input type="submit">
+        <input type="reset">
+        <input type="button" value="清屏" onclick="$('chatroom').innerHTML=''">
+        <span id="toggle_speech" style="cursor:pointer">🕪</span>
+        <select id="voi"></select>
+        <input type="checkbox" id="toggle_recognize" title="说话开关"
+               onclick="this.checked?recognition.start():recognition.stop()" checked/>
+    </form>
+    <iframe name="talkFrame" id="talkFrame" width=100% height="420" src="about:blank"
+            style="border: 1px solid #bfbfbf;"></iframe>
+</div>
+</body>
+<script src="../lib/tts.js"></script>
+<script src="open-web.js"></script>
+<script>
+    function $(str) {
+        return document.getElementById(str);
+    }
+
+    var input = $('input');
+    var chatroom = $('chatroom');
+    var nick = 'cqiu'; //prompt("enter your name");
+    var toggle_speech = $('toggle_speech');
+    var toggle_recognize = $('toggle_recognize');
+    let voiceSelect = $('voi');
+
+    var rate = 1.3,
+        vi = 7;
+
+    window.onload = function () {
+        $('input').focus();
+
+        toggle_speech.onclick = function () {
+            if (this.innerText === '🕨') {
+                this.innerText = '🕪';
+            } else {
+                this.innerText = '🕨';
+                speechSynthesis.cancel();
+            }
+        };
+
+        voiceSelect.innerHTML = "";
+        for (let i = 0; i < voices.length; i++) {
+            let tmp = voices[i].name.replace(/(Microsoft | Online \(Natural\)|Chinese )/g, '');
+            const option = document.createElement("option");
+            option.textContent = tmp;
+            voiceSelect.appendChild(option);
+        }
+        voiceSelect.selectedIndex = vi;
+
+        startRecognition();
+    };
+
+    // 防抖动函数
+    const debounce = function (func, delay) {
+        let timeoutId;
+        return function (...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(this, args), delay);
+        };
+    };
+
+    // -----------------------
+    let recognition;
+
+    // 开始语音识别
+    function startRecognition() {
+        recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+
+        recognition.lang = 'zh-CN';
+        recognition.interimResults = true;
+        // recognition.continuous = true;
+
+        // 当识别到语音时触发该事件
+        recognition.onresult = function (event) {
+            input.value = event.results[0][0].transcript;
+        }
+
+        recognition.startOn = () => {
+            console.log(toggle_recognize.checked)
+            if (!toggle_recognize.checked) return;
+            console.log('start recognition');
+            console.log(recognition.status); // recognition.status === "inactive" &&
+            recognition.start();
+        };
+
+        // 启动语音识别
+        recognition.startOn();
+
+        recognition.addEventListener('end', () => {
+            console.log('end recognition');
+            if (!input.value) recognition.startOn();
+            else form.onsubmit() && form.submit();
+        });
+    }
+
+    // -----------------------
+    function renderChat(who, msg) {
+        var div = document.createElement("div");
+        div.className = 'chat';
+        if (who === nick) div.className += ' i-say';
+        div.innerHTML = ('<u class="q-' + who + '">' + who + '</u>' + msg); //.trim();
+        chatroom.append(div);
+        chatroom.scrollTop = chatroom.scrollHeight;
+        input.scrollIntoView();
+    }
+
+
+    function strip(html) {
+        let doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+    }
+
+    function read(sentence) {
+        if (toggle_speech.innerText !== '🕪') {
+            return;
+        }
+
+        if (!sentence) return;
+        console.log(sentence);
+
+        speechSynthesis.cancel();
+        sentence = strip(sentence.replace(/(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/, ''));
+        speak({text: sentence, voice: voiceSelect.selectedIndex, rate, end: () => recognition.startOn()});
+    }
+
+    function response(who, msg) {
+        renderChat(who, msg.replace(/\n/g, '<br>').replace('  ', '&nbsp;&nbsp'));
+        read(msg);
+        input.value = '';
+    }
+
+    var form = $('talk-form');
+    form.onsubmit = function () {
+        var msg = input.value;
+        if (!msg.trim()) return false;
+        renderChat(nick, msg);
+        if (openWeb(msg)) {
+            input.value = '';
+            return false;
+        }
+        return true;
+    };
+
+    document.onkeydown = function (e) {
+        if (e.key === 'Escape') {
+            speechSynthesis.cancel();
+            recognition.startOn();
+
+            $('talk-form').reset();
+            return false;
+        }
+    };
+</script>
+
+</html>
