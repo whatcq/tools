@@ -96,7 +96,7 @@
         recognition.startOn = () => {
             if (!toggle_recognize.checked) return;
             console.log('start recognition');
-            console.log(recognition.status); // recognition.status === "inactive" &&
+            // console.log(recognition.status); // recognition.status === "inactive" &&
             recognition.start();
         };
 
@@ -109,6 +109,7 @@
             else form.onsubmit() && form.submit();
         });
     }
+    var callback = () => recognition.startOn();
 
     // -----------------------
     function renderChat(who, msg) {
@@ -129,6 +130,7 @@
 
     function read(sentence) {
         if (toggle_speech.innerText !== '🕪') {
+            callback();
             return;
         }
 
@@ -137,7 +139,7 @@
 
         speechSynthesis.cancel();
         sentence = strip(sentence.replace(/(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/, ''));
-        speak({text: sentence, voice: voiceSelect.selectedIndex, rate, end: () => recognition.startOn()});
+        speak({text: sentence, voice: voiceSelect.selectedIndex, rate, end: callback});
     }
 
     function response(who, msg) {
@@ -149,7 +151,10 @@
     var form = $('talk-form');
     form.onsubmit = function () {
         var msg = input.value;
-        if (!msg.trim()) return false;
+        if (!msg.trim()) {
+            callback();
+            return false;
+        }
         renderChat(nick, msg);
         if (openWeb(msg)) {
             input.value = '';
@@ -160,6 +165,7 @@
 
     document.onkeydown = function (e) {
         if (e.key === 'Escape') {
+            console.log('reset start!')
             speechSynthesis.cancel();
             recognition.startOn();
 
