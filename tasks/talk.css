@@ -18,3 +18,24 @@
 #voi:focus {
     width: 50px
 }
+
+label.pick > input[type="radio"],
+label.pick > input[type="checkbox"] {
+    display: none;
+}
+label.pick > span {
+    display: inline-block;
+    cursor: pointer;
+    padding: 3px 3px;
+    background-color: #fff;
+    color: #000;
+    /*border: 1px solid #ccc;*/
+    border-radius: 5px;
+    /*margin: 2px;*/
+    line-height: 18px;
+}
+label.pick input[type="radio"]:checked + span,
+label.pick input[type="checkbox"]:checked + span{
+    background: lightcyan;
+    color: #fff;
+}

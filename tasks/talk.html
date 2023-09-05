@@ -20,8 +20,11 @@
         <input type="button" value="清屏" onclick="$('chatroom').innerHTML=''">
         <span id="toggle_speech" style="cursor:pointer">🕪</span>
         <select id="voi"></select>
+        <label class="pick">
         <input type="checkbox" id="toggle_recognize" title="说话开关"
                onclick="this.checked?recognition.start():recognition.stop()" checked/>
+        <span>🎙️</span>
+        </label>
     </form>
     <iframe name="talkFrame" id="talkFrame" width=100% height="420" src="about:blank"
             style="border: 1px solid #bfbfbf;"></iframe>
