@@ -47,16 +47,45 @@
     var rate = 1.3,
         vi = 7;
 
+    function string2Color(str) {
+        var hash = 0;
+        for (var i = 0, n = Math.min(str.length, 16); i < n; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        var color = "#";
+        for (var j = 0; j < 3; j++) {
+            var value = (hash >> (j * 8)) & 0xFF;
+            color += ("00" + value.toString(16)).substr(-2);
+        }
+
+        return color;
+    }
+
+    let initTry = 0;
+
     // tts callback
     function initVoices() {
+        /*if (voices.length === 0) {
+            if (initTry++ > 3) {
+                console.error('initVoices failed');
+                return;
+            }
+            setTimeout(initVoices, 100);
+        }*/
         voiceSelect.innerHTML = "";
+        voiceSelect.onchange = function () {
+            this.style.backgroundColor = voiceSelect.options[voiceSelect.selectedIndex].style.backgroundColor;
+        };
         for (let i = 0; i < voices.length; i++) {
             let tmp = voices[i].name.replace(/(Microsoft | Online \(Natural\)|Chinese )/g, '');
             const option = document.createElement("option");
             option.textContent = tmp;
+            option.style.backgroundColor = string2Color(tmp);
             voiceSelect.appendChild(option);
         }
         voiceSelect.selectedIndex = vi;
+        voiceSelect.onchange();//dispatchEvent(new Event("change"));
     }
 
     window.onload = function () {
@@ -72,15 +101,6 @@
         };
 
         startRecognition();
-    };
-
-    // 防抖动函数
-    const debounce = function (func, delay) {
-        let timeoutId;
-        return function (...args) {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => func.apply(this, args), delay);
-        };
     };
 
     // -----------------------
@@ -162,7 +182,13 @@
             callback();
             return false;
         }
+        // 只有简单语气词说明并不是在对我说话，暂停吧
+        if (/^[嗯哦啊呢，、。？]+$/.test(msg)) {
+            input.value = '';
+            return false;
+        }
         renderChat(nick, msg);
+        // 打开网页后暂不开启语音识别
         if (openWeb(msg)) {
             input.value = '';
             return false;
