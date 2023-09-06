@@ -21,9 +21,9 @@
         <span id="toggle_speech" style="cursor:pointer">🕪</span>
         <select id="voi"></select>
         <label class="pick">
-        <input type="checkbox" id="toggle_recognize" title="说话开关"
-               onclick="this.checked?recognition.start():recognition.stop()" checked/>
-        <span>🎙️</span>
+            <input type="checkbox" id="toggle_recognize" title="说话开关"
+                   onclick="this.checked?recognition.start():recognition.stop()" checked/>
+            <span>🎙️</span>
         </label>
     </form>
     <iframe name="talkFrame" id="talkFrame" width=100% height="420" src="about:blank"
@@ -47,6 +47,18 @@
     var rate = 1.3,
         vi = 7;
 
+    // tts callback
+    function initVoices() {
+        voiceSelect.innerHTML = "";
+        for (let i = 0; i < voices.length; i++) {
+            let tmp = voices[i].name.replace(/(Microsoft | Online \(Natural\)|Chinese )/g, '');
+            const option = document.createElement("option");
+            option.textContent = tmp;
+            voiceSelect.appendChild(option);
+        }
+        voiceSelect.selectedIndex = vi;
+    }
+
     window.onload = function () {
         $('input').focus();
 
@@ -58,15 +70,6 @@
                 speechSynthesis.cancel();
             }
         };
-
-        voiceSelect.innerHTML = "";
-        for (let i = 0; i < voices.length; i++) {
-            let tmp = voices[i].name.replace(/(Microsoft | Online \(Natural\)|Chinese )/g, '');
-            const option = document.createElement("option");
-            option.textContent = tmp;
-            voiceSelect.appendChild(option);
-        }
-        voiceSelect.selectedIndex = vi;
 
         startRecognition();
     };
@@ -112,6 +115,7 @@
             else form.onsubmit() && form.submit();
         });
     }
+
     var callback = () => recognition.startOn();
 
     // -----------------------

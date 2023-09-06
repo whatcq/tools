@@ -1,6 +1,7 @@
 <?php
 if (!empty($_GET['talk'])) {
     $logFile = 'talk.log';
+    // @todo rich input：声音|图片|代码 输入，指定哪几个bot来回答
     $text = $_GET['talk'];
 
     file_put_contents($logFile, "\n" . date('Y-m-d H:i:s') . ' ' . $text, FILE_APPEND);
