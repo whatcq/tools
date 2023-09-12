@@ -40,6 +40,10 @@ to(){
 }
 wds=$(ls ~/.cd|xargs);complete -W "$wds" to
 
+# 真的跳转z
+#curl -O https://ghproxy.com/https://raw.githubusercontent.com/rupa/z/master/z.sh
+#. ~/z.sh
+
 #git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 #~/.fzf/install
 #搜文件：Ctrl+T(=everything)!
@@ -173,4 +177,10 @@ pkm(){
 
 dosh(){
 	docker exec -it $1 bash #/usr/bin/sh
+}
+
+cmd_file=~/.cmd.bak
+note(){
+    echo -e "\n# $2" >> $cmd_file
+    history $1 >> $cmd_file
 }
