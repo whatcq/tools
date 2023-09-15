@@ -179,8 +179,10 @@ dosh(){
 	docker exec -it $1 bash #/usr/bin/sh
 }
 
+# 命令记录-备忘
 cmd_file=~/.cmd.bak
 note(){
     echo -e "\n# $2" >> $cmd_file
-    history $1 >> $cmd_file
+    # 保存最后n条history（除了最后一行）到文件
+    history $(($1 + 1)) | head -n $1 | awk '{$1="";print substr($0,2)}' >> $cmd_file
 }
