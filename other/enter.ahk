@@ -1,7 +1,7 @@
 ; WARNING: 坑：文件需要是windows换行，git中弄成了UNIX！！！
 ; ==============================
 ; win+c 保存当前选中的内容到文件
-; win+n “随笔记”
+; win+n 选中内容+“随笔记”
 ; win+b 保存一条剪贴板
 ; ==============================
 
@@ -14,7 +14,8 @@
 queueFile := "queue.txt"
 
 #n::
-    InputBox, UserInput, Phone Number, Please enter a phone number., , 640, 120
+    input := OneLineText(GetSelection())
+    InputBox, UserInput, Phone Number, Please enter a phone number., , 888, 120, , , , , %input%
     if ErrorLevel
         return
 
