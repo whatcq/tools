@@ -18,7 +18,7 @@
         <input type="submit">
         <input type="reset">
         <input type="button" value="清屏" onclick="$('chatroom').innerHTML=''">
-        <span id="toggle_speech" style="cursor:pointer">🕪</span>
+        <span id="toggle_speech" style="cursor:pointer">🔊</span>
         <select id="voi"></select>
         <label class="pick">
             <input type="checkbox" id="toggle_recognize" title="说话开关"
@@ -92,10 +92,10 @@
         $('input').focus();
 
         toggle_speech.onclick = function () {
-            if (this.innerText === '🕨') {
-                this.innerText = '🕪';
+            if (this.innerText === '🔈') {
+                this.innerText = '🔊';
             } else {
-                this.innerText = '🕨';
+                this.innerText = '🔈';
                 speechSynthesis.cancel();
             }
         };
@@ -156,7 +156,7 @@
     }
 
     function read(sentence) {
-        if (toggle_speech.innerText !== '🕪') {
+        if (toggle_speech.innerText !== '🔊') {
             callback();
             return;
         }
@@ -187,6 +187,7 @@
             input.value = '';
             return false;
         }
+        msg = msg.replace(/[。！]$/g, '');
         renderChat(nick, msg);
         // 打开网页后暂不开启语音识别
         if (openWeb(msg)) {
