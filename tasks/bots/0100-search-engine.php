@@ -38,7 +38,7 @@ HEADERS,
             preg_match_all('#<h3>[\s\S\n]*?</h3>#im', $content, $matches, PREG_PATTERN_ORDER, 30000);
 
             $result = $matches[0];
-            array_walk($result, fn (&$item) => $item = trim(strip_tags($item)));
+            array_walk($result, function (&$item) {$item = trim(strip_tags($item));});
 
             return $result ? $result[array_rand($result)] : null;
         }
