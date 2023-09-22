@@ -241,7 +241,7 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
 </div>
 <div id="debugBar_open">
     <div style="background:#2ba230;color:#FFF;padding:0 6px 0 0;float:right;line-height:30px;font-size:14px"><?php echo $runtime; ?></div>
-    <span style="background: #2ba230; display: inline-block; color: #fff; font-size: 27px; border-top-left-radius: 8px; padding: 0 3px;">☯</span>
+    <span style="background: #2ba230; display: inline-block; color: #fff; font-size: 27px; border-top-left-radius: 8px; padding: 0 3px;font-family: 'Segoe UI Symbol', 'Apple Symbols', serif;">☯</span>
 </div>
 
 <script type="text/javascript">
