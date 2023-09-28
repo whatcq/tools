@@ -277,7 +277,7 @@ if ($content) {
         if (toc) {
             tocBox.innerHTML += toc;
             tocBox.style.display = 'block';
-            documentBox.style.marginRight = '250px';
+            documentBox.style.marginRight = '275px';
         }
     })();
 </script>
