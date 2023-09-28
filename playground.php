@@ -129,9 +129,9 @@ body,html{
     tab-size: 4;
     color: #5021b0;
     background-image: linear-gradient(#f2f2f2 50%, #ffffff 50%);
-    background-size: 100% 3em; /* 背景大小为行高的两倍 */
+    background-size: 100% 36px; /* 背景大小为行高的两倍 */
     background-origin: content-box;
-    line-height: 1.5em; /* 行高为两倍 */
+    /*line-height: 18px; !* 行高为两倍 *!*/
 }
 .area_0{
     height: 800px !important;
