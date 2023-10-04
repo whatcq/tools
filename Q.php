@@ -1,6 +1,7 @@
 <?php
 /**
- * Simple Database Query by Cqiu
+ * Simple Database Query with less js
+ * @author Cqiu
  */
 $links = [
     'local' => [
@@ -32,18 +33,11 @@ $q = isset($_REQUEST['q']) ? $_REQUEST['q'] : null;
 $show = isset($_REQUEST['show']) ? $_REQUEST['show'] : null;
 
 if (isset($_REQUEST['data'])) {
-    header("Content-Type: text/event-stream\n\n");
-
     $w = parse('#%');
     if (defined('DB_CHAR')) DB::x('SET NAMES "' . DB_CHAR . '"');
     $r = call_user_func_array('DB::q', $w);
     $tables = $r->fetchAll(PDO::FETCH_COLUMN);
-
-    ob_flush();
-    flush();
-    echo 'data: ', implode(',', $tables), "\n\n";
-    ob_flush();
-    flush();
+    echo implode(',', $tables);
     die;
 }
 
@@ -118,13 +112,14 @@ window.onload = function() {
             if (localStorage.getItem(skey)) {
                 setDataList();
             } else {
-                var chat = new window.EventSource("?link=<?=$link?>&show=tables&data=1");
-                chat.onmessage = function (e) {
-                    var msg = e.data;
+                const xhr = new XMLHttpRequest();
+                xhr.open("GET", "?link=<?=$link?>&show=tables&data=1", true);
+                xhr.onload = () => {
+                    var msg = xhr.response;
                     localStorage.setItem(skey, msg);
                     setDataList();
-                    chat.close();
                 };
+                xhr.send();
             }
         </script>
         <select name="link" style="height: 25px;background: <?=$config['color']??'#fff'?>" onchange="this.style.backgroundColor=this.options[this.selectedIndex].style.backgroundColor;">
@@ -153,11 +148,14 @@ $sqls = [
 	'#*' => ':tables info',
 	'#user%' => ':tables like',
 	'-%user_id' => ':tables having the column',
-	'u' => ':user data limit 30',
+	'u' => ':user data limit 30然后可筛选',
 	'u#' => ':count user data',
 	'u#2' => ':query user data',
 	'u#*' => ':table structure',
 	'u#@' => ':PROCEDURE ANALYSE',
+	'u#~v' => '表包含v值的行',
+	'u#=n' => '表中=n值的行',
+	'u#i' => '表中主键=i的行',
 ];
 foreach ($sqls as $_q => $sql) {
 	echo " <a href=\"?q=", urlencode($_q), "\" title=\"$sql\">$_q</a>";
