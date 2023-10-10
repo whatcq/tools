@@ -25,7 +25,7 @@ Const ForReading = 1, ForWriting = 2, ForAppending = 8
 
 '数据文件
 Dim dataFile, msgFile
-dataFile=".\todayWorks_"&Year(Date())&"_"&Month(Date())&".txt"
+dataFile=".\doing\todayWorks_"&Year(Date())&"_"&Month(Date())&".txt"
 msgFile=".\msg.txt"
 '输入格式："task*time perAlertTime b4ExpireAlertTime"
 Dim SC,SC1 'splitChar
