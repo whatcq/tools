@@ -46,7 +46,7 @@ header("Content-type:text/html;charset=gbk");
 </style>
 <h3 name="top">today's works</h3>
 <?php
-$dir='D:\mysoft\fuer';
+$dir='D:\mysoft\fuer\doing';
 $stat = $statEstimate = [];
 $date = isset($_GET['date'])?$_GET['date']:'';
 $files = glob("$dir\\todayWorks_{$date}*.txt");
