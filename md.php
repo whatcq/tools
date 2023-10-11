@@ -75,14 +75,17 @@ if (is_file($p)) {
     $html = 'File not found!';
 }
 if ($content) {
-    //include 'lib/Parsedown.php';
-    //$parsedown = new Parsedown();
-    //$content = $parsedown->text($content);
+    /*
+    include 'lib/Parsedown.php';
+    $parsedown = new Parsedown();
+    $content = $parsedown->text($content);
     # 某些解析不是github的方式。。
+    /*/
     include 'lib/Parser.php';
     $parsedown = new HyperDown\Parser;
     $parsedown->enableHtml();
     $content = $parsedown->makeHtml($content);
+    /**/
 
     $path = dirname($p) . DIRECTORY_SEPARATOR;
     $content = preg_replace('#<img src="(?!((https?:)?//))(.*?)"#i', '<img src="?src=' . $path . '\$3"', $content);
