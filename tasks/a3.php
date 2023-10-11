@@ -25,12 +25,14 @@ I can do:
 - 目标管理
 */
 
+date_default_timezone_set('Asia/Chongqing');
+
 function _log($msg, $level = 'info')
 {
-    echo date('[Y-m-d H:i:s] ') . $msg . "\r\n";
+    echo date('[Y-m-d H:i:s] ') . $msg . "\n";
     file_put_contents(
         'a3-' . date('Ymd') . '.log',
-        date('[Y-m-d H:i:s] ') . "[$level] " . $msg . "\r\n",
+        date('[Y-m-d H:i:s] ') . "[$level] " . $msg . "\n",
         FILE_APPEND
     );
 }
@@ -43,7 +45,8 @@ register_shutdown_function(function () {
 // @todo 进程间通信
 /*/ 在家同步文件及代码等
 file_put_contents('crontabs.txt', <<<TASKS
-* * * * * #php -r 'echo time();' # 上下班同步文件及代码等
+1 9 * * * #D:\mysoft\fuer\scripts\pull_git.bat # 上班同步文件及代码等
+58 17 * * * #D:\mysoft\fuer\scripts\push_git_save_cqiu.bat # 下班同步文件及代码等
 TASKS
 );//*/
 $crontabs = file('crontabs.txt');
@@ -52,8 +55,11 @@ while (1) {
     foreach ($crontabs as $crontab) {
         list($cron_string, $command, $comment) = explode('#', $crontab . '##');
         $execSeconds = Crontab::parse($cron_string);
+        unset($output);
         if ($execSeconds) {
-            exec($command . '> /dev/null 2>&1 &');
+            // 后台执行方式：. '> /dev/null 2>&1 &'
+            exec($command, $output, $status); // notice:这是同步执行，太长的任务不能放这里！
+            _log('execute command: ' . $command . "=>$status\n" . implode("\n", $output), 'info');
         }
     }
     // break;
