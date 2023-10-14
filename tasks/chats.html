@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Cqiu ChatAll</title>
+    <style>
+        body {
+            background: rgb(126, 184, 214);
+        }
+
+        #b_context {
+            width: 100%;
+            min-height: 300px;
+            height: fit-content;
+            border-radius: 20px;
+            background: #fff;
+        }
+
+        #gptDiv {
+            /*background: #0e90d2;*/
+            width: 800px;
+        }
+
+        .gpt-container {
+            display: block !important;
+        }
+
+        #gptAnswer {
+            max-height: 300px;
+            overflow: auto;
+        }
+
+        #cqiu_search_input {
+            width: 99%;
+            font: 16px/1.5 Verdana;
+            border-radius: 10px;
+            padding: 3px 12px;
+            margin: 5px;
+        }
+    </style>
+
+</head>
+<body>
+<div id="b_context"></div>
+<input class="b_searchbox b_softkey" id="cqiu_search_input" name="q"
+       aria-autocomplete="both"
+       aria-label="Enter your search here - Search suggestions will show as you type"
+       type="search" value="css：color: blue; 什么意思？" maxlength="1000" dir=""
+       autocapitalize="off"
+       autocorrect="off" autocomplete="off" spellcheck="false"
+       placeholder="Ask me anything..." data-bm="177">
+<script>
+    window.onload = function () {
+        const searchInputBox = document.getElementById('cqiu_search_input');
+        searchInputBox.focus()
+        searchInputBox.select();
+    };
+</script>
+<style>
+    #gptDiv {
+        /*background: #0e90d2;*/
+        width: 800px;
+    }
+</style>
+</body>
+</html>

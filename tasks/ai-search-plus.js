@@ -5,6 +5,7 @@
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，通义AI，ChatGLM，360智脑。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
 // @author       夜雨
+// @match      http://localhost/cqiu/tools/tasks/chats*.html
 // @match      https://cn.bing.com/*
 // @match      https://www.bing.com/*
 // @match      *://*.bing.com/*
@@ -51,6 +52,7 @@
 // @require    https://cdn.bootcdn.net/ajax/libs/toastr.js/2.1.4/toastr.min.js
 // @resource toastCss  https://cdn.bootcdn.net/ajax/libs/toastr.js/2.1.4/toastr.min.css
 // @resource katexCss  https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.6/katex.css
+// @connect    localhost
 // @connect    api.forchange.cn
 // @connect    gpt008.com
 // @connect    chatforai.cc
@@ -589,6 +591,16 @@
     let rawAns = undefined;
     let isShowRaw = false;
 
+    //显示答案 不高亮代码函数（不停刷新内容导致不停闪烁！cqiu）
+    function showAnswer(codeStr) {
+        if (!codeStr) return
+        rawAns = codeStr;//记录原文
+        try {
+            document.getElementById('gptAnswer').innerHTML = mdConverter(codeStr)
+        } catch (ex) {
+            console.error(ex)
+        }
+    }
     //显示答案并高亮代码函数
     function showAnserAndHighlightCodeStr(codeStr) {
         if (!codeStr) return
@@ -647,6 +659,16 @@
     let abortXml;
     let regx = /search.*?\.cf/g;
     if (window.location.href.indexOf("bing.com") > -1) {
+
+        GM_add_box_style(0)
+        addBothStyle()
+        keyEvent()
+        appendBox(0).then((res) => {
+            pivElemAddEventAndValue(0)
+        })
+        //linkToBing_beautification_script()
+    }
+    if (window.location.href.indexOf("localhost") > -1) {
 
         GM_add_box_style(0)
         addBothStyle()
@@ -1259,7 +1281,7 @@
             let pText = document.createTextNode("");
             pE.appendChild(pText);
             divE.appendChild(pE);
-            divE.classList.add("gpt-container");
+            // divE.classList.add("gpt-container");
             divE.classList.add("markdown-body");
             divE.innerHTML = `
     <div id="gptInputBox">
@@ -4095,6 +4117,7 @@
                 return
             }
         }
+        saveResponse("\n=======> " + your_qus);
 
         let req1 = await GM_fetch({
             method: "POST",
@@ -4140,6 +4163,7 @@
 
             let i=0;
             let streamText = '';
+            let renderText = '';
             reader.read().then(function processText({done, value}) {
                 if (done) {
                     return
@@ -4149,7 +4173,7 @@
                 // console.error(++i+'====='+streamText+"====")
                 responseItem = streamText.split("\n\n");
                 // console.warn(responseItem)
-                let renderText = '';
+                let isFinish = false;
                 responseItem.forEach(item => {
                     streamText = item
                     try {
@@ -4162,14 +4186,19 @@
                                 renderText = ii;
                                 // showAnserAndHighlightCodeStr(ii)
                             }
+                            if(!isFinish && item.startsWith("event:finish")) {
+                                isFinish = true;
+                            }
                         }
 
                     } catch (ex) {
                         console.error(item)
                     }
                 });
-                if (renderText) {
-                    showAnserAndHighlightCodeStr(renderText);
+                if (renderText.length>0) {
+                    // console.log(isFinish, renderText)
+                    isFinish ? showAnserAndHighlightCodeStr(renderText) : showAnswer(renderText);
+                    if (isFinish) saveResponse(renderText);
                 }
 
                 return reader.read().then(processText)
@@ -5771,5 +5800,22 @@
 
     }, 1000)
 
-
+    let myService = 'http://localhost/cqiu/tools/tasks/chatgpt-agent-service.php';
+    let saveResponse = function (resp) {
+        GM_xmlhttpRequest({
+            method: "POST",
+            url: myService + "?act=save_response",
+            data: resp,
+            onload: function (response) {
+                console.log('保存的结果：', response.responseText);
+            },
+            onerror: function (error) {
+                function strip(html) {
+                    let doc = new DOMParser().parseFromString(html, 'text/html');
+                    return doc.body.textContent || "";
+                }
+                console.log('保存的结果err：', strip(error.responseText));
+            }
+        });
+    }
 })();
