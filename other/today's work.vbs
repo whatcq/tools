@@ -135,6 +135,7 @@ While True
 	'完成结果
 	Else
 		write msgFile, 2
+		createObject("SAPI.SpVoice").speak("刘哥，好了吗？" & thisTask)
 		status=MsgBox ("是否已完成？" & br & thisTask & br,vbYesNoCancel,Time & "上一任务：")
 		write msgFile, -2
 		Select Case status
