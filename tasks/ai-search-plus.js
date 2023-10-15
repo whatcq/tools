@@ -601,6 +601,7 @@
             console.error(ex)
         }
     }
+
     //显示答案并高亮代码函数
     function showAnserAndHighlightCodeStr(codeStr) {
         if (!codeStr) return
@@ -4117,7 +4118,7 @@
                 return
             }
         }
-        saveResponse("\n=======> " + your_qus);
+        saveData("\n=======> " + your_qus);
 
         let req1 = await GM_fetch({
             method: "POST",
@@ -4161,7 +4162,7 @@
         }).then((stream) => {
             let reader = stream.response.getReader()
 
-            let i=0;
+            let i = 0;
             let streamText = '';
             let renderText = '';
             reader.read().then(function processText({done, value}) {
@@ -4186,7 +4187,7 @@
                                 renderText = ii;
                                 // showAnserAndHighlightCodeStr(ii)
                             }
-                            if(!isFinish && item.startsWith("event:finish")) {
+                            if (!isFinish && item.startsWith("event:finish")) {
                                 isFinish = true;
                             }
                         }
@@ -4195,10 +4196,15 @@
                         console.error(item)
                     }
                 });
-                if (renderText.length>0) {
+                if (renderText.length > 0) {
                     // console.log(isFinish, renderText)
                     isFinish ? showAnserAndHighlightCodeStr(renderText) : showAnswer(renderText);
-                    if (isFinish) saveResponse(renderText);
+                    document.getElementById('gptAnswer').scrollTop = document.getElementById('gptAnswer').scrollHeight;
+                    if (isFinish) {
+                        debounce(function () {
+                            saveResponse(renderText);
+                        }, 200)();
+                    }
                 }
 
                 return reader.read().then(processText)
@@ -5800,8 +5806,17 @@
 
     }, 1000)
 
+    // 防抖动函数
+    const debounce = function (func, delay) {
+        let timeoutId;
+        return function (...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(this, args), delay);
+        };
+    };
+
     let myService = 'http://localhost/cqiu/tools/tasks/chatgpt-agent-service.php';
-    let saveResponse = function (resp) {
+    let saveData = function (resp) {
         GM_xmlhttpRequest({
             method: "POST",
             url: myService + "?act=save_response",
@@ -5814,8 +5829,21 @@
                     let doc = new DOMParser().parseFromString(html, 'text/html');
                     return doc.body.textContent || "";
                 }
+
                 console.log('保存的结果err：', strip(error.responseText));
             }
         });
-    }
+    };
+
+    let savedData;
+    let saveResponse = function(resp) {
+        if (savedData === resp) {
+            return;
+        }
+        // chats.html 函数
+        response(localStorage.getItem('GPTMODE'), resp);
+
+        saveData(resp);
+        savedData = resp;
+    };
 })();

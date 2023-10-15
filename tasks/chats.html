@@ -1,69 +1,269 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="utf-8">
     <title>Cqiu ChatAll</title>
-    <style>
-        body {
-            background: rgb(126, 184, 214);
-        }
-
-        #b_context {
-            width: 100%;
-            min-height: 300px;
-            height: fit-content;
-            border-radius: 20px;
-            background: #fff;
-        }
-
-        #gptDiv {
-            /*background: #0e90d2;*/
-            width: 800px;
-        }
-
-        .gpt-container {
-            display: block !important;
-        }
-
-        #gptAnswer {
-            max-height: 300px;
-            overflow: auto;
-        }
-
-        #cqiu_search_input {
-            width: 99%;
-            font: 16px/1.5 Verdana;
-            border-radius: 10px;
-            padding: 3px 12px;
-            margin: 5px;
-        }
-    </style>
-
+    <link rel="stylesheet" href="talk.css"/>
 </head>
+
 <body>
-<div id="b_context"></div>
-<input class="b_searchbox b_softkey" id="cqiu_search_input" name="q"
-       aria-autocomplete="both"
-       aria-label="Enter your search here - Search suggestions will show as you type"
-       type="search" value="css：color: blue; 什么意思？" maxlength="1000" dir=""
-       autocapitalize="off"
-       autocorrect="off" autocomplete="off" spellcheck="false"
-       placeholder="Ask me anything..." data-bm="177">
+<div style="width: 700px;margin: 0 auto;">
+    <div id="chatroom"></div>
+
+    <form id="talk-form" action="talk.php" target="talkFrame">
+        <div>
+<!--            <textarea name="talk" id="input" rows="4" cols="80"></textarea>-->
+            <input class="b_searchbox b_softkey" id="cqiu_search_input" name="q"
+                   aria-autocomplete="both"
+                   aria-label="Enter your search here - Search suggestions will show as you type"
+                   type="search" value="" maxlength="1000" dir=""
+                   autocapitalize="off"
+                   autocorrect="off" autocomplete="off" spellcheck="false"
+                   placeholder="Ask..." data-bm="177" accesskey="Z">
+        </div>
+        <input type="submit">
+        <input type="reset">
+        <input type="button" value="清屏" onclick="$('chatroom').innerHTML=''">
+        <span id="toggle_speech" style="cursor:pointer">🔊</span>
+        <select id="voi"></select>
+        <label class="pick">
+            <input type="checkbox" id="toggle_recognize" title="说话开关"
+                   onclick="this.checked?recognition.start():recognition.stop()" checked/>
+            <span>🎙️</span>
+        </label>
+    </form>
+    <div id="b_context"></div>
+</div>
+</body>
+<script src="../lib/tts.js"></script>
+<script src="open-web.js"></script>
 <script>
-    window.onload = function () {
-        const searchInputBox = document.getElementById('cqiu_search_input');
-        searchInputBox.focus()
-        searchInputBox.select();
+    function $(str) {
+        return document.getElementById(str);
+    }
+
+    var input = $('cqiu_search_input');
+    var chatroom = $('chatroom');
+    var nick = 'cqiu'; //prompt("enter your name");
+    var toggle_speech = $('toggle_speech');
+    var toggle_recognize = $('toggle_recognize');
+    let voiceSelect = $('voi');
+
+    var rate = 1.3,
+        vi = 7;
+
+    function string2Color(str) {
+        var hash = 0;
+        for (var i = 0, n = Math.min(str.length, 16); i < n; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        var color = "#";
+        for (var j = 0; j < 3; j++) {
+            var value = (hash >> (j * 8)) & 0xFF;
+            color += ("00" + value.toString(16)).substr(-2);
+        }
+
+        return color;
+    }
+
+    let initTry = 0;
+
+    // tts callback
+    function initVoices() {
+        /*if (voices.length === 0) {
+            if (initTry++ > 3) {
+                console.error('initVoices failed');
+                return;
+            }
+            setTimeout(initVoices, 100);
+        }*/
+        voiceSelect.innerHTML = "";
+        voiceSelect.onchange = function () {
+            this.style.backgroundColor = voiceSelect.options[voiceSelect.selectedIndex].style.backgroundColor;
+        };
+        for (let i = 0; i < voices.length; i++) {
+            let tmp = voices[i].name.replace(/(Microsoft | Online \(Natural\)|Chinese )/g, '');
+            const option = document.createElement("option");
+            option.textContent = tmp;
+            option.style.backgroundColor = string2Color(tmp);
+            voiceSelect.appendChild(option);
+        }
+        voiceSelect.selectedIndex = vi;
+        voiceSelect.onchange();//dispatchEvent(new Event("change"));
+    }
+
+    window.addEventListener('load', function () {
+        input.focus();
+
+        toggle_speech.onclick = function () {
+            if (this.innerText === '🔈') {
+                this.innerText = '🔊';
+            } else {
+                this.innerText = '🔈';
+                speechSynthesis.cancel();
+            }
+        };
+
+        startRecognition();
+    });
+
+    // -----------------------
+    let recognition;
+
+    // 开始语音识别
+    function startRecognition() {
+        recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+
+        recognition.lang = 'zh-CN';
+        recognition.interimResults = true;
+        // recognition.continuous = true;
+
+        // 当识别到语音时触发该事件
+        recognition.onresult = function (event) {
+            input.value = event.results[0][0].transcript;
+        }
+
+        recognition.startOn = () => {
+            if (!toggle_recognize.checked) return;
+            console.log('start recognition');
+            // console.log(recognition.status); // recognition.status === "inactive" &&
+            recognition.start();
+        };
+
+        // 启动语音识别
+        recognition.startOn();
+
+        recognition.addEventListener('end', () => {
+            console.log('end recognition');
+            if (!input.value) recognition.startOn();
+            else beforeSubmit() && goSearch();// form.submit();
+        });
+    }
+
+    var callback = () => recognition.startOn();
+
+    // -----------------------
+    function renderChat(who, msg) {
+        var div = document.createElement("div");
+        div.className = 'chat';
+        if (who === nick) div.className += ' i-say';
+        div.innerHTML = ('<u class="q-' + who + '">' + who + '</u>' + msg); //.trim();
+        chatroom.append(div);
+        chatroom.scrollTop = chatroom.scrollHeight;
+        // input.scrollIntoView();
+    }
+
+
+    function strip(html) {
+        let doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+    }
+
+    function read(sentence) {
+        if (toggle_speech.innerText !== '🔊') {
+            callback();
+            return;
+        }
+
+        if (!sentence) return;
+        console.log(sentence);
+
+        speechSynthesis.cancel();
+        sentence = strip(sentence.replace(/(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/, ''));
+        speak({text: sentence, voice: voiceSelect.selectedIndex, rate, end: callback});
+    }
+
+    function response(who, msg) {
+        renderChat(who, msg.replace(/\n/g, '<br>').replace('  ', '&nbsp;&nbsp'));
+        read(msg);
+        input.value = '';
+    }
+
+    let beforeSubmit = function () {
+        var msg = input.value;
+        if (!msg.trim()) {
+            callback();
+            return false;
+        }
+        // 只有简单语气词说明并不是在对我说话，暂停吧
+        if (/^[嗯哦啊呢，、。？]+$/.test(msg)) {
+            input.value = '';
+            return false;
+        }
+        msg = msg.replace(/[。！]$/g, '');
+        renderChat(nick, msg);
+        // 打开网页后暂不开启语音识别
+        if (openWeb(msg)) {
+            input.value = '';
+            return false;
+        }
+        return true;
     };
+
+    function goSearch(){
+        $('gptInput').value = input.value;
+        $('button_GPT').click();
+    }
+
+    var form = $('talk-form');
+    form.onsubmit = beforeSubmit;
+
+    document.onkeydown = function (e) {
+        if (e.key === 'Escape') {
+            console.log('reset start!')
+            speechSynthesis.cancel();
+            recognition.startOn();
+
+            $('talk-form').reset();
+            return false;
+        }
+    };
+</script>
+
+<style>
+    body {
+        /*background: rgb(126, 184, 214);*/
+    }
+
+    #b_context {
+        width: 100%;
+        min-height: 300px;
+        height: fit-content;
+        border-radius: 20px;
+        background: #fff;
+    }
+
+    .gpt-container {
+        display: block !important;
+    }
+
+    #gptAnswer {
+        max-height: 300px;
+        overflow: auto;
+    }
+
+    #cqiu_search_input {
+        width: 99%;
+        font: 16px/1.5 Verdana;
+        border-radius: 10px;
+        padding: 3px 12px;
+        margin: 5px;
+    }
+</style>
+
+<script>
+    // window.onload = function () {
+    //     const searchInputBox = document.getElementById('cqiu_search_input');
+    //     searchInputBox.focus()
+    //     searchInputBox.select();
+    // };
 </script>
 <style>
     #gptDiv {
         /*background: #0e90d2;*/
-        width: 800px;
+        width: 100%;
     }
 </style>
-</body>
 </html>
