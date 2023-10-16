@@ -24,7 +24,11 @@
 
     const myService = 'http://localhost/cqiu/tools/tasks/chatgpt-agent-service.php';
 
+    let savedData;
     let saveResponse = function (resp) {
+        if (savedData === resp) {
+            return;
+        }
         GM_xmlhttpRequest({
             method: "POST",
             url: myService + "?act=save_response",
@@ -65,8 +69,9 @@
         ws.addEventListener("message", (event) => {
             // console.log("===> ", event.data);
             try {
-                if ("complete" == JSON.parse(JSON.parse(event.data).messages[0]).payload.data.messageAdded.state) {
-                    saveResponse(event.data);
+                let payload = JSON.parse(JSON.parse(event.data).messages[0]).payload;
+                if ("complete" == payload.data.messageAdded.state && !payload.data.messageAdded.clientNonce) {
+                    saveResponse(payload.data.messageAdded.text);
                 }
             } catch { }
         });
