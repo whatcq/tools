@@ -53,9 +53,9 @@ if ('get_question' === $act) {
 if ('save_response' === $act) {
     $response = file_get_contents('php://input');
     $json = json_decode($response, 1);
-    if ($json['code'] != 200 || empty($json['resp_data']['answer'])) {
-        die('empty');
-    }
+    // if ($json['code'] != 200 || empty($json['resp_data']['answer'])) {
+    //     die('empty');
+    // }
 
     echo file_put_contents($answerFile, "\n$response", FILE_APPEND), 'saved';
 
