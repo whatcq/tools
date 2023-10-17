@@ -23,13 +23,17 @@ foreach (file($file) as $line) {
         } elseif (!empty($json['messages'][0])) {
             // poe
             $json = json_decode($json['messages'][0], 1);
-            if ("complete" == $json['payload']['data']['messageAdded']['state']
+            if (
+                isset($json['payload']['data']['messageAdded']['state'])
+                && "complete" == $json['payload']['data']['messageAdded']['state']
                 && !$json['payload']['data']['messageAdded']['clientNonce']
             ) {
                 $text = $json['payload']['data']['messageAdded']['text'];
                 if ($text == $prev) continue;
                 $prev = $text;
                 $line = json_encode($text, JSON_UNESCAPED_UNICODE) . "\n";
+                file_put_contents($file2, $line, 8);
+            } else {
                 file_put_contents($file2, $line, 8);
             }
         }
