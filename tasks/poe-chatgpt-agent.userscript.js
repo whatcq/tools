@@ -29,6 +29,7 @@
         if (savedData === resp) {
             return;
         }
+        savedData = resp;
         GM_xmlhttpRequest({
             method: "POST",
             url: myService + "?act=save_response",

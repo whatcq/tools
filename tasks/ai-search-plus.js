@@ -591,12 +591,29 @@
     let rawAns = undefined;
     let isShowRaw = false;
 
+    // 朗读队列
+    let prevPos = 0;
+    function readQueue(html) {
+        if (window.location.href.indexOf("localhost") < 0) return;
+        const text = strip(html);
+        const startPos = prevPos;//Math.max(20, prevPos);
+        const leftText = text.substring(startPos);
+        const lastDotIndex = leftText.lastIndexOf('。');
+        const lastQuestionIndex = leftText.lastIndexOf("\n");
+        let nowPos = Math.max(lastDotIndex, lastQuestionIndex);
+        if (nowPos < 15) return;
+        nowPos += startPos + 1;
+        readSentence(text.substring(startPos, nowPos).trim());
+        prevPos = nowPos;
+    }
+
     //显示答案 不高亮代码函数（不停刷新内容导致不停闪烁！cqiu）
     function showAnswer(codeStr) {
         if (!codeStr) return
         rawAns = codeStr;//记录原文
         try {
-            document.getElementById('gptAnswer').innerHTML = mdConverter(codeStr)
+            let html = mdConverter(codeStr)
+            document.getElementById('gptAnswer').innerHTML = html;
         } catch (ex) {
             console.error(ex)
         }
@@ -607,7 +624,9 @@
         if (!codeStr) return
         rawAns = codeStr;//记录原文
         try {
-            document.getElementById('gptAnswer').innerHTML = mdConverter(codeStr)
+            let html = mdConverter(codeStr)
+            document.getElementById('gptAnswer').innerHTML = html;
+            // readQueue(html);
         } catch (ex) {
             console.error(ex)
         }
@@ -668,18 +687,14 @@
             pivElemAddEventAndValue(0)
         })
         //linkToBing_beautification_script()
-    }
-    if (window.location.href.indexOf("localhost") > -1) {
-
+    } else if (window.location.href.indexOf("localhost") > -1) {
         GM_add_box_style(0)
         addBothStyle()
         keyEvent()
         appendBox(0).then((res) => {
             pivElemAddEventAndValue(0)
         })
-        //linkToBing_beautification_script()
-    }
-    if (window.location.href.indexOf("google.com") > -1 || window.location.href.match(regx)) {
+    } else if (window.location.href.indexOf("google.com") > -1 || window.location.href.match(regx)) {
         GM_add_box_style(1)
         addBothStyle()
         keyEvent()
@@ -690,8 +705,7 @@
                 pivElemAddEventAndValue(1)
             }
         })
-    }
-    if (window.location.href.indexOf("baidu.com\/s") > -1 && !isMobile()) {
+    } else if (window.location.href.indexOf("baidu.com\/s") > -1 && !isMobile()) {
         GM_add_box_style(2)
         addBothStyle()
         keyEvent()
@@ -706,19 +720,16 @@
         appendBox(6).then((res) => {
             pivElemAddEventAndValue(2)
         })
-    }
-    //俄罗斯yandex
-    if (window.location.href.indexOf("yandex.ru\/search") > -1 || window.location.href.indexOf("yandex.com\/search") > -1) {
+    } else if (window.location.href.indexOf("yandex.ru\/search") > -1 || window.location.href.indexOf("yandex.com\/search") > -1) {
+        //俄罗斯yandex
         GM_add_box_style(1)
         addBothStyle()
         keyEvent()
         appendBox(3).then((res) => {
             pivElemAddEventAndValue(3)
         })
-    }
-
-    //360so
-    if (window.location.href.indexOf("so.com\/s") > -1) {
+    } else if (window.location.href.indexOf("so.com\/s") > -1) {
+        //360so
         GM_add_box_style(1)
         addBothStyle()
         keyEvent()
@@ -729,10 +740,8 @@
                 pivElemAddEventAndValue(4)
             }
         })
-    }
-
-    //fsoufsou
-    if (window.location.href.indexOf("fsoufsou.com\/search") > -1) {
+    } else if (window.location.href.indexOf("fsoufsou.com\/search") > -1) {
+        //fsoufsou
         setTimeout(() => {
             GM_add_box_style(1)
             addBothStyle()
@@ -741,20 +750,16 @@
                 pivElemAddEventAndValue(5)
             })
         }, 3000)
-    }
-
-    //duckduckgo.com
-    if (window.location.href.indexOf("duckduckgo.com\/\?q") > -1) {
+    } else if (window.location.href.indexOf("duckduckgo.com\/\?q") > -1) {
+        //duckduckgo.com
         GM_add_box_style(1)
         addBothStyle()
         keyEvent()
         appendBox(7).then((res) => {
             pivElemAddEventAndValue(7)
         })
-    }
-
-    //sogou.com
-    if (window.location.href.indexOf("sogou.com") > -1) {
+    } else if (window.location.href.indexOf("sogou.com") > -1) {
+        //sogou.com
         GM_add_box_style(1)
         addBothStyle()
         keyEvent()
@@ -765,21 +770,16 @@
                 pivElemAddEventAndValue(8)
             }
         })
-    }
-
-    //bilibili.com
-    if (window.location.href.includes("bilibili.com")) {
+    } else if (window.location.href.includes("bilibili.com")) {
+        //bilibili.com
+        GM_add_box_style(1)
         GM_add_box_style(1)
         addBothStyle()
         keyEvent()
         appendBox(9).then((res) => {
             pivElemAddEventAndValue(null)
         })
-    }
-
-
-    //bilibili.com
-    if (window.location.href.includes("blog.csdn.net")) {
+    } else if (window.location.href.includes("blog.csdn.net")) {
         GM_add_box_style(1)
         addBothStyle()
         keyEvent()
@@ -4063,6 +4063,7 @@
             GM_setValue("chatgml_token", chatgml_token)
             if (chatgml_token) {
                 console.log(`chatgml_token获取成功:${chatgml_token}`)
+                alert(`chatgml_token获取成功:${chatgml_token}`)
             } else {
                 console.log('invite_Token获取失败，请再次刷新')
                 alert('invite_Token获取失败，请再次刷新')
@@ -4165,6 +4166,7 @@
             let i = 0;
             let streamText = '';
             let renderText = '';
+            prevPos = 0; // reset!
             reader.read().then(function processText({done, value}) {
                 if (done) {
                     return
@@ -4199,6 +4201,7 @@
                 if (renderText.length > 0) {
                     // console.log(isFinish, renderText)
                     isFinish ? showAnserAndHighlightCodeStr(renderText) : showAnswer(renderText);
+                    readQueue(renderText);
                     document.getElementById('gptAnswer').scrollTop = document.getElementById('gptAnswer').scrollHeight;
                     if (isFinish) {
                         debounce(function () {
@@ -5776,8 +5779,6 @@
             console.log(ex)
             Toast.error("未知错误!" + ex.message)
         })
-
-
     }
 
 
@@ -5815,6 +5816,10 @@
         };
     };
 
+    function strip(html) {
+        let doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+    }
     let myService = 'http://localhost/cqiu/tools/tasks/chatgpt-agent-service.php';
     let saveData = function (resp) {
         GM_xmlhttpRequest({
@@ -5825,11 +5830,6 @@
                 console.log('保存的结果：', response.responseText);
             },
             onerror: function (error) {
-                function strip(html) {
-                    let doc = new DOMParser().parseFromString(html, 'text/html');
-                    return doc.body.textContent || "";
-                }
-
                 console.log('保存的结果err：', strip(error.responseText));
             }
         });
@@ -5841,7 +5841,7 @@
             return;
         }
         // chats.html 函数
-        response(localStorage.getItem('GPTMODE'), resp);
+        if (window.location.href.indexOf("localhost") > -1) response(localStorage.getItem('GPTMODE'), resp);
 
         saveData(resp);
         savedData = resp;

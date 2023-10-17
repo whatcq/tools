@@ -13,18 +13,17 @@
 
     <form id="talk-form" action="talk.php" target="talkFrame">
         <div>
-<!--            <textarea name="talk" id="input" rows="4" cols="80"></textarea>-->
             <input class="b_searchbox b_softkey" id="cqiu_search_input" name="q"
                    aria-autocomplete="both"
                    aria-label="Enter your search here - Search suggestions will show as you type"
                    type="search" value="" maxlength="1000" dir=""
                    autocapitalize="off"
                    autocorrect="off" autocomplete="off" spellcheck="false"
-                   placeholder="Ask..." data-bm="177" accesskey="Z">
+                   placeholder="Ask..." data-bm="177" accesskey="Z"/>
         </div>
         <input type="submit">
         <input type="reset">
-        <input type="button" value="清屏" onclick="$('chatroom').innerHTML=''">
+        <input type="button" value="清屏" onclick="$('chatroom').innerHTML=''"/>
         <span id="toggle_speech" style="cursor:pointer">🔊</span>
         <select id="voi"></select>
         <label class="pick">
@@ -176,9 +175,21 @@
         speak({text: sentence, voice: voiceSelect.selectedIndex, rate, end: callback});
     }
 
+    // 读取单个句子
+    function readSentence(sentence) {
+        if (toggle_speech.innerText !== '🔊') {
+            return;
+        }
+
+        if (!sentence) return;
+        console.log(sentence);
+        speak({text: sentence, voice: voiceSelect.selectedIndex, rate});
+    }
+
     function response(who, msg) {
         renderChat(who, msg.replace(/\n/g, '<br>').replace('  ', '&nbsp;&nbsp'));
-        read(msg);
+        // read(msg);
+        callback();
         input.value = '';
     }
 
@@ -203,7 +214,7 @@
         return true;
     };
 
-    function goSearch(){
+    function goSearch() {
         $('gptInput').value = input.value;
         $('button_GPT').click();
     }
@@ -224,6 +235,11 @@
 </script>
 
 <style>
+    #chatroom {
+        max-height: 400px;
+        overflow: auto;
+    }
+
     body {
         /*background: rgb(126, 184, 214);*/
     }
@@ -252,16 +268,7 @@
         padding: 3px 12px;
         margin: 5px;
     }
-</style>
 
-<script>
-    // window.onload = function () {
-    //     const searchInputBox = document.getElementById('cqiu_search_input');
-    //     searchInputBox.focus()
-    //     searchInputBox.select();
-    // };
-</script>
-<style>
     #gptDiv {
         /*background: #0e90d2;*/
         width: 100%;
