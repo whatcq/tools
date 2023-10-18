@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 通过AltRun/utools网页快开，快速打开对应工具
  */
@@ -30,10 +31,22 @@ function matchRequest($q)
     }
 
     isset($filePaths) or $filePaths = file($cacheFile);
+    $matches = [];
     foreach ($filePaths as $v) {
         if (strpos(basename($v), $q) !== false) {
-            return $v;
+            $matches[] = $v;
         }
+    }
+
+    if (count($matches) === 1) {
+        return $matches[0];
+    } elseif (count($matches) > 1) {
+        echo '<ol>';
+        foreach ($matches as $v) {
+            echo "<li><a href=\"../$v\">$v</a></li>";
+        }
+        echo '</ol>';
+        die;
     }
 
     return '';
