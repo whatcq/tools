@@ -91,7 +91,7 @@
             console.log('[fetch]', url, options);
             const data = JSON.parse(options.body);
             if (data.variables && typeof data.variables.query === 'string' && data.variables.query.length > 0) {
-                saveResponse(data.variables.query);
+                saveResponse('======>' + data.variables.query);
             }
         }
         return oldFetch.apply(this, arguments);/*.then(function (response) {

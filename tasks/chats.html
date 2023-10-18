@@ -188,8 +188,22 @@
 
     function response(who, msg) {
         renderChat(who, msg.replace(/\n/g, '<br>').replace('  ', '&nbsp;&nbsp'));
-        // read(msg);
-        callback();
+
+        let speakSeconds = 0;
+        let newListen = () => {
+            if (speechSynthesis.speaking) {
+                if (speakSeconds++ > 20) {
+                    speechSynthesis.cancel();
+                    recognition.startOn();
+                } else {
+                    setTimeout(newListen, 1000);
+                }
+            } else {
+                recognition.startOn();
+            }
+        };
+        newListen();
+
         input.value = '';
     }
 

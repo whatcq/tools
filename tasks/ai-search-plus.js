@@ -602,9 +602,8 @@
         const lastQuestionIndex = leftText.lastIndexOf("\n");
         let nowPos = Math.max(lastDotIndex, lastQuestionIndex);
         if (nowPos < 15) return;
-        nowPos += startPos + 1;
-        readSentence(text.substring(startPos, nowPos).trim());
-        prevPos = nowPos;
+        readSentence(leftText.substring(0, nowPos+1).trim());
+        prevPos += nowPos + 1;
     }
 
     //显示答案 不高亮代码函数（不停刷新内容导致不停闪烁！cqiu）
