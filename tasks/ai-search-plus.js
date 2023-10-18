@@ -1948,7 +1948,7 @@
         border-radius: 2px;
         animation: dotting 2.4s  infinite step-start;
     }
-   @keyframes dotting {
+    @keyframes dotting {
         25%{
             box-shadow: 4px 0 0 #71777D;
         }
@@ -4204,9 +4204,7 @@
                     readQueue(renderText);
                     document.getElementById('gptAnswer').scrollTop = document.getElementById('gptAnswer').scrollHeight;
                     if (isFinish) {
-                        debounce(function () {
-                            saveResponse(renderText);
-                        }, 200)();
+                        debounceSaveResponse(renderText);
                     }
                 }
 
@@ -5846,4 +5844,5 @@
         saveData(resp);
         savedData = resp;
     };
+    let debounceSaveResponse = debounce(saveResponse, 200);
 })();
