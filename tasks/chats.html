@@ -21,16 +21,19 @@
                    autocorrect="off" autocomplete="off" spellcheck="false"
                    placeholder="Ask..." data-bm="177" accesskey="Z"/>
         </div>
+        <div style="float:right">
         <input type="submit">
         <input type="reset">
         <input type="button" value="清屏" onclick="$('chatroom').innerHTML=''"/>
         <span id="toggle_speech" style="cursor:pointer">🔊</span>
         <select id="voi"></select>
+        <input type="range" id="speakSeconds" value="20" min="0" max="60" />
         <label class="pick">
             <input type="checkbox" id="toggle_recognize" title="说话开关"
                    onclick="this.checked?recognition.start():recognition.stop()" checked/>
             <span>🎙️</span>
         </label>
+        </div>
     </form>
     <div id="b_context"></div>
 </div>
@@ -192,7 +195,7 @@
         let speakSeconds = 0;
         let newListen = () => {
             if (speechSynthesis.speaking) {
-                if (speakSeconds++ > 20) {
+                if (speakSeconds++ > $('speakSeconds').value) {
                     speechSynthesis.cancel();
                     recognition.startOn();
                 } else {
