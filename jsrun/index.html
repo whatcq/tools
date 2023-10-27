@@ -39,8 +39,12 @@
 
         <button onclick="Editor.htmlFormat()" style="position: absolute; right: 10px; z-index: 2;">format</button>
         <pre id="editor-ace-html">&lt;!DOCTYPE html>&lt;html>&lt;head>&lt;meta charset="utf-8">&lt;title>&lt;/title>&lt;/head>&lt;body>
+&lt;script src="/cqiu/static/jquery-3.6.0.min.js">&lt;/script>
+&lt;textarea id="log" style="position:absolute;right:0;top:0;width:300px;height:98%;">&lt;/textarea>
 
 &lt;h1&gt;Hello World!☺&lt;/h1&gt;
+
+&lt;textarea id="input" style="width:500px;height:200px;">&lt;/textarea>
 </pre>
     </div>
     <div class="editor-container editor-container-css">
@@ -53,7 +57,7 @@
     <div class="editor-container editor-container-js">
         <div class="editor-container-label">JavaScript</div>
         <button onclick="Editor.jsFormat()" style="position: absolute; right: 10px; z-index: 2;">format</button>
-        <pre id="editor-ace-js"></pre>
+        <pre id="editor-ace-js">$('#log').val($('#input').val().split("\n").map((item) => `'${item}'`).join(', '))</pre>
     </div>
 
 </div>
@@ -61,8 +65,8 @@
 <!-- ace code area
 gla git@gitee.com:mirrors/ace-builds.git
 https://cdn.jsdelivr.net/gh/ajaxorg/ace-builds@1.4.12/src-min/ -->
-<script src="http://localhost:9090/cqiu/static/ace-builds/src-min/ace.js"></script>
-<script src="http://localhost:9090/cqiu/static/ace-builds/src-min/ext-language_tools.js"></script>
+<script src="/cqiu/static/ace-builds/src-min/ace.js"></script>
+<script src="/cqiu/static/ace-builds/src-min/ext-language_tools.js"></script>
 <script src="live-editor.js"></script>
 <script>
   var Editor = new LiveEditor();
