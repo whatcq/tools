@@ -14,7 +14,7 @@
 '+时间可配置
 '+分月建数据
 '+任务中提醒(新进程:2013-5-23)
-'TODO:+提醒方式：声音、...写消息的方式...
+'+提醒方式：声音(2023-10-29)、...写消息的方式...
 '这种死循环还有点考人呢！2013-5-22
 '+消息队列 2017-9-27
 
@@ -79,6 +79,30 @@ Function write(dataFile, content)
 	Set fso=Nothing
 End Function
 
+Function alarm
+	Const soundFile = "C:\Windows\Media\Alarm02.wav" ' Ring05.wav左右声道12s ding.wav
+
+	' 创建 Windows Media Player 对象
+	Set wmp = CreateObject("WMPlayer.OCX")
+
+	' 隐藏播放器界面
+	'wmp.settings.autoStart = False
+	'wmp.settings.enableContextMenu = False
+	'wmp.settings.volume = 100 ' 设置音量（0-100）
+
+	' 播放 WAV 文件
+	wmp.URL = soundFile
+
+	' 等待播放结束
+	Do While wmp.playState <> 1 ' 1 表示播放结束
+		WScript.Sleep 100
+	Loop
+
+	' 释放资源
+	wmp.close
+	Set wmp = Nothing
+End Function
+
 Dim taskInfo,timeSet
 
 '开启监护进程
@@ -135,6 +159,7 @@ While True
 	'完成结果
 	Else
 		write msgFile, 2
+		alarm
 		createObject("SAPI.SpVoice").speak("刘哥，好了吗？" & thisTask)
 		status=MsgBox ("是否已完成？" & br & thisTask & br,vbYesNoCancel,Time & "上一任务：")
 		write msgFile, -2
