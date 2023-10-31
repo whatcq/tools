@@ -14,6 +14,11 @@ if ($encoding === 'gb2312') {
 
 // json format
 if ($content[0] === '[' || $content[0] === '{') {
+    // remove slashes
+    if ($content[1] == '\\' && $content[2] === '"') {
+        // $content = strtr($content, ['\\"'=> '"']);
+        $content = stripslashes($content);
+    }
     $json = json_decode($content, true);
     if ($json) {
         echo json_encode($json, 448);
@@ -25,15 +30,20 @@ if ($content[0] === '[' || $content[0] === '{') {
 
 // 整齐数据切分
 // 按行/空格/分号切分
-$pis = explode("\n", $content);
+$_content = trim($content);
+$pis = explode("\n", $_content);
 if (2 < $n = count($pis)) {
     // 大多数行都差不多长，就算整齐数据
-    $avgLength = strlen(strtr($content, ["\r" => '', "\n" => ''])) / $n;
+    // todo 算法适用性不好。。
+    $avgLength = strlen(strtr($_content, ["\r" => '', "\n" => ''])) / $n;
     $min = $avgLength * 0.9;
     $max = $avgLength * 1.1;
     $count = 0;
     foreach ($pis as &$line) {
         $line = trim($line);
+        if ($line === '') {
+            $n--;
+        }
         $l = strlen($line);
         if ($l > $min && $l < $max) {
             $count++;

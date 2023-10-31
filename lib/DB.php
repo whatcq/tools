@@ -23,7 +23,12 @@ class DB
     {
         if (self::$instance === null) {
             try {
-                self::$instance = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
+                $dsn = defined('DB_DSN')
+                    ? DB_DSN
+                    : 'mysql:host=' . DB_HOST
+                    . (defined('DB_NAME') ? ';dbname=' . DB_NAME : '')
+                    . (defined('DB_CHAR') ? ';charset=' . DB_CHAR : '');
+                self::$instance = new PDO($dsn, DB_USER, DB_PASS);
                 self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             } catch (PDOException $e) {
                 if ($exception) return $e;

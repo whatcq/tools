@@ -21,6 +21,7 @@ I can do:
 - 爬虫：抓取信息
 
 需求方面：
+- 挣钱-生活必需，安全感，做事成就感
 - 精力管理（时间管理）
 - 目标管理
 */
@@ -44,7 +45,7 @@ register_shutdown_function(function () {
 // @todo 语义化的时间周期表达式
 // @todo 进程间通信
 // /*/
-file_put_contents('crontabs.txt', <<<TASKS
+file_put_contents('crontabs.txt', <<<'TASKS'
 #* * * * * #php -r "echo time();" # 测试.时间
 1 9 * * * #D:\mysoft\fuer\scripts\pull_git.bat # 上班同步文件及代码等
 58 17 * * * #D:\mysoft\fuer\scripts\push_git_save_cqiu.bat # 下班同步文件及代码等
