@@ -12,12 +12,12 @@ $maps = [
     'php'   => 'playground.php',
     'pg'    => 'playground/',
     'jsrun' => 'jsrun',
-    'talk'  => 'tasks/talk.php',
+    'talk'  => 'tasks/talk.html',
     'chats' => 'tasks/chats.html',
     'chat'  => 'tasks/openai/chatgpt.php',
 ];
 
-$url = $maps[$q] ?? matchRequest($q);
+$url = $maps[$q] ?? matchRequest($q) ?? 'Q2.php?q=' . $q;
 header('location: ../' . $url);
 
 function matchRequest($q)

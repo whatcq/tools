@@ -1,16 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer-when-downgrade">
     <title>DBQ</title>
-    <link rel="stylesheet" href="dbq.css" />
-    <script src="../../static/jquery.tablesort.min.js"></script>
-    <!--    <style>-->
-<!--        @import url('dbq.css');-->
-<!--    </style>-->
+    <link rel="stylesheet" href="dbq.css"/>
 </head>
 <body>
 <div class="sidebar">
@@ -20,11 +16,13 @@
     <input type="text" name="field" id="field" placeholder="field"><br>
     <input type="text" name="value" id="value" placeholder="value">
     <textarea name="" id="input" cols="30" rows="3"></textarea><br>
-    <div>link:<button onclick="document.cookie='link=0'">reset</button></div>
+    <div>link:
+        <button onclick="document.cookie='link=0'">reset</button>
+    </div>
     <div id="message"></div>
 </div>
 
-    <div id="data"></div>
+<div id="data"></div>
 </body>
 <script type="text/html" id="tpl_layer">
     <div id="" class="box no_selectx">
@@ -87,7 +85,7 @@
                             $('#message').prepend('<b>x</b>');
                             return;
                         }
-                        render(renderTable(res.data, ['TABLE_SCHEMA','TABLE_NAME','TABLE_COMMENT']));
+                        render(renderTable(res.data, ['TABLE_SCHEMA', 'TABLE_NAME', 'TABLE_COMMENT']));
                     }
                 }
             });
@@ -108,6 +106,7 @@
             });
         });
     });
+
     // @todo 面板关联视图
     function render(data) {
         var _id = 'box_' + zIndex;
@@ -130,6 +129,7 @@
             return parseInt(td.text(), 10);
         });
     }
+
     var lsh = new LocalStorageHandler();
     var link = lsh.get('currentLink');
     var zIndex = 0;
@@ -139,7 +139,7 @@
         $.ajax({
             url: 'dbq.php',//http://localhost/cqiu/tools/DBQ/
             type: 'get',
-            data: { q: o.val(), link: $('#links').val(), db: $('#dbs').val()},
+            data: {q: o.val(), link: $('#links').val(), db: $('#dbs').val()},
             //  默认情况下，标准的跨域请求是不会发送cookie的
             xhrFields: {
                 withCredentials: true
@@ -148,7 +148,7 @@
             success: function (res) {
                 if (res.message != '') {
                     $('#message').prepend('<li>' + res.message);
-                    if(res.message === '#'){
+                    if (res.message === '#') {
                         link = res.cookie.link;
                         lsh.set('currentLink', link);
                         lsh.set(link, res.data);
@@ -203,16 +203,16 @@
                 $(document).off('mouseup');
             }
         });
-    }).on('mousedown', '.box', function(){
+    }).on('mousedown', '.box', function () {
         if ((parseInt($(this).css('z-index')) || 0) < zIndex) $(this).css('z-index', ++zIndex);
     });
-    $(function(){
-        var substringMatcher = function() {
+    $(function () {
+        var substringMatcher = function () {
             return function findMatches(q, cb) {
                 var matches = [];
                 substrRegex = new RegExp(q, 'i');
                 var strs = lsh.get(link);
-                $.each(strs, function(i, str) {
+                $.each(strs, function (i, str) {
                     if (substrRegex.test(str)) {
                         matches.push(str);
                     }
