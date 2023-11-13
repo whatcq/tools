@@ -132,7 +132,7 @@
             if (!toggle_recognize.checked) return;
             console.log('start recognition');
             // console.log(recognition.status); // recognition.status === "inactive" &&
-            recognition.start();
+            try{recognition.start();}catch (e) {}
         };
 
         // 启动语音识别

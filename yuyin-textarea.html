@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
@@ -32,12 +32,15 @@
         };
 
         const input = document.getElementById('input');
-        var i = 0;
+        var i = -1;
         input.addEventListener('input', debounce(() => {
             var text = input.value.trimEnd();
             const lastChar = text[text.length - 1];
             if (lastChar === '。' || lastChar === '？' || lastChar === '！' || lastChar === '.' || lastChar === '?' || lastChar === '!' || lastChar === '…') {
                 text += "\n";
+                if (i < 0) {
+                    text = (new Date()).toLocaleDateString() + "\n" + text;
+                }
                 if (i++ % 5 === 0) {
                     text += "\n" + (new Date()).toLocaleTimeString() + "\n";
                 }
@@ -79,6 +82,7 @@
                         input.value = "";
                         localStorage.setItem('cqiu_text', input.value);
                     }
+                    i = -1;
                 })
                 .catch(error => console.error(error));
         };
