@@ -17,7 +17,7 @@ $maps = [
     'chat'  => 'tasks/openai/chatgpt.php',
 ];
 
-$url = $maps[$q] ?? matchRequest($q) ?? 'Q2.php?q=' . $q;
+$url = $maps[$q] ?? matchRequest($q) ?: 'Q2.php?q=' . $q;
 header('location: ../' . $url);
 
 function matchRequest($q)

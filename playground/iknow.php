@@ -2,13 +2,13 @@
 
 include 'include.php';
 
-// 读取剪贴板的命令
+// 读取剪贴板的命令, (360会拦截，关掉它)
 $content = `powershell -command "Get-Clipboard"`;
 
 // 编码转换
 $encodings = array("ascii", "utf-8", "gb2312", "gbk", "big5");
-$encoding = mb_detect_encoding($content, $encodings);
-if ($encoding === 'gb2312') {
+echo $encoding = mb_detect_encoding($content, $encodings);
+if ($encoding === 'gb2312' || $encoding === 'EUC-CN') {
     $content = iconv('GB2312', 'UTF-8//IGNORE', $content);
 }
 

@@ -222,9 +222,10 @@
 
     }
 
-    setTimeout(addHeadCss)
-    setInterval(addHeadCss, 5000)
-
+    if (!window.location.hostname.includes('chatglm.cn')) {
+        setTimeout(addHeadCss)
+        setInterval(addHeadCss, 5000)
+    }
 
     try {
         console.log(
