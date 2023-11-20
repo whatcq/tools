@@ -24,7 +24,7 @@ function matchRequest($q)
 {
     $cacheFile = '../playground/tool-files.txt';
 
-    if (!is_file($cacheFile)) {
+    if (!is_file($cacheFile) || isset($_GET['refresh_cache'])) {
         $folder = dirname(__DIR__);
         $filePaths = getAllFilePaths($folder);
         file_put_contents($cacheFile, implode("\n", $filePaths));
@@ -41,6 +41,7 @@ function matchRequest($q)
     if (count($matches) === 1) {
         return $matches[0];
     } elseif (count($matches) > 1) {
+        echo "<li><a href=\"?q=$q&refresh_cache=1\">refresh cache</a></li>";
         echo '<ol>';
         foreach ($matches as $v) {
             echo "<li><a href=\"../$v\">$v</a></li>";

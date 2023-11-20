@@ -21,7 +21,7 @@ if ($_FILES) {
     //     print_r($v);
     // }
     file_put_contents($folder . $date . '.lrc', $_POST['lrc']);
-    if (move_uploaded_file($_FILES['upfile']['tmp_name'], $folder . $date . $_FILES['upfile']['name'])) {
+    if (move_uploaded_file($_FILES['upfile']['tmp_name'], $folder . $date . '.mp3')) {
         echo 'success';
     }
     die;
