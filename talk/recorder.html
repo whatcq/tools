@@ -32,10 +32,10 @@
 			<div>
 				<button onclick="recOpen()" style="margin-right:10px">打开录音,请求权限</button>
 				<button onclick="recClose()" style="margin-right:20px">关闭录音,释放资源</button>
-				<button onclick="recUpload()">⬆️上传</button>
+				<button onclick="recUpload()" style="background: yellowgreen;">⬆️上传</button>
 				<button onclick="recLocalDown()">⬇️本地下载</button>
 			</div>
-			<button onclick="recStart()">⏺️录制</button>
+			<button onclick="recStart()" style="background: steelblue;">⏺️录制</button>
 			<button onclick="recStop()" style="margin-right:80px">⏹️停止</button>
 
 			<span style="display: inline-block;">
@@ -127,7 +127,7 @@
 		};
 
 		// 启动语音识别
-		recognition.startOn();
+		// recognition.startOn();
 
 		recognition.addEventListener('end', () => {
 			console.log('end recognition');
@@ -176,6 +176,8 @@ var recOpen=function(){//一般在显示出录音按钮或相关的录音界面�
 		wave=Recorder.FrequencyHistogramView({elem:".recwave"});
 
 		reclog("已打开录音，可以点击录制开始录音了",2);
+		recStart();
+		startRecognition();
 	},function(msg,isUserNotAllow){//用户拒绝未授权或不支持
 		dialogCancel(); //如果开启了弹框，此处需要取消
 		reclog((isUserNotAllow?"UserNotAllow，":"")+"打开录音失败："+msg,1);
@@ -207,9 +209,11 @@ function recStart(){//打开了录音后才能进行start、stop调用
 		recStartTime = +new Date();
 		lrc = [];
 		toggle_recognize = true;
-		startRecognition();
+		recognition.startOn();
 		reclog("已开始录音...");
 	}else{
+		// recOpen();
+		// recStart();
 		reclog("未打开录音",1);
 	};
 };
@@ -228,7 +232,7 @@ function recResume(){
 	if(rec&&Recorder.IsOpen()){
 		rec.resume();
 		toggle_recognize = true;
-		startRecognition();
+		recognition.startOn();
 	}else{
 		reclog("未打开录音",1);
 	};
@@ -245,6 +249,7 @@ function recStop(){
 		console.log(blob,(window.URL||webkitURL).createObjectURL(blob),"时长:"+duration+"ms");
 		recBlob=blob;
 		reclog("已录制mp3："+formatMs(duration)+"ms "+blob.size+"字节，可以点击播放、上传、本地下载了",2);
+		recUpload()
 	},function(msg){
 		reclog("录音失败:"+msg,1);
 	});
