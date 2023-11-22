@@ -54,6 +54,12 @@
 				<div class="recpowert" style="padding-left:50px; line-height:40px; position: relative;"></div>
 			</div>
 		</div>
+		<details>
+			<summary>你的目标是什么？时间不多了！</summary>
+			<img src="../playground/leijun-startup-mi.png" alt="" width="100%" />
+		</details>
+		<details><summary>今天做了什么？有什么成果、经验、困难、机遇？SWOT</summary></details>
+		<details><summary>明天要做的几件事？清晰具体SMART</summary></details>
 	</div>
 
 	<!-- 日志输出区域 -->
@@ -176,8 +182,8 @@ var recOpen=function(){//一般在显示出录音按钮或相关的录音界面�
 		wave=Recorder.FrequencyHistogramView({elem:".recwave"});
 
 		reclog("已打开录音，可以点击录制开始录音了",2);
-		recStart();
 		startRecognition();
+		recStart();
 	},function(msg,isUserNotAllow){//用户拒绝未授权或不支持
 		dialogCancel(); //如果开启了弹框，此处需要取消
 		reclog((isUserNotAllow?"UserNotAllow，":"")+"打开录音失败："+msg,1);
