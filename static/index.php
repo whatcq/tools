@@ -2,9 +2,53 @@
 
 /**
  * 快速获得js的cdn链接
+ * - /tools/static/?search=clipboard&cache 缓存到本地，否则用cdn
  * @author Cqiu
  */
 
+################ list all ###################
+if (isset($_REQUEST['list'])) {
+    function getAllFilePaths($dir, $relativePath = '')
+    {
+        $filePaths = array();
+        $handle = opendir($dir);
+        while (false !== ($file = readdir($handle))) {
+            if ($file != '.' && $file != '..') {
+                $filePath = $dir . '/' . $file;
+                if (is_file($filePath) && in_array(substr($file, -3), ['.js', 'css', 'htm', 'tml'])) {
+                    $filePaths[] = $relativePath . $file;// $filePath;
+                }
+                if (is_dir($filePath) && $file[0] != '.') {
+                    $filePaths = array_merge($filePaths, getAllFilePaths($filePath, $relativePath . $file . '/'));
+                }
+            }
+        }
+        closedir($handle);
+
+        return $filePaths;
+    }
+
+    echo <<<SCRIPT
+<script>
+function copyToClipboard(obj) {
+    obj.select();
+    typeof window.clipboardData==='object' 
+        ? window.clipboardData.setData('text', obj.value)
+        : document.execCommand('copy');
+}
+</script>
+SCRIPT;
+
+    foreach (getAllFilePaths('.') as $v) {
+        echo <<<LINE
+<li><input id="filePath" type="text" value="$v" onfocus="copyToClipboard(this)" size="100" />
+LINE;
+    }
+    die;
+}
+
+############# search | cache ############
+!empty($_REQUEST['cache']) && $_REQUEST['search'] = $_REQUEST['cache'];
 if (isset($_REQUEST['search'])) {
     $api = 'https://api.cdnjs.com/libraries';
     $params = [
