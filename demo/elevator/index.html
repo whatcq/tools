@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Elevator Test Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 20px;
+        }
+
+        .floor {
+            font-size: 48px;
+        }
+
+        .direction {
+            font-size: 24px;
+            margin-left: 10px;
+        }
+
+        .controls input {
+            font-size: 24px;
+            text-align: center;
+            max-width: 78px;
+        }
+        input.active {
+            background-color: lightsalmon;
+        }
+    </style>
+</head>
+<body>
+<div style="display: flex;">
+    <div class="status" style="flex:1">
+        <div class="floor" id="floor"></div>
+        <div class="direction" id="direction"></div>
+    </div>
+    <div class="controls" style="flex:1" id="controls">
+    </div>
+</div>
+<script>
+    const floorElement = document.getElementById('floor');
+    const directionElement = document.getElementById('direction');
+    const controls = document.getElementById('controls');
+    var socket;
+
+    function updateStatus(floor, direction) {
+        floorElement.innerText = floor;
+        directionElement.innerText = direction === 1 ? '↑' : direction === -1 ? '↓' : '';
+    }
+
+    function connect() {
+        socket = new WebSocket('ws://localhost:8080/ws');
+
+        socket.onopen = function () {
+            console.log('WebSocket connection established.');
+        };
+
+        socket.onmessage = function (event) {
+            var data = JSON.parse(event.data);
+            if (typeof data.floor !== 'undefined') updateStatus(data.floor, data.direction);
+            else document.getElementById(data.clear).className = '';
+        };
+
+        socket.onclose = function () {
+            console.log('WebSocket connection closed. Trying to reconnect...');
+            setTimeout(connect, 1000);
+        };
+    }
+
+    window.addEventListener('load', connect);
+    window.addEventListener('load', function(){
+        var html = '';
+        for (let floor = 10; floor > 0; floor--) {
+            html += (`<div>
+        <input type="button" id="go_${floor}" value="▷" onclick="socket.send('${floor}/go');this.className='active'"/>
+        <input type="number" id="floor_${floor}" value="${floor}" min="1" max="10"/>
+        <input type="button" id="up_${floor}" value="▲" onclick="socket.send('${floor}/up');this.className='active'"/>
+        <input type="button" id="down_${floor}" value="▼" onclick="socket.send('${floor}/down');this.className='active'"/>
+               </div>`)
+        }
+        controls.innerHTML = html;
+        setTimeout(function(){
+            document.getElementById('up_10').style.visibility = 'hidden';
+            document.getElementById('down_1').style.visibility = 'hidden';
+        }, 10)
+    });
+</script>
+</body>
+</html>
