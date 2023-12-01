@@ -12,6 +12,7 @@
 #input{width: 100%;font: 20px/24px Verdana;}
 
 #voi {
+    border-radius: 7px;
     width: 20px
 }
 

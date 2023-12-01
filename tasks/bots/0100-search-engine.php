@@ -135,7 +135,7 @@ HEADERS,
                     $b[] = $line;
                 }
             }
-            unset($a[0]); // 搜狗已为您找到约178,351条相关结果
+            unset($a[0]);
             $result = &$a;
 
             return $result ? $result[array_rand($result)] : null;
@@ -144,6 +144,7 @@ HEADERS,
 ];
 
 $engineNames = [
+    'm163' => '网易同学',
     '163' => '网易同学',
     'zhidao' => '知道同学',
     'baidu' => '百度同学',
@@ -151,18 +152,29 @@ $engineNames = [
     'sm' => '神马同学',
     'bing' => '必应同学'
 ];
+/* @var $text string */
 if ($engine = array_search(mb_substr($text, 0, 4), $engineNames)) {
-    $_SESSION['engine'] = $engine;
+    $_SESSION['search_engine'] = $engine;
     $text = ltrim(str_replace($engineNames[$engine], '', $text), '?？,，.。 ');
 } else {
-    $engine = $_SESSION['engine'] ?? 'bing';
+    $engine = $_SESSION['search_engine'] ?? 'bing';
 }
-
-$botName = $engine;
-$cacheFile = __DIR__ . '/cache-' . $engine . '.html';
 
 $keyword = $text;
 if (!$keyword) return '你要抓啊子？';
+
+$request = "search_$engine";
+$botName = str_replace('同学', '', $engineNames[$engine]);
+$cacheFile = __DIR__ . '/cache-' . $request . '.html';
+
+$result = include 'request.php';
+/* @var $content string */
+if ('bing' === $engine) {
+    $content = preg_replace('#<cite>(.*?)</cite>#i', '<a href="$1" target="bing">$1</a>', $content);
+    $content = preg_replace('#<link rel="stylesheet" href="/.*?\.css" type="text/css"/>#i', '', $content);
+}
+$outHtml = '<link rel="stylesheet" href="../lib/base.css" />' . $content;
+return $result;
 
 // /*
 $content = curl_get(
@@ -176,20 +188,7 @@ in_array($engine, ['baidu', 'sogou', 'sm', 'bing']) && $content = gzdecode($cont
     iconv('GB2312', 'UTF-8//IGNORE', $content)
 );
 
-function clearHtml($content)
-{
-    return preg_replace([
-        '#<style[\s\S\r]*?</style>#i',
-        '#<script[\s\S\r]*?</script>#i',
-        // '#<div style="display:none">[\s\S\r]*?</div>#im',
-        '#^[ \t\r]*\n#im'
-    ], '', $content);
-}
 $content = clearHtml($content);
-if ('bing' === $engine) {
-    $content = preg_replace('#<cite>(.*?)</cite>#i', '<a href="$1" target="bing">$1</a>', $content);
-    $content = preg_replace('#<link rel="stylesheet" href="/.*?\.css" type="text/css"/>#i', '', $content);
-}
 file_put_contents($cacheFile, $content);
 
 /*/

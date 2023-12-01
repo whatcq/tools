@@ -13,10 +13,10 @@ is_file($file) or die("$file not exists!");
 // 文件配置从chrome复制出来的curl信息，以及预处理函数，结果处理函数
 $setting = include $file;
 $setting += parseCurl($setting['curl']); // 从curl中解析出header,data-body
-print_r($setting);
 
 // 预处理
 isset($setting['prepare']) && $setting['prepare']($setting, $text);
+// print_r($setting);
 if ($setting['data']) {
     $result = curl_post(
         $setting['url'],
@@ -32,32 +32,9 @@ if ($setting['data']) {
     );
 }
 
+$content = clearHtml($result);
 file_put_contents($cacheFile, $result);
 
 // 结果处理
-return $setting['callback']($result);
+return $setting['callback']($content);
 
-function parseCurl($str)
-{
-    $items = explode("\n", $str);
-    $url = substr(trim(array_shift($items)), 6, -3);
-    $headers = [];
-    $data = '';
-    foreach ($items as $item) {
-        $item = trim($item);
-        if (false !== $p = strpos($item, "'")) {
-            $value = substr($item, $p + 1, -3);
-            switch (substr($item, 0, $p)) {
-            case '-H ':
-                // list($k, $v) = explode(': ', $value);
-                // $headers[$k] = $v;
-                $headers[] = $value;
-                break;
-            case '--data-raw ':
-                $data = $value;
-            }
-        }
-    }
-
-    return compact('url', 'headers', 'data');
-}

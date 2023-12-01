@@ -119,6 +119,42 @@ function header2array($headers)
     return $headers;
 }
 
+function clearHtml($content)
+{
+    return preg_replace([
+        '#<style[\s\S\r]*?</style>#i',
+        '#<script[\s\S\r]*?</script>#i',
+        // '#<div style="display:none">[\s\S\r]*?</div>#im',
+        '#^[ \t\r]*\n#im'
+    ], '', $content);
+}
+
+// 解析curl字符串 @used request.php
+function parseCurl($str)
+{
+    $items = explode("\n", $str);
+    $url = substr(trim(array_shift($items)), 6, -3);
+    $headers = [];
+    $data = '';
+    foreach ($items as $item) {
+        $item = trim($item);
+        if (false !== $p = strpos($item, "'")) {
+            $value = substr($item, $p + 1, -3);
+            switch (substr($item, 0, $p)) {
+                case '-H ':
+                    // list($k, $v) = explode(': ', $value);
+                    // $headers[$k] = $v;
+                    $headers[] = $value;
+                    break;
+                case '--data-raw ':
+                    $data = $value;
+            }
+        }
+    }
+
+    return compact('url', 'headers', 'data');
+}
+
 // 向上兼容php8
 // source: Laravel Framework
 // https://github.com/laravel/framework/blob/8.x/src/Illuminate/Support/Str.php

@@ -23,10 +23,10 @@ $engineNames = [
 function_exists('curl_post') or include __DIR__ . '/../../lib/functions.php';
 
 if ($engine = array_search(mb_substr($text, 0, 4), $engineNames)) {
-    $_SESSION['engine'] = $engine;
+    $_SESSION['trans_engine'] = $engine;
     $text = ltrim(str_replace($engineNames[$engine], '', $text), '?？,，.。 ');
 } else {
-    $engine = $_SESSION['engine'] ?? 'qq_transmart';
+    $engine = $_SESSION['trans_engine'] ?? 'qq_transmart';
 }
 $request = 'caiyun_fanyi';//$engine; // 'baidu_fanyi';
 $botName = $engineNames[$engine];
