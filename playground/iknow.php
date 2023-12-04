@@ -1,15 +1,19 @@
 <?php
 
-include 'include.php';
+// include 'include.php';
 
 // 读取剪贴板的命令, (360会拦截，关掉它)
 $content = `powershell -command "Get-Clipboard"`;
 
 // 编码转换
 $encodings = array("ascii", "utf-8", "gb2312", "gbk", "big5");
-echo $encoding = mb_detect_encoding($content, $encodings);
+$encoding = mb_detect_encoding($content, $encodings);
 if ($encoding === 'gb2312' || $encoding === 'EUC-CN') {
     $content = iconv('GB2312', 'UTF-8//IGNORE', $content);
+}
+
+if ($content[0] === '"' && rtrim($content)[-1] === '"') {
+    $content = substr(trim($content), 1, -1);
 }
 
 // json format
@@ -56,4 +60,5 @@ if (2 < $n = count($pis)) {
     }
 }
 
-echo $content;
+echo '<textarea style="width:100%;height:90%">', stripcslashes($content), '</textarea>';
+// echo stripcslashes($content);
