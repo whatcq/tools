@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../lib/functions.php';
 
+/* @var $text string */
 if (
     !empty($_SESSION['mode'])
     && strlen($text) < 30
