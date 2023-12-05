@@ -24,7 +24,7 @@
 
         // ajax
         const xhr = new XMLHttpRequest();
-        xhr.open("GET", file, true);
+        xhr.open("GET", file + '?' + Math.random(), true);
         xhr.onload = () => {
             try {
                 const json = JSON.parse(xhr.response);
