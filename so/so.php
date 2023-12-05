@@ -63,7 +63,7 @@ function getAllFilePaths($dir, $relativePath = '')
             if (is_file($filePath) && in_array(substr($file, -4), ['.php', 'html', '.htm'])) {
                 $filePaths[] = $relativePath . $file;// $filePath;
             }
-            if (is_dir($filePath) && $file[0] != '.') {
+            if (is_dir($filePath) && $file[0] != '.' && !in_array($file, ['node_modules', 'vendor'])) {
                 $filePaths = array_merge($filePaths, getAllFilePaths($filePath, $relativePath . $file . '/'));
             }
         }

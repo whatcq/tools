@@ -48,22 +48,20 @@ LINE;
 }
 
 ############# search | cache ############
-!empty($_REQUEST['cache']) && $_REQUEST['search'] = $_REQUEST['cache'];
 if (isset($_REQUEST['search'])) {
-    $api = 'https://api.cdnjs.com/libraries';
-    $params = [
-        'search'        => $_REQUEST['search'],
-        'search_fields' => 'name',
-        'fields'        => 'name,latest',
-        'limit'         => 3,
-        // 'output'        => 'human',
-    ];
-    $data = json_decode(file_get_contents($api . '?' . http_build_query($params)), true);
-    $url = $data['results'][0]['latest'];
+    $data = getLibs();
+    echo '<pre>';
+    print_r($data);
+    die('<pre>');
+}
+if (isset($_REQUEST['cache'])) {
+    $_REQUEST['search'] = $_REQUEST['cache'];
+    $data = getLibs();
+    $url = $data['results'][0]['latest'] ?? '';
+    $url or die('no url!!!');
 } else {
     $path = substr($_SERVER['REQUEST_URI'], strlen(dirname($_SERVER['SCRIPT_NAME'])));
     $url = 'https://cdnjs.cloudflare.com/' . ltrim($path, '/');
-
     $_REQUEST['cache'] = 1;
 }
 
@@ -76,6 +74,19 @@ if (isset($_REQUEST['cache'])) {
 }
 
 die($url);
+
+function getLibs()
+{
+    $api = 'https://api.cdnjs.com/libraries';
+    $params = [
+        'search' => $_REQUEST['search'],
+        'search_fields' => 'name',
+        'fields' => 'name,latest',
+        'limit' => 3,
+        // 'output'        => 'human',
+    ];
+    return json_decode(file_get_contents($api . '?' . http_build_query($params)), true);
+}
 
 function cacheFile($url)
 {
