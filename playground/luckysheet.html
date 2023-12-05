@@ -14,13 +14,32 @@
 </head>
 <body>
 <div id="luckysheet" style="margin:0px;padding:0px;position:absolute;width:100%;height:100%;left: 0px;top: 0px;"></div>
+<div style="z-index: 0;position: fixed; left: 0; bottom: 0;max-width: 50%;width: 300px; height: 50px;">
+    <form method="post" id="save_from" action="./saver.php?act=save" target="iframe" style="display:inline;"
+    onsubmit="document.getElementById('source').value=JSON.stringify(luckysheet.getluckysheetfile());return true;">
+        <div style="position: fixed;bottom: 0;">
+            <input type="text" name="filename" id="filename" value="lucky.xls.json.php">
+            <textarea name="source" id="source" cols="30" rows="10" style="display:none;"></textarea>
+            <input type="submit" value="💾" style="padding:0;border:none">
+        </div>
+    </form>
+    <iframe src="about:blank" name="iframe" frameborder="0" style="width: 100%;height: 10%;"></iframe>
+</div>
 <script>
+    // get query param:file
+    const searchParams = new URLSearchParams(new URL(self.location.href).search);
+    var file = searchParams.get("file") || 'lucky.xls.json.php';
     $(function () {
         //配置项
         var options = {
-            container: 'luckysheet' //luckysheet为容器id
+            container: 'luckysheet', //luckysheet为容器id
+            lang: 'zh', //中文
+            showinfobar: false, //是否显示表头
+            showtoolbar: true, //是否显示工具栏
+            loadUrl: file, //读取地址：要求返回是Content-Type: text/html的json字符串
         }
         luckysheet.create(options)
+        document.getElementById('filename').value = file;
     })
 </script>
 </body>

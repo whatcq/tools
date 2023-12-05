@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>x-spreadsheet</title>
+    <style>html,body{overflow: hidden}</style>
+    <link href="https://unpkg.com/x-data-spreadsheet@1.1.5/dist/xspreadsheet.css" rel="stylesheet">
+</head>
+<body>
+<div id="x-spreadsheet-demo"></div>
+<script type="text/javascript" src="https://unpkg.com/x-data-spreadsheet@1.1.5/dist/locale/zh-cn.js"></script>
+<script type="text/javascript" src="https://unpkg.com/x-data-spreadsheet@1.1.5/dist/xspreadsheet.js"></script>
+<script>
+    var xs;
+
+    window.addEventListener('load', function () {
+        // get query param:file
+        const searchParams = new URLSearchParams(new URL(self.location.href).search);
+        var file = searchParams.get("file") || 'xspreadsheet.xls.json';
+        document.getElementById('filename').value = file;
+
+        xs = x_spreadsheet('#x-spreadsheet-demo', {showToolbar: true, showGrid: true});
+
+        // ajax
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", file, true);
+        xhr.onload = () => {
+            try {
+                const json = JSON.parse(xhr.response);
+                xs.loadData(json);
+            } catch (e){
+            }
+        };
+        xhr.send();
+    });
+
+    document.onkeydown = function (e) {
+        if (e.key === 's' && e.ctrlKey) {
+            document.getElementById('source').value = JSON.stringify(xs.getData(), null, 4);
+            document.getElementById('save_from').submit();
+            return false;
+        }
+    };
+</script>
+<div style="z-index: 0;position: fixed; right: 0; top: 0;max-width: 50%;width: 300px; height: 100%;">
+    <form method="post" id="save_from" action="./saver.php?act=save" target="iframe" style="display:inline;">
+        <div style="position: fixed;right: 1px;">
+            <input type="text" name="filename" id="filename" value="xspreadsheet.xls.json">
+            <textarea name="source" id="source" cols="30" rows="10" style="display:none;"></textarea>
+            <input type="submit" value="💾" style="padding:0;border:none">
+        </div>
+    </form>
+    <iframe src="about:blank" name="iframe" frameborder="0" style="width: 100%;height: 10%;"></iframe>
+</div>
+</body>
+</html>
