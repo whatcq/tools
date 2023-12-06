@@ -21,3 +21,5 @@ svg{max-height: 20px;float:right}
 .newsearch .page-main-inner {
     margin-left: 40px!important;
 }
+/* baidu */
+#head, #content_right{display: none}

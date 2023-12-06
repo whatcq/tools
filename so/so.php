@@ -22,6 +22,10 @@ header('location: ../' . $url);
 
 function matchRequest($q)
 {
+    if ($q[-1] === '!') {
+        $q = substr($q, 0, -1);
+        $_GET['refresh_cache'] = 1;
+    }
     $cacheFile = '../playground/tool-files.txt';
 
     if (!is_file($cacheFile) || isset($_GET['refresh_cache'])) {

@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * 用途：debug请求/需要记下请求时，请求本php，就会记录下完整的请求体
+ *
  * log raw http request
  * php是CGI程序，得不到raw格式，得到的是处理过的数据$_POST,$_FILES等
  *
