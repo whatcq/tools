@@ -42,6 +42,9 @@
 				<button onclick="recPause()">⏸️暂停</button>
 				<button onclick="recResume()">⏯️继续</button>
 				<button onclick="recPlay()">▶️播放</button>
+				<u onclick="document.querySelector('audio').playbackRate=1">x1</u>
+				<u onclick="document.querySelector('audio').playbackRate=1.5">x1.5</u>
+				<u onclick="document.querySelector('audio').playbackRate=2">x2</u>
 			</span>
 		</div>
 
@@ -510,6 +513,12 @@ a:hover{
 }
 .btns button:active{
 	background: #f60;
+}
+.btns u{
+	padding: 1px 3px;
+	background: lightgreen;
+	color: #585858;
+	border-radius: 3px;
 }
 
 .pd{
