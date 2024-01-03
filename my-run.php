@@ -54,7 +54,7 @@ if (!empty($_REQUEST['f']) && file_exists($file = "$path{$_REQUEST['f']}.php")) 
         <textarea name="source" id="source" cols="30" rows="10" style="display:none;"></textarea>
         </div>
     </form>
-    <iframe src="" name="iframe" frameborder="0" style="width: 100%;height: 100%;color: #fff;background: #52525052;"></iframe>
+    <iframe src="" name="iframe" frameborder="0" style="padding-top: 30px;width: 100%;height: 100%;color: #fff;background: #52525052;"></iframe>
 </div>
 <script src="/cqiu/static/ace-builds/src-min/ace.js"></script>
 <script src="/cqiu/static/ace-builds/src-min/ext-language_tools.js"></script>
