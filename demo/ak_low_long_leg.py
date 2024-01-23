@@ -71,6 +71,8 @@ def stock_zh_a_spot_em(date):
 
 
 today = datetime.datetime.now()+datetime.timedelta(hours=-9.5)
+print(today)
+# 交易日8:30-9:30，数据为今日的空
 friday = 4  # Sunday=0
 if today.weekday() > friday:
     today = today + datetime.timedelta(friday - today.weekday())
@@ -95,7 +97,7 @@ for i, stk in df.iterrows():
             end_date=end_date
         )
         _max, _min = max(history.high), min(history.low)
-        now_percent = 100 * round((stk['最新价'] - _min) / (_max - _min), 2)
+        now_percent = round(100 * (stk['最新价'] - _min) / (_max - _min))
         print(_max, _min, stk['最新价'], now_percent)
         if now_percent <= 20:
             print(history)
