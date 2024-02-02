@@ -19,3 +19,38 @@ function c2php($s)
 
     return $s;
 }
+
+/**
+ * 翻译
+ * @param array $lines
+ * @return array|false
+ */
+function translate(array $lines)
+{
+    include_once 'functions.php';
+    // is ascii
+    if (preg_match('/[\x00-\x7F]/', $lines[0])) {
+        $from = 'english';
+        $to = 'chinese_simplified';
+    } else {
+        $from = 'chinese_simplified';
+        $to = 'english';
+    }
+    $content = curl_post(
+        'https://api.translate.zvo.cn/translate.json?v=2.4.2.20230719',
+        [
+            'from' => $from,
+            'to'   => $to,
+            'text' => json_encode($lines, JSON_UNESCAPED_UNICODE),
+        ],
+        ['Content-Type: application/x-www-form-urlencoded'],
+        5
+    );
+    $result = json_decode($content, true);
+    // echo '<xmp>', $content, '</xmp>';
+    if (!empty($result['result'])) {
+        return array_combine($lines, $result['text']);
+    }
+
+    return false;
+}
