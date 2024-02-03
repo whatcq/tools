@@ -14,6 +14,11 @@ function todo($cmd)
     file_put_contents($messageFile, $cmd);
 }
 
+function fixCmd($cmd)
+{
+    return str_replace(array("\\\n", "\r", "\n"), '', $cmd); //去掉换行符
+}
+
 class ScriptResult
 {
     public $isFinal;
@@ -47,6 +52,7 @@ if ($input = $_REQUEST['input'] ?? null) {
 ?>
 <title>Done!</title>
 <form action="?set">
-    <textarea name="input" id="input" cols="200" rows="20" placeholder="输入" style="width:100%" onload="this.focus()"><?= $output ?></textarea><br>
+    <textarea name="input" id="input" cols="200" rows="20" placeholder="输入" style="width:100%"
+              onload="this.focus()"><?= $output ?></textarea><br>
     <input type="submit" value="Go">
 </form>
