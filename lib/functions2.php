@@ -28,13 +28,13 @@ function c2php($s)
 function translate(array $lines)
 {
     include_once 'functions.php';
-    // is ascii
-    if (preg_match('/[\x00-\x7F]/', $lines[0])) {
-        $from = 'english';
-        $to = 'chinese_simplified';
-    } else {
+    if (preg_match('/[^\x00-\x7F]/', $lines[0])) {
         $from = 'chinese_simplified';
         $to = 'english';
+    } else {
+        // is ascii
+        $from = 'english';
+        $to = 'chinese_simplified';
     }
     $content = curl_post(
         'https://api.translate.zvo.cn/translate.json?v=2.4.2.20230719',
