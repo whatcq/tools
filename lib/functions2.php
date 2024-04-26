@@ -43,13 +43,13 @@ function translate(array $lines)
             [
                 'from' => $from,
                 'to'   => $to,
-                'text' => json_encode($lines, JSON_UNESCAPED_UNICODE),
+                'text' => json_encode($chunk, JSON_UNESCAPED_UNICODE),
             ],
             ['Content-Type: application/x-www-form-urlencoded'],
             5
         );
         $result = json_decode($content, true);
-        $map = array_merge($map, array_combine($lines, $result['text'] ?? $lines));
+        $map = array_merge($map, array_combine($chunk, $result['text'] ?? $chunk));
     }
 
     return $map;
@@ -82,7 +82,6 @@ function cache_getOrSet($key, $value)
     if ($cachedValue !== null) {
         return $cachedValue;
     }
-    echo 'cache miss: ' . $key . PHP_EOL;
     cache_set($key, $value);
 
     return $value;
