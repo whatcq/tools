@@ -1,10 +1,28 @@
 <?php
+
+/**
+ * 显示命令参数form，用于拼装
+ */
 $cmd = $_REQUEST['cmd'] ?? 'wget';
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <title><?= $cmd ?> Command Generator</title>
+    <link rel="stylesheet" type="text/css" href="../lib/base.css"/>
+    <link rel="stylesheet" type="text/css" href="../DBQ/dbq.css"/>
+    <style>
+        ol {
+            padding-left: 30px;
+            font-size: 12px
+        }
+        ol input[type="text"] {
+            width: 50px;
+            margin-left: 3px;
+            border: none;
+            border-bottom: 1px solid #1e8d0d;
+        }
+    </style>
     <script>
         function generateCommand() {
             var command = '<?= $cmd ?>';
@@ -35,7 +53,7 @@ $cmd = $_REQUEST['cmd'] ?? 'wget';
     </style>
 </head>
 <body>
-<h1>wget Command Generator</h1>
+<h1><?= $cmd ?> Command Generator</h1>
 <form>
     <?php
 
@@ -43,48 +61,45 @@ $cmd = $_REQUEST['cmd'] ?? 'wget';
     $helpOutput = shell_exec("$cmd --help");
 
     // 合并折行
-    $helpOutput = preg_replace("#\n +(?=(\w|\())#", " ", $helpOutput);
+    $helpOutput = preg_replace("#\n +(?=(\w|\(|'))#", " ", $helpOutput);
     // echo '<pre>' . $helpOutput . '</pre>';die;
 
     // 解析帮助信息
     $lines = explode("\n", $helpOutput);
-
+    // echo '<pre>' . print_r($lines, 1) . '</pre>';die;
     $sentences = [];
+    $ul = false;
     ob_start();
     foreach ($lines as $line) {
         $line = trim($line);
-        // 检查是否为选项行
-        if (substr($line, 0, 1) === '-') {
-            // 提取选项名称和描述
-            preg_match('/^\s*(.+)\s{3,}(.*)$/', $line, $matches);
-            if (!isset($matches[2])) {
-                preg_match('/^\s*(\S+\s{2}\S+)\s+(.*)$/', $line, $matches);
-            }
-
-            // @todo 还有些情况没有处理
-
-            $option = $matches[1];
-            // 处理带参数的
-            $var = '';
-            if (strpos($option, '=')) {
-                [$option, $var] = explode('=', $option);
-            }
-            $sentences[] = $description = $matches[2];
-
-            // 输出复选框和描述
-            echo '<label><input type="checkbox" value="' . $option . '">' . $option;
-            echo '</label> ';
-            $var && print('<input type="text" placeholder="' . $var . '">');
-            echo '<span>' . $description . '</span><br>';
-        } else {
-            echo '<span>' . $line . '</span><br>';
+        if (!preg_match('/^(-{1,2}[a-zA-Z0-9\-_\[\]=\/]+)(?:(,\s+[a-zA-Z0-9\-\[\]=\/]+))?\s+(.*)/', $line, $matches)) {
+            (print '</ol>') && $ul = false;
+            echo '<span>' . $line . '</span><br>', PHP_EOL;
+            continue;
         }
+
+        $ul or (print '<ol>') && $ul = true;
+
+        $option = $matches[1] . $matches[2];
+        $description = $matches[3];
+        // 处理带参数的
+        $var = '';
+        if (strpos($option, '=')) {
+            [$option, $var] = explode('=', $option);
+        }
+        $description && $sentences[] = $description;
+
+        // 输出复选框和描述
+        echo '<li><label><input type="checkbox" value="' . $option . '">' . $option;
+        $var && print('<input type="text" placeholder="' . $var . '">');
+        echo '</label> ';
+        echo '<span>' . $description . '</span></li>', PHP_EOL;
     }
     $html = ob_get_clean();
     include '../lib/functions2.php';
-    $sentences && $fanyi = translate($sentences);
-    $fanyi && $html = strtr($html, $fanyi);
-    // echo '<pre>', print_r($fanyi, true), '</pre>';
+    $sentences
+    && ($fanyi = cache_getOrSet('fanyi_' . md5(serialize($sentences)), translate($sentences)))
+    && $html = strtr($html, $fanyi);
     echo $html;
     ?>
     <br>

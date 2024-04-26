@@ -36,21 +36,54 @@ function translate(array $lines)
         $from = 'english';
         $to = 'chinese_simplified';
     }
-    $content = curl_post(
-        'https://api.translate.zvo.cn/translate.json?v=2.4.2.20230719',
-        [
-            'from' => $from,
-            'to'   => $to,
-            'text' => json_encode($lines, JSON_UNESCAPED_UNICODE),
-        ],
-        ['Content-Type: application/x-www-form-urlencoded'],
-        5
-    );
-    $result = json_decode($content, true);
-    // echo '<xmp>', $content, '</xmp>';
-    if (!empty($result['result'])) {
-        return array_combine($lines, $result['text']);
+    $map = [];
+    foreach (array_chunk($lines, 100) as $chunk) {
+        $content = curl_post(
+            'https://api.translate.zvo.cn/translate.json?v=2.4.2.20230719',
+            [
+                'from' => $from,
+                'to'   => $to,
+                'text' => json_encode($lines, JSON_UNESCAPED_UNICODE),
+            ],
+            ['Content-Type: application/x-www-form-urlencoded'],
+            5
+        );
+        $result = json_decode($content, true);
+        $map = array_merge($map, array_combine($lines, $result['text'] ?? $lines));
     }
 
-    return false;
+    return $map;
+}
+
+function cache_get($key)
+{
+    $file = 'cache/' . $key;
+    if (file_exists($file)) {
+        return unserialize(file_get_contents($file));
+    }
+
+    return null;
+}
+
+function cache_set($key, $value)
+{
+    $file = 'cache/' . $key;
+    if (is_null($value)) {
+        return false;
+    }
+    is_dir('cache') or mkdir('cache', 0777, true);
+
+    return file_put_contents($file, serialize($value));
+}
+
+function cache_getOrSet($key, $value)
+{
+    $cachedValue = cache_get($key);
+    if ($cachedValue !== null) {
+        return $cachedValue;
+    }
+    echo 'cache miss: ' . $key . PHP_EOL;
+    cache_set($key, $value);
+
+    return $value;
 }
