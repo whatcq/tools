@@ -1,29 +1,48 @@
 <?php
 /**
-Simple File Server
-> php -S 0.0.0.0:80 ffile.php
-@cqiu 2020/5/30
-*/
+ * Simple File Server
+ * > php -S 0.0.0.0:80 ffile.php
+ * @cqiu 2020/5/30
+ */
+
 // download file
 if (isset($_GET['down'])) {
-	$file = $_GET['down'];
-	$download_name = basename($file);
-	if (file_exists($file)) {
-		header('Content-Type: application/octet-stream');
-		header('Content-Disposition: attachment; filename=' . $download_name);
-		readfile($file);
-		//header('X-Sendfile: ' . $file);
-		exit;
-	}
+    $file = $_GET['down'];
+    $download_name = basename($file);
+    if (file_exists($file)) {
+        // 压缩
+        if (isset($_GET['zip'])) {
+            $zipFile = sys_get_temp_dir() . '/' . $download_name . '.zip';
+            $zip = new ZipArchive();
+            if ($zip->open($zipFile, ZipArchive::CREATE)) {
+                $zip->addFile($file, basename($file));
+            }
+            $zip->close();
+
+            header('Content-Type: application/zip');
+            header('Content-disposition: attachment; filename=' . $download_name . '.zip');
+            header('Content-Length: ' . filesize($zipFile));
+            readfile($zipFile);
+
+            unlink($zipFile);
+            exit;
+        }
+
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename=' . $download_name);
+        readfile($file);
+        //header('X-Sendfile: ' . $file);
+        exit;
+    }
     die('file not found');
 }
 // view file
 if (isset($_GET['file']) && is_file($_GET['file'])) {
-	$file = $_GET['file'];
-	header('Content-Type: ' . mime_content_type($file));
-	header('Content-Disposition: inline; filename="' . basename($file) . '"');
-	file_exists($file) && readfile($file) || die('file not found');
-	die;
+    $file = $_GET['file'];
+    header('Content-Type: ' . mime_content_type($file));
+    header('Content-Disposition: inline; filename="' . basename($file) . '"');
+    file_exists($file) && readfile($file) || die('file not found');
+    die;
 }
 // 去掉路径里的.和..
 function normalizePath($path)
@@ -42,22 +61,37 @@ function normalizePath($path)
 
     return ($path[0] == '/' ? '/' : '') . implode('/', $stack) ?: $path;
 }
+
 # list
 $dir = $_GET['dir'] ?? $_GET['file'] ?? '.';
 $dir = normalizePath($dir);
 if (!is_dir($dir)) {
-	return;
+    return;
 }
 ?>
-<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-<title>File Server</title>
-<style type="text/css">
-	li{padding: 1px 3px;max-width: 300px;}
-	li:nth-child(odd){background-color: #f2f2f2;}
-	li:nth-child(even),li:nth-child(even) {background-color: #fafafa;}
-	li:hover{background: #c3e9cb;}
-	.right{float:right;padding: 0 5px;background: yellowgreen;border-radius: 5px;}
-</style>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>File Server</title>
+    <style type="text/css">
+        li {
+            padding: 1px 3px;
+            max-width: 300px;
+        }
+        li:nth-child(odd) {
+            background-color: #f2f2f2;
+        }
+        li:nth-child(even), li:nth-child(even) {
+            background-color: #fafafa;
+        }
+        li:hover {
+            background: #c3e9cb;
+        }
+        .right {
+            float: right;
+            padding: 0 5px;
+            background: yellowgreen;
+            border-radius: 5px;
+        }
+    </style>
 <?php
 if ($dh = opendir($dir)) {
     $items = ['dir' => [], 'file' => []];
