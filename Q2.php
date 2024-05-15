@@ -8,6 +8,16 @@
         table {
             width: 100%
         }
+        details {
+            margin: 0;
+            padding: 0;
+            border: 1px solid #f6f6f6;
+        }
+        details > summary {
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+        }
     </style>
 <?php
 
@@ -42,11 +52,11 @@ $hiddenInputs
 FORM;
 
 $qs = [
-    '～ show all links' => '',
-    '≡ show all dbs' => 'docker',
-    '▤▦ show all tables' => 'docker ict',
-    '▧ show tables group' => 'docker ict delivery',
-    '▨ show tables match' => 'docker ict delivery_',
+    '～ show all links'     => '',
+    '≡ show all dbs'       => 'docker',
+    '▤▦ show all tables'   => 'docker ict',
+    '▧ show tables group'  => 'docker ict delivery',
+    '▨ show tables match'  => 'docker ict delivery_',
     '▥ show table columns' => 'docker ict db',
 ];
 foreach ($qs as $act => $_q) {
@@ -91,7 +101,23 @@ if (empty($table)) {
         $matchDbs[0]
     )
         ->fetchAll(PDO::FETCH_ASSOC);
-    render($tables);
+    $groups = tableClassify(array_column($tables, 'TABLE_NAME'));
+
+    // 表多排前面，杂项排最后
+    uasort($groups, fn($a, $b) => count($b) - count($a));
+    $other = [];
+    isset($groups['_']) && ($other['_'] = $groups['_']);
+    isset($groups['__']) && ($other['__'] = $groups['__']);
+    unset($groups['_'], $groups['__']);
+    $groups = $groups + $other;
+
+    foreach ($groups as $k => $v) {
+        $count = count($v);
+        echo "<details><summary>$k ($count)</summary>\n";
+        render(array_filter($tables, fn($item) => in_array($item['TABLE_NAME'], $v)));
+        echo "</details>\n";
+    }
+    // render($tables);
     die;
 }
 
@@ -150,6 +176,7 @@ if ($var && (!isset($_GET['table']) || $_GET['table'] != $table)) {
         $columns = DB::q("DESC $table")->fetchAll(PDO::FETCH_ASSOC);
         if ($isLike) {
             foreach ($columns as $column) {
+                if (strpos($column['Type'], 'int') !== false) continue;
                 $where[] = "`{$column['Field']}` LIKE '%$var%'";
             }
         } else {
@@ -265,6 +292,42 @@ function getMatches($items, $item)
     return $matchDbs;
 }
 
+function tableClassify($tables)//, $prefix = '/^t_/'preg_replace($prefix, '', )
+{
+    $words = [];
+    foreach ($tables as $table) {
+        foreach (explode('_', $table) as $word) {
+            isset($words[$word]) ? $words[$word]++ : $words[$word] = 1;
+        }
+    }
+    arsort($words);
+    $prefix = '';
+    // 有bug，其它部分==prefix怎么办？
+    (100 * current($words) / count($tables) > 95) && $prefix = array_shift($words); // remove prefix
+
+    $groups = [];
+    foreach ($tables as $table) {
+        foreach (explode('_', $table) as $word) {
+            if (isset($words[$word])) {
+                if ($words[$word] > 1) {
+                    $groups[$word][] = $table;
+                } else {
+                    $groups['_'][] = $table;
+                }
+                break;
+            }
+        }
+    }
+    foreach ($groups as $k => $v) {
+        if (count($v) == 1) {
+            $groups['__'][] = current($v);
+            unset($groups[$k]);
+        }
+    }
+
+    return $groups;
+}
+
 // 显示不同的结果
 function render($data)
 {
@@ -302,11 +365,14 @@ function render($data)
 
         return;
     }
-    if (!is_array($data[0])) {
+    if (!is_array(current($data))) {
         goto SINGLE_GROUP;
     }
 
-    defined('SHOW_TABLE') && print('<textarea name="fields" style="position:absolute;top:0;right:0;width:150px;height:100px;font: 10px/15px Courier;">' . implode("\n", array_keys($data[0])) . '</textarea>');
+    defined('SHOW_TABLE')
+    && print('<textarea name="fields" style="position:absolute;top:0;right:0;width:150px;height:100px;font: 10px/15px Courier;">' . implode(
+            "\n", array_keys($data[0])
+        ) . '</textarea>');
     echo '<table border="0" cellpadding="3">';
     echo '<thead><tr bgcolor="#dddddd" class="fixed-header"><th class="number">#</th>';
     $filters = defined('SHOW_TABLE')
