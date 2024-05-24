@@ -16,6 +16,7 @@
     <!-- 引入exceljs、FileSaver，用于luckysheet表格转xlsx文件 -->
     <script src="https://cdn.bootcdn.net/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/exceljs/4.3.0/exceljs.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luckyexcel/dist/luckyexcel.umd.js"></script>
     <script>
         $(function () {
             //Configuration item
@@ -41,9 +42,9 @@
     download...
 </div>
 <div id="luckysheet"
-     style="margin:0px;padding:0px;line-height: 20px;position:absolute;width:100%;left: 0px;top: 0;bottom: 0px;outline: none;">
+     style="margin:0px;padding:0px;position:absolute;width:100%;left: 0px;top: 0;bottom: 0px;outline: none;">
 </div>
-<div style="z-index: 0;position: fixed; left: 0; bottom: 0;max-width: 50%;width: 300px; height: 20px;display: flex;">
+<div style="z-index: 0;position: fixed; left: 0; bottom: 0;max-width: 50%;width: 380px; line-height: 20px;height: 20px;display: flex;">
     <label onclick="" style="display: flex" title="不变则不会重新加载">📂
         <input style="font-size:16px;display:none" type="file" id="select-file" name="select-file"/>
     </label>
@@ -64,24 +65,29 @@
     </select>-->
     <a style="cursor: pointer;padding:0;border:none" id="downlod-file" title="下载">⏬</a>
     <a style="cursor: pointer;padding:0;border:none" id="save-file" title="保存到服务器">⏫</a>
-    <!--  💾  -->
-
-    <!--<form method="post" id="save_from" action="./saver.php?act=save" target="iframe" style="display:inline;"
-          onsubmit="document.getElementById('source').value=getluckysheetfile();return true;">
-        <div style="position: fixed;bottom: 0;">
-            <input type="text" name="filename" id="filename" value="lucky.xls.json.php">
-            <textarea name="source" id="source" cols="30" rows="10" style="display:none;"></textarea>
-            <input type="submit" value="💾" style="padding:0;border:none">
-        </div>
-    </form>
-    <iframe src="about:blank" name="iframe" frameborder="0" style="width: 100%;height: 10%;"></iframe>-->
+    <!--  💾 加了下面这行，上面的datalist才显示弹出框，奇怪问题 -->
+    <input type="text" list="files2" name="filename2" id="filename2" style="display:none">
+    <datalist id="files2">
+        <option value="Option1">
+    </datalist>
+    <span id="msg" style="font-size:12px"></span>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/luckyexcel/dist/luckyexcel.umd.js"></script>
 
 <script>
     let ext = 'xlsx';
     let uploadUrl = './saver.php?act=upload';
     let fullName = 'Excel-1'; // 正在编辑的Excel文件名，包含后缀名
+    function notice(msg) {
+        let div = document.getElementById("msg");
+        div.innerHTML = msg;
+        setTimeout(function () {
+            div.style.opacity = 0.5;
+            setTimeout(function () {
+                div.style.opacity = 1;
+                div.innerHTML = "";
+            }, 1000);
+        }, 2000);
+    }
 
     function starter() {
         let filename = document.getElementById("filename");
@@ -97,12 +103,13 @@
                 document.title = filename.value;
                 console.log('changed!', filename.value);
             });
-            filename.value = fullName;
-            filename.dispatchEvent(new Event('change'));
+            // filename.value = fullName;
+            // filename.dispatchEvent(new Event('change'));
             // 加载远程文件s
             filename.onfocus = function () {
                 this.select();
-                if (filename.list.options.length > 0) return;
+                document.getElementById('files').style.display = "block";
+                if (filename.list.options.length > 0) return true;
                 fetch('saver.php?act=files&ext=' + ext)
                     .then(response => response.json())
                     .then(data => {
@@ -212,10 +219,18 @@
             });*/
 
             uploadBtn.addEventListener("click", function (evt) {
+                if (!filename.value) {
+                    notice('请输入文件名');
+                    return;
+                }
                 uploadExcel(window.luckysheet.getAllSheets(), filename.value + '.' + ext)  // 上传到服务器
             });
 
             downloadBtn.addEventListener("click", function (evt) {
+                if (!filename.value) {
+                    notice('请输入文件名');
+                    return;
+                }
                 exportExcelFront(window.luckysheet.getAllSheets(), filename.value + '.' + ext) // 下载Excel
 
                 // var obj = selectADemo;
@@ -299,10 +314,10 @@
             // 设置请求完成的回调函数
             xhr.onload = function () {
                 if (xhr.status === 200) {
-                    alert('已上传成功！')
+                    notice('已上传成功！')
                     console.log('Success:', xhr.responseText);
                 } else {
-                    alert('上传失败！' + xhr.statusText)
+                    notice('上传失败！' + xhr.statusText)
                     console.error('Error:', xhr.statusText);
                 }
             };
