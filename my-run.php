@@ -49,8 +49,9 @@ if (!empty($_REQUEST['f']) && file_exists($file = "$path{$_REQUEST['f']}.php")) 
         <div style="position: fixed;right: 20px;">
         <input type="text" list="files" name="filename" id="filename" value="<?=$_REQUEST['f']??'test'?>">
             <datalist id="files"></datalist>
-        <input type="checkbox" id="format" title="format" checked>
+        <input type="checkbox" id="format" title="format">
         <button onclick="location='?f='+encodeURIComponent(document.getElementById('filename').value)+'&format='+~~document.getElementById('format').checked;return false;" title="Load this file=>">Load</button>
+        <a onclick="window.open('playground/'+document.getElementById('filename').value+'.php')" title="在新窗口中打开" style="cursor: pointer">♐</a>
         <textarea name="source" id="source" cols="30" rows="10" style="display:none;"></textarea>
         </div>
     </form>
