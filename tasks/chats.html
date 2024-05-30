@@ -129,7 +129,7 @@
         }
 
         recognition.startOn = () => {
-            if (!toggle_recognize.checked) return;
+            if (!toggle_recognize.checked || speechSynthesis.speaking) return;
             console.log('start recognition');
             // console.log(recognition.status); // recognition.status === "inactive" &&
             try{recognition.start();}catch (e) {}

@@ -15,6 +15,7 @@ pathadd(){
 
 alias ls='ls --show-control-chars --color=auto'
 alias ll='ls -lah'
+alias tree="find . -print | sed -e 's;/*/;|;g;s;|; |;g'"
 
 #chdir  
 alias ..="cd .."  
