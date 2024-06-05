@@ -5,6 +5,27 @@
  * - /tools/static/?search=clipboard&cache 缓存到本地，否则用cdn
  * @author Cqiu
  */
+$baseUrl = 'https://cdnjs.cloudflare.com/';
+// $baseUrl = 'https://cdn.jsdelivr.net/';
+
+################ convert remote file to local ###################
+// 但是文件里面引用的image/font/js, 需要单独修改$baseUrl让其cache下来
+// $html = <<< 'HTML'
+// HTML;
+//
+// preg_match_all('/\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/i', $html, $matches);
+// // print_r($matches);die;
+// $newHtml = $html;
+// foreach ($matches[0] as $url) {
+//     $cachePath = cacheFile($url);
+//     $newUrl = (isset($_SERVER['HTTPS']) ? 'https' : 'http')
+//         . '://' . $_SERVER['HTTP_HOST']
+//         . dirname($_SERVER['SCRIPT_NAME']) . $cachePath;
+//     echo $newUrl . "\n";
+//     $newHtml = str_replace($url, $newUrl, $newHtml);
+// }
+// echo $newHtml;
+// die;
 
 ################ list all ###################
 if (isset($_REQUEST['list'])) {
@@ -61,7 +82,9 @@ if (isset($_REQUEST['cache'])) {
     $url or die('no url!!!');
 } else {
     $path = substr($_SERVER['REQUEST_URI'], strlen(dirname($_SERVER['SCRIPT_NAME'])));
-    $url = 'https://cdnjs.cloudflare.com/' . ltrim($path, '/');
+    // 去掉"/domain/"
+    $path = implode('/', array_slice(explode('/', $path), 2));
+    $url = $baseUrl . $path;
     $_REQUEST['cache'] = 1;
 }
 
@@ -91,7 +114,7 @@ function getLibs()
 function cacheFile($url)
 {
     $pis = parse_url($url);
-    $file = './' . $pis['path'];
+    $file = $pis['host'] . $pis['path']; // $pis['port']先不管
     if (!file_exists($file)) {
         makeFolder(dirname($file));
         $content = file_get_contents($url);
@@ -100,7 +123,7 @@ function cacheFile($url)
         }
     }
 
-    return $pis['path'];
+    return '/' . $file;
 }
 
 function makeFolder($path)
