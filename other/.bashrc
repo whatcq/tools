@@ -41,9 +41,13 @@ to(){
 }
 wds=$(ls ~/.cd|xargs);complete -W "$wds" to
 
-# 真的跳转z
+# 真的跳转rupa/z.sh (skywind3000/z.lua需要lua)
 #curl -O https://ghproxy.com/https://raw.githubusercontent.com/rupa/z/master/z.sh
 #. ~/z.sh
+# rust的z
+# curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh #或者github下载zoxide.exe
+pathadd /c/Users/Administrator/.local/bin
+eval "$(zoxide init bash)" #初始化
 
 #git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 #~/.fzf/install
