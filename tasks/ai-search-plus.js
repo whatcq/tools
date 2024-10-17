@@ -595,15 +595,17 @@
     // 朗读队列
     let prevPos = 0;
     function readQueue(html) {
-        if (window.location.href.indexOf("localhost") < 0) return;
+        if (!window.location.href.includes("localhost")) return;
+
         const text = strip(html);
-        const startPos = prevPos;//Math.max(20, prevPos);
-        const leftText = text.substring(startPos);
+        const leftText = text.slice(prevPos);
         const lastDotIndex = leftText.lastIndexOf('。');
-        const lastQuestionIndex = leftText.lastIndexOf("\n");
-        let nowPos = Math.max(lastDotIndex, lastQuestionIndex);
-        if (nowPos < 15) return;
-        readSentence(leftText.substring(0, nowPos+1).trim());
+        const lastParagraphIndex = leftText.lastIndexOf("\n");
+        const nowPos = Math.max(lastDotIndex, lastParagraphIndex);
+        // if (nowPos < 15) return;
+
+        const sentence = leftText.slice(0, nowPos + 1).trim().replaceAll('**', '');
+        readSentence(sentence);
         prevPos += nowPos + 1;
     }
 
@@ -4086,11 +4088,11 @@
 
     async function ChatGLM() {
         console.log("chatgml_token:", chatgml_token)
-        showAnserAndHighlightCodeStr("请稍后...该线路为官网线路，使用该线路，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/)")
+        showAnserAndHighlightCodeStr("请稍后...该线路为官网线路，使用该线路，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/main/detail)")
 
         if (!chatgml_token) {
             setTimeout(init_chatgml_token)
-            showAnserAndHighlightCodeStr("init_chatgml_token为空，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/)")
+            showAnserAndHighlightCodeStr("init_chatgml_token为空，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/main/detail)")
             return
         }
         if (chatgml_first || !chatgml_task_id) {
@@ -4115,7 +4117,7 @@
                 console.log("chatgml_task_id:", chatgml_task_id)
                 chatgml_first = false;
             } catch (e) {
-                showAnserAndHighlightCodeStr("task_id出错了，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/)")
+                showAnserAndHighlightCodeStr("task_id出错了，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/main/detail)")
                 return
             }
         }

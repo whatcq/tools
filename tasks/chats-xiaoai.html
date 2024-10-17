@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <title>Cqiu->xiaoai</title>
+    <link rel="stylesheet" href="talk.css"/>
+</head>
+
+<body>
+<div style="width: 700px;margin: 0 auto;">
+    <div id="chatroom"></div>
+
+    <form id="talk-form" action="talk.php" target="talkFrame">
+        <div>
+            <input class="b_searchbox b_softkey" id="cqiu_search_input" name="q"
+                   aria-autocomplete="both"
+                   aria-label="Enter your search here - Search suggestions will show as you type"
+                   type="search" value="" maxlength="1000" dir=""
+                   autocapitalize="off"
+                   autocorrect="off" autocomplete="off" spellcheck="false"
+                   placeholder="Ask..." data-bm="177" accesskey="Z"/>
+        </div>
+        <div style="float:right">
+            <input type="submit">
+            <input type="reset">
+            <input type="button" value="清屏" onclick="$('chatroom').innerHTML=''"/>
+        </div>
+    </form>
+    <div id="b_context"></div>
+    <iframe name="say" id="say" style="width:100%;height:100px;"></iframe>
+</div>
+</body>
+<script>
+    const myService = 'http://localhost:8080/';
+
+    function $(str) {
+        return document.getElementById(str);
+    }
+
+    const input = $('cqiu_search_input');
+    const chatroom = $('chatroom');
+    const nick = 'cqiu'; //prompt("enter your name");
+    const sayFrame = $('say');
+
+    // -----------------------
+    window.addEventListener('load', function () {
+        input.focus();
+        input.select();
+
+        var chat = new window.EventSource(myService + "get_question?channel=question");
+        chat.onmessage = function (e) {
+            console.log(e.data);
+            var data = JSON.parse(e.data);
+            input.value = data.message + "(回答限100字以内)";
+            beforeSubmit() && goSearch();
+        }
+    });
+
+    // -----------------------
+    function renderChat(who, msg) {
+        var div = document.createElement("div");
+        div.className = 'chat';
+        if (who === nick) div.className += ' i-say';
+        div.innerHTML = ('<u class="q-' + who + '">' + who + '</u>' + msg); //.trim();
+        chatroom.append(div);
+        chatroom.scrollTop = chatroom.scrollHeight;
+        // input.scrollIntoView();
+    }
+
+    function strip(html) {
+        let doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+    }
+
+    // 下一句可以开始读的时间戳
+    var nextTime = 0;
+
+    // 读取单个句子
+    function readSentence(sentence) {
+        if (!sentence) return;
+        sentence = strip(sentence.replace(/(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/, ''));
+        console.log(sentence);
+        var delay = nextTime < +new Date() ? 0 : nextTime - +new Date();
+        console.log(delay, sentence);
+        setTimeout(() => {
+            sayFrame.src = myService + "say?text=" + encodeURIComponent(sentence);
+        }, delay);
+        nextTime = Math.max(nextTime, +new Date()) + sentence.length * 200;
+    }
+
+    function response(who, msg) {
+        renderChat(who, msg.replace(/\n/g, '<br>').replace('  ', '&nbsp;&nbsp'));
+
+        input.value = '';
+    }
+
+    let beforeSubmit = function () {
+        var msg = input.value;
+        if (!msg.trim()) {
+            return false;
+        }
+        // 只有简单语气词说明并不是在对我说话，暂停吧
+        if (/^[嗯哦啊呢，、。？]+$/.test(msg)) {
+            input.value = '';
+            return false;
+        }
+        msg = msg.replace(/[。！]$/g, '');
+        renderChat(nick, msg);
+        return true;
+    };
+
+    function goSearch() {
+        $('gptInput').value = input.value;
+        $('button_GPT').click();
+    }
+
+    var form = $('talk-form');
+    form.onsubmit = beforeSubmit;
+
+    document.onkeydown = function (e) {
+        if (e.key === 'Escape') {
+            console.log('reset start!')
+
+            $('talk-form').reset();
+            return false;
+        }
+    };
+</script>
+
+<style>
+    #chatroom {
+        max-height: 400px;
+        overflow: auto;
+    }
+
+    body {
+        /*background: rgb(126, 184, 214);*/
+    }
+
+    #b_context {
+        width: 100%;
+        min-height: 300px;
+        height: fit-content;
+        border-radius: 20px;
+        background: #fff;
+    }
+
+    .gpt-container {
+        display: block !important;
+    }
+
+    #gptAnswer {
+        max-height: 300px;
+        overflow: auto;
+    }
+
+    #cqiu_search_input {
+        width: 99%;
+        font: 16px/1.5 Verdana;
+        border-radius: 10px;
+        padding: 3px 12px;
+        margin: 5px;
+    }
+
+    #gptDiv {
+        /*background: #0e90d2;*/
+        width: 100%;
+    }
+</style>
+</html>
