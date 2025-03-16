@@ -72,7 +72,7 @@ visit(){
 
 #tools
 alias h='help_fun(){ $@ --help | less ;};help_fun $1' # eg. h grep
-#https://github.com/Russell91/sshrc.git
+#cd && gla https://github.com/cdown/sshrc.git
 alias sshrc='~/sshrc/sshrc'
 
 curl_format="\

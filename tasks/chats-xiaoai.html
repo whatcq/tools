@@ -80,13 +80,13 @@
     function readSentence(sentence) {
         if (!sentence) return;
         sentence = strip(sentence.replace(/(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/, ''));
-        console.log(sentence);
+        // 延迟推送，否则前面的读不完就被覆盖了
         var delay = nextTime < +new Date() ? 0 : nextTime - +new Date();
         console.log(delay, sentence);
         setTimeout(() => {
             sayFrame.src = myService + "say?text=" + encodeURIComponent(sentence);
         }, delay);
-        nextTime = Math.max(nextTime, +new Date()) + sentence.length * 200;
+        nextTime = Math.max(nextTime, +new Date()) + sentence.length * 200; // 每个字200ms
     }
 
     function response(who, msg) {

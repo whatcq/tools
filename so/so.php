@@ -22,7 +22,7 @@ header('location: ../' . $url);
 
 function matchRequest($q)
 {
-    if ($q[-1] === '!') {
+    if ($q && $q[-1] === '!') {
         $q = substr($q, 0, -1);
         $_GET['refresh_cache'] = 1;
     }

@@ -258,7 +258,7 @@ function recStop(){
 	rec.stop(function(blob,duration){
 		console.log(blob,(window.URL||webkitURL).createObjectURL(blob),"时长:"+duration+"ms");
 		recBlob=blob;
-		reclog("已录制mp3："+formatMs(duration)+"ms "+blob.size+"字节，可以点击播放、上传、本地下载了",2);
+		reclog("已录制mp3："+formatMs(duration)+"ms, "+Math.ceil(blob.size/1024)+"K，可以点击播放、上传、本地下载了",2);
 		recUpload()
 	},function(msg){
 		reclog("录音失败:"+msg,1);
@@ -519,6 +519,7 @@ a:hover{
 	background: lightgreen;
 	color: #585858;
 	border-radius: 3px;
+	cursor: pointer;
 }
 
 .pd{

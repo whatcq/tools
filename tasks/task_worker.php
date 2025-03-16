@@ -7,6 +7,9 @@
 if (PHP_SAPI !== "cli") {
     die('CLI only!');
 }
+
+date_default_timezone_set('Asia/Chongqing');
+
 $messageFile = 'todo.msg';
 file_exists($messageFile) or touch($messageFile);
 
