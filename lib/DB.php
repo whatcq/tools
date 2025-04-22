@@ -32,7 +32,8 @@ class DB
                 self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             } catch (PDOException $e) {
                 if ($exception) return $e;
-                die('Database connection could not be established.' . 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME);
+                die('Database connection could not be established.' . 'mysql:host=' . DB_HOST
+                    . (defined('DB_NAME') ? ';dbname=' . DB_NAME : ''));
             }
         }
 

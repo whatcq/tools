@@ -24,8 +24,18 @@
 /**
  * dbq view tables_group
  */
-
-$links = include 'playground/config2.database.php';
+$links = [
+    'local' => [
+        'HOST' => '127.0.0.1',
+        'DB_NAME' => 'ai1',
+        'USER' => 'root',
+        'PASS' => '',
+        'color' => 'lightblue', # option bgcolor
+        //'extend' => 'local', # extend config
+    ]
+];
+file_exists($configFile = 'playground/config2.database.php')
+&& $links = array_merge($links, include $configFile);
 
 $q = $_REQUEST['q'] ?? 'docker inventory_test delivery';
 // link.db.table.column.value.info
@@ -141,6 +151,8 @@ if (count($matchTables) !== 1) {
 $show = isset($_REQUEST['show']) ? $_REQUEST['show'] : null;
 $table = $matchTables[0];
 $var = $column . $value;
+
+print_r($_GET);
 
 $params = [];
 // var_dump((!isset($_GET['table']) || $_GET['table']!=$table));die;
