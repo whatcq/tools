@@ -78,8 +78,8 @@ foreach($files as $file) {
         $timeEstimate = intval($timeEstimate);
         //当日统计
         if($status[0]==='='){
-            $timeSpent = gmstrftime("%H:%M", $timeEstimateTotal * 60);
-            $timeOverStep = gmstrftime("%H:%M", $timeOverStepTotal * 60);
+            $timeSpent = date("H:i", $timeEstimateTotal * 60);
+            $timeOverStep = date("H:i", $timeOverStepTotal * 60);
             $date = explode(' ',$startTime)[0];
             $statEstimate[$date] = number_format($timeEstimateTotal/60, 1);
             $stat[$date] = number_format($timeOverStepTotal/60, 1);

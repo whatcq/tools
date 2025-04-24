@@ -83,8 +83,9 @@ if (isset($_REQUEST['cache'])) {
 } else {
     $path = substr($_SERVER['REQUEST_URI'], strlen(dirname($_SERVER['SCRIPT_NAME'])));
     // 去掉"/domain/"
-    $path = implode('/', array_slice(explode('/', $path), 2));
-    $url = $baseUrl . $path;
+    // $path = implode('/', array_slice(explode('/', $path), 2));
+    // $url = $baseUrl . $path;
+    $url = 'https:/' . $path;
     $_REQUEST['cache'] = 1;
 }
 
