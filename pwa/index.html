@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记事本</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>记事本</h1>
+<form id="noteForm">
+    <input type="datetime-local" id="noteTime" required>
+    <textarea id="noteContent" placeholder="内容" required></textarea>
+    <input type="text" id="noteTags" placeholder="标签">
+    <input type="text" id="noteLocation" placeholder="地点">
+    <button type="submit">保存记事</button>
+</form>
+<ul id="noteList"></ul>
+
+<script src="app.js"></script>
+</body>
+</html>

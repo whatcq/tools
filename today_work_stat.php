@@ -127,7 +127,7 @@ if(!$stat)die('没有数据！');
     width: 200px;
     border: 1px solid #c6c6c6;
 "></div>
-<script src="http://cdn.bootcss.com/Chart.js/2.4.0/Chart.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
 <script language="javascript">
 
 var data = {

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <title>DBQ (Vue)</title>
+    <link rel="stylesheet" href="dbq.css"/>
+</head>
+<body>
+<div id="app" class="sidebar">
+    <select v-model="selectedLink" @change="fetchDatabases">
+        <option v-for="link in links" :key="link">{{ link }}</option>
+    </select><br>
+    <select v-model="selectedDb" @change="fetchTables">
+        <option v-for="db in databases" :key="db">{{ db }}</option>
+    </select><br>
+    <input type="text" v-model="tableName" placeholder="table" @change="fetchTableDetails"><br>
+    <input type="text" v-model="fieldName" placeholder="field" @change="fetchFieldDetails"><br>
+    <input type="text" v-model="value" placeholder="value">
+    <textarea v-model="query" cols="30" rows="3" @change="executeQuery"></textarea><br>
+    <div>link:
+        <button @click="resetLink">reset</button>
+    </div>
+    <div>{{ message }}</div>
+</div>
+
+<div id="data">
+    <table v-if="tableData.length" border="0" cellpadding="3">
+        <thead>
+            <tr bgcolor="#dddddd" class="fixed-header">
+                <th v-for="field in tableFields" :key="field">{{ field }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="row in tableData" :key="row.id">
+                <td v-for="field in tableFields" :key="field">{{ row[field] }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="http://localhost/cqiu/static/vue-3.2.29.global.prod.js"></script>
+<script src="http://localhost/cqiu/static/jquery-3.5.1.min.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            links: [],
+            selectedLink: '',
+            databases: [],
+            selectedDb: '',
+            tableName: '',
+            fieldName: '',
+            value: '',
+            query: '',
+            message: '',
+            tableData: [],
+            tableFields: []
+        },
+        methods: {
+            fetchLinks() {
+                $.getJSON('dbq.php?act=links', (res) => {
+                    if (res.message) this.message = res.message;
+                    if (res.status) this.links = res.data;
+                });
+            },
+            fetchDatabases() {
+                $.getJSON(`dbq.php?act=dbs&link=${this.selectedLink}`, (res) => {
+                    if (res.message) this.message = res.message;
+                    if (res.status) this.databases = res.data;
+                });
+            },
+            fetchTables() {
+                $.getJSON(`dbq.php?act=tables&link=${this.selectedLink}&table=${this.tableName}`, (res) => {
+                    if (res.message) this.message = res.message;
+                    if (res.status) {
+                        this.tableData = res.data;
+                        this.tableFields = ['TABLE_SCHEMA', 'TABLE_NAME', 'TABLE_COMMENT'];
+                    }
+                });
+            },
+            fetchFieldDetails() {
+                $.getJSON(`dbq.php?act=fields&link=${this.selectedLink}&field=${this.fieldName}`, (res) => {
+                    if (res.message) this.message = res.message;
+                    if (res.status) {
+                        this.tableData = res.data;
+                        this.tableFields = ['TABLE_SCHEMA', 'TABLE_NAME', 'COLUMN_NAME', 'COLUMN_COMMENT'];
+                    }
+                });
+            },
+            executeQuery() {
+                $.ajax({
+                    url: 'dbq.php',
+                    type: 'get',
+                    data: { q: this.query, link: this.selectedLink, db: this.selectedDb },
+                    xhrFields: { withCredentials: true },
+                    dataType: 'json',
+                    success: (res) => {
+                        if (res.message) this.message = res.message;
+                        if (res.status) {
+                            this.tableData = res.data;
+                            this.tableFields = Object.keys(res.data[0]);
+                        }
+                    }
+                });
+            },
+            resetLink() {
+                document.cookie = 'link=0';
+                this.selectedLink = '';
+                this.databases = [];
+                this.tableData = [];
+                this.tableFields = [];
+            }
+        },
+        mounted() {
+            this.fetchLinks();
+        }
+    });
+</script>
+
+</body>
+</html>
