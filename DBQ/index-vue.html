@@ -24,84 +24,106 @@
         <button @click="resetLink">reset</button>
     </div>
     <div>{{ message }}</div>
+    <div id="data">
+        <template v-for="(data, index) in datas" :key="index">
+        <div :id="'box_'+index" class="box no_selectx" :style="{
+            zIndex: zIndex,
+            top: '10px',
+            left: (220 + (zIndex % 5) * 5) + 'px'
+            }">
+            <div class="box_head"><i class="coor"></i><a class="close">×</a></div>
+            <div class="body">
+                <table border="0" cellpadding="3">
+                    <thead>
+                    <tr bgcolor="#dddddd" class="fixed-header">
+                        <th v-for="field in data.fields" :key="field">{{ field }}</th>
+                    </tr>
+                    </thead>
+                    <tbody v-if="data.data.length">
+                    <tr v-for="row in data.data" :key="row.id">
+                        <td v-for="field in data.fields" :key="field">{{ row[field] }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </template>
+    </div>
 </div>
 
-<div id="data">
-    <table v-if="tableData.length" border="0" cellpadding="3">
-        <thead>
-            <tr bgcolor="#dddddd" class="fixed-header">
-                <th v-for="field in tableFields" :key="field">{{ field }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="row in tableData" :key="row.id">
-                <td v-for="field in tableFields" :key="field">{{ row[field] }}</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
 
 <script src="http://localhost/cqiu/static/vue-3.2.29.global.prod.js"></script>
 <script src="http://localhost/cqiu/static/jquery-3.5.1.min.js"></script>
 <script>
-    new Vue({
-        el: '#app',
-        data: {
-            links: [],
-            selectedLink: '',
-            databases: [],
-            selectedDb: '',
-            tableName: '',
-            fieldName: '',
-            value: '',
-            query: '',
-            message: '',
-            tableData: [],
-            tableFields: []
+    var zIndex = 0;
+    const baseUrl = 'http://localhost/cqiu/tools/DBQ/';
+    const {createApp} = Vue;
+    const app = createApp({
+        data() {
+            return {
+                links: [],
+                selectedLink: '',
+                databases: [],
+                selectedDb: '',
+                tableName: '',
+                fieldName: '',
+                value: '',
+                query: '',
+                message: '',
+                datas: [],
+                tableData: [],
+                tableFields: []
+            }
         },
         methods: {
             fetchLinks() {
-                $.getJSON('dbq.php?act=links', (res) => {
+                $.getJSON(baseUrl + 'dbq.php?act=links', (res) => {
                     if (res.message) this.message = res.message;
                     if (res.status) this.links = res.data;
                 });
             },
             fetchDatabases() {
-                $.getJSON(`dbq.php?act=dbs&link=${this.selectedLink}`, (res) => {
+                $.getJSON(baseUrl + `dbq.php?act=dbs&link=${this.selectedLink}`, (res) => {
                     if (res.message) this.message = res.message;
                     if (res.status) this.databases = res.data;
                 });
             },
             fetchTables() {
-                $.getJSON(`dbq.php?act=tables&link=${this.selectedLink}&table=${this.tableName}`, (res) => {
+                $.getJSON(baseUrl + `dbq.php?act=tables&link=${this.selectedLink}&table=${this.tableName}`, (res) => {
                     if (res.message) this.message = res.message;
                     if (res.status) {
-                        this.tableData = res.data;
-                        this.tableFields = ['TABLE_SCHEMA', 'TABLE_NAME', 'TABLE_COMMENT'];
+                        this.datas.push({
+                            data: res.data,
+                            fields: ['TABLE_SCHEMA', 'TABLE_NAME', 'TABLE_COMMENT'],
+                        });
                     }
                 });
             },
             fetchFieldDetails() {
-                $.getJSON(`dbq.php?act=fields&link=${this.selectedLink}&field=${this.fieldName}`, (res) => {
+                $.getJSON(baseUrl + `dbq.php?act=fields&link=${this.selectedLink}&field=${this.fieldName}`, (res) => {
                     if (res.message) this.message = res.message;
                     if (res.status) {
-                        this.tableData = res.data;
-                        this.tableFields = ['TABLE_SCHEMA', 'TABLE_NAME', 'COLUMN_NAME', 'COLUMN_COMMENT'];
+                        this.datas.push({
+                            data: res.data,
+                            fields: ['TABLE_SCHEMA', 'TABLE_NAME', 'COLUMN_NAME', 'COLUMN_COMMENT'],
+                        });
                     }
                 });
             },
             executeQuery() {
                 $.ajax({
-                    url: 'dbq.php',
+                    url: baseUrl + 'dbq.php',
                     type: 'get',
-                    data: { q: this.query, link: this.selectedLink, db: this.selectedDb },
-                    xhrFields: { withCredentials: true },
+                    data: {q: this.query, link: this.selectedLink, db: this.selectedDb},
+                    xhrFields: {withCredentials: true},
                     dataType: 'json',
                     success: (res) => {
                         if (res.message) this.message = res.message;
                         if (res.status) {
-                            this.tableData = res.data;
-                            this.tableFields = Object.keys(res.data[0]);
+                            this.datas.push({
+                                data: res.data,
+                                fields: Object.keys(res.data[0]),
+                            });
                         }
                     }
                 });
@@ -117,6 +139,50 @@
         mounted() {
             this.fetchLinks();
         }
+    });
+    app.mount('#app');
+
+    $(function(){
+        $(document).on('mousedown', '.coor', function (e) {
+            var $box = $(this).parentsUntil('.box').parent();
+            var posix = {
+                'w': $box.width(),
+                'h': $box.height(),
+                'x': e.pageX,
+                'y': e.pageY
+            };
+            $(document).on({
+                'mousemove': function (e) {
+                    $box.css({
+                        'width': Math.max(30, e.pageX - posix.x + posix.w),
+                        'height': Math.max(30, e.pageY - posix.y + posix.h)
+                    });
+                },
+                'mouseup': function (e) {
+                    $(document).off('mousemove mouseup');
+                }
+            });
+            return false;
+        }).on('mousedown', '.box_head', function (e) {
+            var o = $(this).parent(), offset = o.offset();
+            o.posix = {
+                'x': e.pageX - offset.left,
+                'y': e.pageY - offset.top
+            };
+            $(document).on({
+                'mousemove': function (e) {
+                    $(o).css({
+                        'top': e.pageY - o.posix.y,
+                        'left': e.pageX - o.posix.x
+                    });
+                },
+                'mouseup': function (e) {
+                    $(document).off('mousemove mouseup');
+                }
+            });
+        }).on('mousedown', '.box', function () {
+            if ((parseInt($(this).css('z-index')) || 0) < zIndex) $(this).css('z-index', ++zIndex);
+        });
     });
 </script>
 
