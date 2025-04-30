@@ -82,9 +82,14 @@ if (isset($_REQUEST['cache'])) {
     $url or die('no url!!!');
 } else {
     $path = substr($_SERVER['REQUEST_URI'], strlen(dirname($_SERVER['SCRIPT_NAME'])));
+    if ('/' == $path) {
+        die(<<<HTML
+        <li><a href="?list">list</a></li>
+        <li><input type="text" placeholder="search..." onkeydown="if(event.keyCode===13)top.location.href='?search='+this.value"></li>
+        HTML
+        );
+    }
     // 去掉"/domain/"
-    // $path = implode('/', array_slice(explode('/', $path), 2));
-    // $url = $baseUrl . $path;
     $url = 'https:/' . $path;
     $_REQUEST['cache'] = 1;
 }

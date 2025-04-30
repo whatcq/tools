@@ -30,10 +30,10 @@ $id = $_GET['id'] ?? null;
 if (!$object) {
     response(['--']);
 }
-xdebug_disable();
-ini_set('xdebug.overload_var_dump', 0);
+//xdebug_disable();
+//ini_set('xdebug.overload_var_dump', 0);
 
-var_dump($object, $id);
+//var_dump($object, $id);
 
 // var_dump($_POST); 不行。。
 $input = file_get_contents('php://input');
