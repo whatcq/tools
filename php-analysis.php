@@ -119,14 +119,12 @@ function _log()
     // 这个请您别换行:)
     preg_match('#_log\((.*)\);#i', $files[$caller['file']][$caller['line'] - 1], $params);
 
-    $key = $caller['file'] . ': ' . $caller['line'] . ": " . $params[1] . ': ' . microtime(1);
-    $logs[$key] = func_num_args() > 1
-        ? var_export(func_get_args(), 1)
-        : var_export(func_get_arg(0), 1);
+    $key = $caller['file'] . ': ' . $caller['line'] . ': ' . microtime(1);
+    $logs[$key] = var_export(array_combine(explode(',', $params[1], func_num_args()), func_get_args()), 1);
 }
 
 //---------------------------------
-$debugOptions = empty($_COOKIE['_t']) ? (isset($_GET['_t']) ? ($_GET['_t'] ? $_GET['_t'] : '_') : null) : $_COOKIE['_t'];
+$debugOptions = isset($_GET['_t']) ? $_GET['_t'] : (isset($_COOKIE['_t']) ? $_COOKIE['_t'] : '__');
 
 register_shutdown_function(function () use ($debugOptions) {
     $logs = _log();
@@ -149,6 +147,7 @@ register_shutdown_function(function () use ($debugOptions) {
     }
 
     $selectPanels = array_flip(str_split($debugOptions));
+    //$logs[__FILE__.': '.__LINE__] =  print_r($selectPanels, true);
     $settings = [
         '_' => '<b title="选上则每个页面都显示本调试面板">Pinned</b>',
         'e' => 'TRACE',
@@ -184,10 +183,13 @@ small{font-size: 60%}
 #debugBar_tab_tit{background: #3c8dbc !important;background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #3c8dbc), color-stop(1, #67a8ce)) !important;text-shadow: -1px -1px 1px #000, 1px 1px 1px #fff;height:30px;font:bold 16px/30px Georgia;padding:0 12px;background: #dadada;flex-grow: 1;cursor: n-resize;}
 span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:20px;line-height:20px;display:inline-block;margin-right:3px;cursor:pointer;font-weight:700}
 #debugBar_tab_cont li{border-bottom:1px solid #EEE;font-size:14px;padding:0 12px}
+#debugBar_tab_cont li i{color: gray; font-size: 80%}
 #debugBar_tab_cont li pre{font-family: 'Courier New',serif;background: #e4e2e2;margin: 0;padding: 1px 12px;border-radius: 5px;line-height: 16px;}
 #debugBar_tab_cont{padding:0;overflow:auto;height:220px;line-height:24px}
 #debugBar_close{padding:0;display:none;text-align:right;height:15px;position:absolute;top:6px;right:12px;cursor:pointer}
-#debugBar_open{padding:0;height:30px;float:right;text-align:right;overflow:hidden;position:fixed;bottom:0;right:0;color:#000;line-height:30px;cursor:pointer;z-index: 99999;}
+#debugBar_open{padding:0;height:30px;float:right;text-align:right;overflow:hidden;position:fixed;bottom:0;left:0;color:#000;line-height:30px;cursor:pointer;z-index: 99999;}
+#debugBar_open>div{background:#2ba230;color:#FFF;padding:0 6px 0 0;float:right;line-height:30px;font-size:14px; border-top-right-radius: 8px;}
+#debugBar_open>span{background: #2ba230; display: inline-block; color: #fff; font-size: 27px; padding: 0 3px;font-family: 'Segoe UI Symbol', 'Apple Symbols', serif;}
 .setting label{display:block;width:100px;margin-left:20px}
 .setting input{margin:0 3px}
 #debugBarSetting {padding: 10px;}
@@ -216,11 +218,11 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
                             foreach ($info as $k => $val) {
                                 echo '<li>';
                                 if ($key === 'vars') {
-                                    list($file, $line) = explode(': ', $k);
+                                    list($file, $line, $time) = explode(': ', $k);
                                     $fileEscape = urlencode($file);
-                                    echo "<a href=\"ide://open?url=file://{$file}&line={$line}\">{$k}</a>"
-                                        . "<button onclick=\"loadJS('?_t=comment&target=$fileEscape&line=$line')\">//</button>"
-                                        . "<button onclick=\"loadJS('?_t=delete&target=$fileEscape&line=$line')\">×</button>"
+                                    echo "<a href=\"ide://open?url=file://{$file}&line={$line}\">$file:$line</a><i>$time</i>"
+                                        . "<button onclick=\"loadJS('?_t=comment&target=$fileEscape&line=$line')\" title='注释掉'>//</button>"
+                                        . "<button onclick=\"loadJS('?_t=delete&target=$fileEscape&line=$line')\" title='删除该行'>×</button>"
                                         . '<pre>';
                                 }
                                 else echo $k . ' : ';
@@ -240,8 +242,8 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
     <div id="debugBar_close"><span title="alt+q  显示/隐藏面板&#10;alt+,  增高面板&#10;alt+.  缩小面板&#10;alt+o  ide打开选中文本的文件">✕</span></div>
 </div>
 <div id="debugBar_open">
-    <div style="background:#2ba230;color:#FFF;padding:0 6px 0 0;float:right;line-height:30px;font-size:14px"><?php echo $runtime; ?></div>
-    <span style="background: #2ba230; display: inline-block; color: #fff; font-size: 27px; border-top-left-radius: 8px; padding: 0 3px;font-family: 'Segoe UI Symbol', 'Apple Symbols', serif;">☯</span>
+    <div><?php echo $runtime; ?></div>
+    <span>☯</span>
 </div>
 
 <script type="text/javascript">
