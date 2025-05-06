@@ -75,7 +75,7 @@ class App
         }
         _log(static::$module, $controller, $action);
 
-        spl_autoload_register(['App', 'inner_autoload']);
+        spl_autoload_register(['App', 'innerAutoload']);
 
         // linux区分大小写
         $controllerName = $controller . 'Controller';
@@ -88,12 +88,14 @@ class App
         $controller_obj->$actionName();
     }
 
-    public static function inner_autoload($class)
+    public static function innerAutoload($class)
     {
-        global $__module;
         $class = str_replace("\\", "/", $class);
-        foreach (array('model', 'include', 'controller' . (empty($__module) ? '' : DS . $__module)) as $dir) {
-            $file = APP_DIR . DS . 'protected' . DS . $dir . DS . $class . '.php';
+        $dirs = false !== strpos($class, 'Controller')
+            ? array('controller', 'controller/' . static::$module)
+            : array('model', 'model/admin', 'model/admin/user');
+        foreach ($dirs as $dir) {
+            $file = APP_DIR . "/protected/$dir/$class.php";
             if (file_exists($file)) {
                 include $file;
                 return;
