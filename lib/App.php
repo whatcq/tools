@@ -10,12 +10,11 @@ defined('APP_DEBUG') or define('APP_DEBUG', true);
 
 if (APP_DEBUG) {
     error_reporting(-1);
-    ini_set("display_errors", "On");
+    ini_set('display_errors', 'On');
 } else {
     error_reporting(E_ALL & ~(E_STRICT | E_NOTICE));
-    ini_set("display_errors", "Off");
-    ini_set("log_errors", "On");
-    //set_error_handler("_err_handle2");
+    ini_set('display_errors', 'Off');
+    ini_set('log_errors', 'On');
 }
 set_error_handler(['App', 'errorHandler']);
 
@@ -86,13 +85,12 @@ class App
         if (!class_exists($controllerName)) throw new Exception("Err: Controller '$controllerName' is not exists!");
         if (!method_exists($controllerName, $actionName)) throw new Exception("Err: Method '$actionName' of '$controllerName' is not exists!");
 
-        $controller_obj = new $controllerName();
-        $controller_obj->$actionName();
+        (new $controllerName())->$actionName();
     }
 
     public static function innerAutoload($class)
     {
-        $class = str_replace("\\", "/", $class);
+        $class = str_replace("\\", '/', $class);
         $dirs = ($isController = false !== strpos($class, 'Controller'))
             ? self::$module ? array('controller/' . static::$module, 'controller') : array('controller')
             : array('model', 'include');

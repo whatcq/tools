@@ -5,7 +5,7 @@
 //~ var editor = '"C:\\Program Files\\NuSphere\\PhpED\\phped.exe" "%file%" --line=%line%';
 
 // PhpStorm
-var editor = '"D:\\Program Files (x86)\\JetBrains\\PhpStorm 10.0.1\\bin\\PhpStorm.exe" --line %line% "%file%"';
+// var editor = '"D:\\Program Files (x86)\\JetBrains\\PhpStorm 10.0.1\\bin\\PhpStorm.exe" --line %line% "%file%"';
 
 // SciTE
 //~ var editor = '"C:\\Program Files\\SciTE\\scite.exe" "-open:%file%" -goto:%line%';
@@ -18,6 +18,9 @@ var editor = '"D:\\Program Files (x86)\\JetBrains\\PhpStorm 10.0.1\\bin\\PhpStor
 
 // gVim
 //~ var editor = '"C:\\Program Files\\Vim\\vim73\\gvim.exe" "%file%" +%line%';
+
+// vscode
+var editor = '"D:\\Program Files\\Microsoft VS Code\\Code.exe" -g "%file%:%line%"';
 
 var url = WScript.Arguments(0);
 	//alert(url);
