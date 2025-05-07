@@ -82,6 +82,7 @@ function cache_getOrSet($key, $value)
     if ($cachedValue !== null) {
         return $cachedValue;
     }
+    $value = is_callable($value) ? call_user_func($value) : $value;
     cache_set($key, $value);
 
     return $value;

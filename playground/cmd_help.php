@@ -57,8 +57,10 @@ $cmd = $_REQUEST['cmd'] ?? 'wget';
 <form>
     <?php
 
+    // 在windows下默认的shell是cmd.exe，需要再调用 bash.exe 来执行命令
+    $bashPath = 'D:\\laragon\\bin\\git\\bin\\bash.exe';
     // 执行 wget --help 命令获取帮助信息
-    $helpOutput = shell_exec("$cmd --help");
+    $helpOutput = shell_exec("$bashPath -c '$cmd --help'");
 
     // 合并折行
     $helpOutput = preg_replace("#\n +(?=(\w|\(|'))#", " ", $helpOutput);
@@ -98,7 +100,7 @@ $cmd = $_REQUEST['cmd'] ?? 'wget';
     $html = ob_get_clean();
     include '../lib/functions2.php';
     $sentences
-    && ($fanyi = cache_getOrSet('fanyi_' . md5(serialize($sentences)), translate($sentences)))
+    && ($fanyi = cache_getOrSet('fanyi_' . md5(serialize($sentences)), fn() => translate($sentences)))
     && $html = strtr($html, $fanyi);
     echo $html;
     ?>
