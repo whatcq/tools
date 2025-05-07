@@ -3,7 +3,9 @@
 /**
  * 一个简单的php框架 with 自动加载、路由
  */
+defined('IS_WIN') or define('IS_WIN', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
 defined('APP_DIR') or define('APP_DIR', dirname($_SERVER['SCRIPT_FILENAME']));
+defined('LIB_DIR') or define('LIB_DIR', __DIR__);
 defined('APP_DEBUG') or define('APP_DEBUG', true);
 
 if (APP_DEBUG) {
@@ -75,10 +77,10 @@ class App
         }
         _log(static::$module, $controller, $action);
 
-        spl_autoload_register(['App', 'innerAutoload']);
+        spl_autoload_register(['App', 'innerAutoload'], true, true);
 
         // linux区分大小写
-        $controllerName = $controller . 'Controller';
+        $controllerName = ucfirst($controller) . 'Controller';
         $actionName = 'action' . $action;
 
         if (!class_exists($controllerName)) throw new Exception("Err: Controller '$controllerName' is not exists!");
@@ -91,21 +93,34 @@ class App
     public static function innerAutoload($class)
     {
         $class = str_replace("\\", "/", $class);
-        $dirs = false !== strpos($class, 'Controller')
-            ? array('controller', 'controller/' . static::$module)
-            : array('model', 'model/admin', 'model/admin/user');
+        $dirs = ($isController = false !== strpos($class, 'Controller'))
+            ? self::$module ? array('controller/' . static::$module, 'controller') : array('controller')
+            : array('model', 'include');
+        $ignoreCase = !IS_WIN && $isController;
         foreach ($dirs as $dir) {
-            $file = APP_DIR . "/protected/$dir/$class.php";
-            if (file_exists($file)) {
+            if (file_exists($file = APP_DIR . "/protected/$dir/$class.php")) {
                 include $file;
                 return;
             }
+            if (!$ignoreCase) continue;
+            $phpFiles = glob(APP_DIR . "/protected/$dir/*.php");
+            if (!is_array($phpFiles)) continue;
+            $lowerFile = strtolower($file);
+            foreach ($phpFiles as $file) {
+                if (strtolower($file) === $lowerFile) {
+                    include $file;
+                    return;
+                }
+            }
+        }
+        if (file_exists($file = LIB_DIR . "/$class.php")) {
+            include $file;
         }
     }
 
     public static function log($module, $controller, $action)
     {
-        $log_file = APP_DIR . DS . 'protected' . DS . 'runtime' . DS . 'log' . DS . date('Ymd') . '.log';
+        $log_file = APP_DIR . '/protected/runtime/log/' . date('Ymd') . '.log';
         $log_str = date('Y-m-d H:i:s') . ' ' . $module . '.' . $controller . '.' . $action . "\n";
         file_put_contents($log_file, $log_str, FILE_APPEND);
     }
