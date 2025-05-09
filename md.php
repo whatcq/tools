@@ -30,7 +30,7 @@ if (isset($_GET['p'])) {
 } elseif (isset($_SERVER['REDIRECT_URL'])) {
     $p = $_SERVER['DOCUMENT_ROOT'] . $_SERVER['REDIRECT_URL'];
 } else {
-    $p = null;
+    $p = '.';
 }
 
 //urlencode之后地址栏不好看
