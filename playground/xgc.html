@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实例面板</title>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .refresh-btn {
+            float: right;
+            display: inline-block;
+            margin: 2px auto 0;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .refresh-btn:hover {
+            background-color: #45a049;
+        }
+
+        /* 响应式样式 */
+        @media (max-width: 767px) {
+            .container {
+                padding: 10px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+        .shutdown{color: gray}
+        .running{color: white; background:green;border-radius: 5px;padding: 3px}
+        .freezing{color: orange}
+        .replacing_image{color: orange}
+        .destroyed{font-style: oblique}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div>
+        <button class="refresh-btn" onclick="fetchInstanceData(true)">刷新</button>
+        <h2>实例面板</h2>
+    </div>
+    <table id="instanceTable">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Image ID</th>
+            <th>ID</th>
+            <th>创建时间</th>
+            <th>状态</th>
+            <th>启动时间</th>
+            <th>Web URL</th>
+        </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<script>
+    const statusMap = {
+        deploying: '正在部署',
+        running: '正在运行',
+        booting: '正在开机',
+        shutting_down: '正在关机',
+        shutdown: '已关机',
+        destroying: '正在销毁',
+        destroyed: '已销毁',
+        saving_image: '正在储存镜像',
+        freezing: '正在冻结',
+        freeze: '已冻结',
+        replacing_image: '正在更换镜像'
+    }
+    const baseUrl = 'https://api.xiangongyun.com';
+
+    function getToken() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            const inputToken = prompt('请输入访问令牌');
+            if (!inputToken) {
+                return;
+            }
+            localStorage.setItem('token', inputToken);
+        }
+        return token;
+    }
+
+    function fetchImages() {
+        if (localStorage.getItem('imageData')) {
+            return JSON.parse(localStorage.getItem('imageData'));
+        }
+        const token = getToken();
+        fetch(`${baseUrl}/open/images`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code !== 200) {
+                    console.error('Failed to fetch image data:', data.msg);
+                    return;
+                }
+                // 将镜像列表数据缓存到 localStorage
+                const imageList = data.data.list;
+                const imageIndex = {};
+                imageList.forEach(image => {
+                    imageIndex[image.id] = image;
+                });
+                localStorage.setItem('imageData', JSON.stringify(imageIndex));
+                return imageIndex;
+            })
+            .catch(error => {
+                console.error('Error fetching image data:', error);
+            });
+    }
+
+    function fetchInstanceData(refresh = false) {
+        if (!refresh && localStorage.getItem('instanceData')) {
+            const instanceData = JSON.parse(localStorage.getItem('instanceData'));
+            renderInstanceData(instanceData);
+            return;
+        }
+        const token = getToken();
+        fetch(`${baseUrl}/open/instances`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code !== 200) {
+                    alert(data.msg);
+                    return;
+                }
+
+                const instanceData = data.data.list;
+
+                // 对数据进行排序
+                instanceData.sort((a, b) => {
+                    if (a.image_id < b.image_id) return -1;
+                    if (a.image_id > b.image_id) return 1;
+                    if (a.create_timestamp < b.create_timestamp) return -1;
+                    if (a.create_timestamp > b.create_timestamp) return 1;
+                    if (a.status < b.status) return -1;
+                    if (a.status > b.status) return 1;
+                    return 0;
+                });
+                renderInstanceData(instanceData);
+                localStorage.setItem('instanceData', JSON.stringify(instanceData));
+            })
+            .catch(error => {
+                console.error('Error fetching instance data:', error);
+                alert('获取实例数据时出错');
+            });
+    }
+
+    function renderInstanceData(instanceData) {
+        // 清空表格
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+
+        const imageIndex = fetchImages();
+
+        // 填充表格数据
+        instanceData.forEach((instance,i) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${i + 1}</td>
+              <td>${imageIndex[instance.image_id]?.name || instance.image_id.substring(0, 8)}</td>
+              <td>${instance.id}</td>
+              <td>${new Date(instance.create_timestamp * 1000).toLocaleString()}</td>
+              <td><span class="${instance.status}">${statusMap[instance.status]}</span></td>
+              <td>${new Date(instance.start_timestamp * 1000).toLocaleString()}</td>
+              <td><a href="${instance.web_url}" target="_blank">🔗</a><span id="instance-${instance.id}" onclick="isUrlAccessible('${instance.web_url}')"></span>`;
+            tableBody.appendChild(row);
+
+            if (instance.status === 'running') {
+                isUrlAccessible(instance.web_url).then(result => {
+                    document.getElementById(`instance-${instance.id}`).innerText = result ? '✅' : '❌';
+                });
+            }
+        });
+    }
+    async function isUrlAccessible(url) {
+        try {
+            url = 'check_url.php?url=' + encodeURIComponent(url);
+            const response = await fetch(url, { method: 'HEAD' , mode: 'no-cors' });
+            console.log(response)
+            return response.ok;
+        } catch (error) {
+            return false;
+        }
+    }
+    const loads = {};
+
+    function connectAndHandleWebsocket(instanceId) {
+        // @todo 跨域，难以解决
+        const wsUrl = `wss://${window.location.host}/ws/instances`;
+        const ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+            console.log(`Connected to WebSocket: ${wsUrl}`);
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'status') {
+                loads[instanceId] = data.data?.status?.exec_info?.queue_remaining;
+                document.getElementById(`load-${instanceId}`).innerHTML = loads[instanceId]
+                 + ` - <i>`+ new Date().toLocaleTimeString()+`</i>`;
+                console.log(`Queue remaining for ${instanceId}: ${loads[wsUrl]}`);
+            } else {
+                console.log(`Received unknown message: ${event.data}`);
+            }
+        };
+
+        ws.onclose = () => {
+            console.log(`Disconnected from WebSocket: ${wsUrl}`);
+        };
+
+        ws.onerror = (error) => {
+            console.error(`WebSocket error for ${wsUrl}: `, error);
+        };
+    }
+
+    // 页面加载时自动获取数据
+    fetchInstanceData();
+</script>
+</body>
+</html>
