@@ -6,52 +6,97 @@ if (!empty($_REQUEST['prompt'])) {
     include 'vendor/autoload.php';
 
     date_default_timezone_set('Asia/Chongqing');
-    header('Content-Type: text/event-stream');
+    header('Content-Type: text/event-stream; charset=utf-8');
     header('Cache-Control: no-cache');
     header("Access-Control-Allow-Origin:*");
 
     $log = './chatgpt.log';
-    $token = file_get_contents('./chatgpt.token');
 
     $prompt = $_REQUEST['prompt'];
 
+    $token = file_get_contents('./deepseek.token');
     $openAi = new OpenAi($token);
+    $openAi->setBaseURL('https://api.deepseek.com');
     $time = date('y-m-d H:i');
     file_put_contents($log, "==========$time\n$prompt\n", FILE_APPEND);
     $str = '';
     // 终于找到eventSource,error原因: 这个请求报错了：php-ssl证书过期!
-    $response = $openAi->completion([
-        'prompt'            => urldecode($prompt),
-        'temperature'       => 0.9,
-        'top_p'             => 1,
-        'model'             => 'text-davinci-003',
-        'max_tokens'        => 1024,
-        'frequency_penalty' => 0,
-        'presence_penalty'  => 0.6,
-        'stop'              => [" Human:", " AI:"],
-        "stream"            => true,
-    ], function ($curl_info, $data) use (&$str, &$empty, $log) {
-        if ($data === "data: [DONE]\n\n") {
-            echo $data;
-        } else {
-            $json = json_decode(substr($data, 6), 1);
-            $text = $json['choices'][0]['text'] ?? '';
-            if (!isset($json['choices'][0]['text'])) {
-                file_put_contents($log . '.debug', "------------$curl_info\n$data\n", FILE_APPEND);
+    $response = $openAi->chat([
+        'model' => 'deepseek-chat',
+        'messages' => [
+            // [
+            //     'role' => 'system',
+            //     'content' => 'You are a helpful assistant'
+            // ],
+            [
+                'role' => 'user',
+                'content' => $prompt
+            ]
+        ],
+        'stream' => true,
+    ], function ($curl_info, $datas) use (&$str, &$empty, $log) {
+        // $curl_info = '';//json_encode(curl_getinfo($curl_info), 448);
+        // file_put_contents($log . '.debug', "------------$curl_info\n$datas\n", FILE_APPEND);
+        foreach (explode("\n\n", $datas) as $data) {
+            if ($data === "data: [DONE]") {
+                break;
+            } else {
+                if (!trim($data)) continue;
+                $json = json_decode(substr($data, 6), 1);
+                $text = $json['choices'][0]['delta']['content'] ?? '';
+                if (empty($str) && isset($text[0]) && $text[0] === "\n") {
+                    $text = ltrim($text);
+                }
+                $str .= $text;
+                $text = nl2br(str_replace('  ', '&nbsp;&nbsp;', htmlspecialchars($text)));
+                echo "data: $text";
             }
-            if (empty($str) && isset($text[0]) && $text[0] === "\n") {
-                $text = ltrim($text);
-            }
-            $str .= $text;
-            $text = nl2br(str_replace('  ', '&nbsp;&nbsp;', htmlspecialchars($text)));
-            echo "data: $text\n";
+            echo "\n\n";
         }
-        echo PHP_EOL;
         ob_flush();
         flush();
 
-        return strlen($data);
+        return strlen($datas);
     });
+
+    // $token = file_get_contents('./chatgpt.token');
+    // $openAi = new OpenAi($token);
+    // $time = date('y-m-d H:i');
+    // file_put_contents($log, "==========$time\n$prompt\n", FILE_APPEND);
+    // $str = '';
+    // // 终于找到eventSource,error原因: 这个请求报错了：php-ssl证书过期!
+    // $response = $openAi->completion([
+    //     'prompt'            => urldecode($prompt),
+    //     'temperature'       => 0.9,
+    //     'top_p'             => 1,
+    //     'model'             => 'text-davinci-003',
+    //     'max_tokens'        => 1024,
+    //     'frequency_penalty' => 0,
+    //     'presence_penalty'  => 0.6,
+    //     'stop'              => [" Human:", " AI:"],
+    //     "stream"            => true,
+    // ], function ($curl_info, $data) use (&$str, &$empty, $log) {
+    //     if ($data === "data: [DONE]\n\n") {
+    //         echo $data;
+    //     } else {
+    //         $json = json_decode(substr($data, 6), 1);
+    //         $text = $json['choices'][0]['text'] ?? '';
+    //         if (!isset($json['choices'][0]['text'])) {
+    //             file_put_contents($log . '.debug', "------------$curl_info\n$data\n", FILE_APPEND);
+    //         }
+    //         if (empty($str) && isset($text[0]) && $text[0] === "\n") {
+    //             $text = ltrim($text);
+    //         }
+    //         $str .= $text;
+    //         $text = nl2br(str_replace('  ', '&nbsp;&nbsp;', htmlspecialchars($text)));
+    //         echo "data: $text\n";
+    //     }
+    //     echo PHP_EOL;
+    //     ob_flush();
+    //     flush();
+    //
+    //     return strlen($data);
+    // });
 
     file_put_contents($log, "------------\n$str\n", FILE_APPEND);
     die("data: [DONE]\n\n");
@@ -59,7 +104,8 @@ if (!empty($_REQUEST['prompt'])) {
 ?>
 <!DOCTYPE HTML>
 <html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>ChatGPT</title>
 <style>
     body {
@@ -79,14 +125,14 @@ if (!empty($_REQUEST['prompt'])) {
         font: 16px/21px Consolas;
     }
 
-    div>div {
+    div > div {
         border-radius: 5px;
         background-color: #f3ecd9;
         padding: 5px;
         margin-bottom: 10px;
     }
 
-    div>i {
+    div > i {
         background: lightblue;
         border-radius: 10px;
         padding: 0px 5px;
@@ -106,8 +152,9 @@ if (!empty($_REQUEST['prompt'])) {
 <div id="bar">
     <select id="voi"></select>
     <span id="toggle_speech" style="cursor:pointer">🕪</span>
-    <input id='input' accesskey="Z" style="width:80%" onkeydown="if(event.keyCode == 13){document.getElementById('bt').click()}" />
-    <input type='button' value="send" id="bt" />
+    <input id='input' accesskey="Z" style="width:80%"
+           onkeydown="if(event.keyCode === 13){document.getElementById('bt').click()}"/>
+    <input type='button' value="send" id="bt"/>
 </div>
 
 <script>
@@ -119,7 +166,7 @@ if (!empty($_REQUEST['prompt'])) {
 
     function strip(html) {
         let doc = new DOMParser().parseFromString(html, 'text/html');
-        return doc.body.textContent || "";
+        return doc.body.textContent.replace(/(#|\*)/g, '') || "";
     }
 
     function getLen(str) {
@@ -135,7 +182,7 @@ if (!empty($_REQUEST['prompt'])) {
     }
 
     if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = function() {
+        speechSynthesis.onvoiceschanged = function () {
             voices = synth.getVoices().filter((v, i) => /Online.*Chinese/.test(v.name));
             // console.log(voices);
             let voiceSelect = document.getElementById('voi');
@@ -150,7 +197,7 @@ if (!empty($_REQUEST['prompt'])) {
         };
     }
 
-    window.onload = function() {
+    window.onload = function () {
         var nick = 'cqiu'; //prompt("enter your name");
         var here = document.getElementById('here');
         var input = document.getElementById('input');
@@ -183,13 +230,13 @@ if (!empty($_REQUEST['prompt'])) {
             speechSynthesis.speak(msg);
             reading = true;
 
-            setTimeout(function() {
+            setTimeout(function () {
                 reading = false;
                 readQueue('');
             }, 1000 * getLen(text) / 5); // 5字/s
         }
 
-        bt.onclick = function() {
+        bt.onclick = function () {
             var div = document.createElement("div");
             div.innerHTML = ('<u>' + nick + '</u>: <i>' + i + '</i>' + input.value);
             document.body.insertBefore(div, here);
@@ -200,7 +247,7 @@ if (!empty($_REQUEST['prompt'])) {
             here.scrollIntoView();
 
             var chat = new window.EventSource("?prompt=" + input.value);
-            chat.onmessage = function(e) {
+            chat.onmessage = function (e) {
                 if (e.data === "[DONE]") {
                     chat.close();
                     if (sentence.length > 2) {
@@ -220,13 +267,13 @@ if (!empty($_REQUEST['prompt'])) {
                 // console.log(text)
                 here.scrollIntoView();
             };
-            chat.onerror = function(e) {
+            chat.onerror = function (e) {
                 console.log(e);
                 chat.close();
                 alert('EventSource Error');
             };
         };
-        toggle_speech.onclick = function() {
+        toggle_speech.onclick = function () {
             if (this.innerText === '🕨') {
                 this.innerText = '🕪';
             } else {
