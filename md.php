@@ -82,7 +82,7 @@ if ($content) {
     # 某些解析不是github的方式。。
     /*/
     include 'lib/Parser.php';
-    $parsedown = new HyperDown\Parser;
+    $parsedown = new Parser;
     $parsedown->enableHtml();
     $content = $parsedown->makeHtml($content);
     /**/
