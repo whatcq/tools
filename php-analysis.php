@@ -1,5 +1,7 @@
 <?php
 /**
+ * @phpversion 5.4
+ *
  * 简单分析php程序的状况
  * - use _COOKIE['_t']/ajax click=>document.cookie='_t=_';//start debug bar
  * - _err('msg');//trace
@@ -141,6 +143,8 @@ register_shutdown_function(function () use ($debugOptions) {
     if (!$debugOptions
         || (isset($_SERVER['HTTP_REQUEST_TYPE']) && $_SERVER['HTTP_REQUEST_TYPE'] === 'ajax')
         || array_search('XMLHttpRequest', getallheaders()) === 'X-Requested-With'
+        || isset($_SERVER['HTTP_SEC_FETCH_MODE'])
+        || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'fetch')
         || false !== stripos(implode('', headers_list()), 'Content-Type: application/json')
     ) {
         return;
