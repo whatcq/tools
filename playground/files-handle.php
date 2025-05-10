@@ -4,11 +4,13 @@
  * @todo tbc
  * 脚本：批量生成组件
  */
-$directory = $_REQUEST['directory'] ?? '';
+$directory = $_REQUEST['dir'] ?? '';
+$recursive = isset($_REQUEST['recursive']);
 $include_folders = isset($_REQUEST['include_folders']);
 $include_files = isset($_REQUEST['include_files']);
 $pattern = $_REQUEST['pattern'] ?? '';
 $exclude = $_REQUEST['exclude'] ?? '';
+$url = $_REQUEST['url'] ?? '?act=do';
 
 if (($_GET['act'] ?? '') === 'do') {
     $folders = $_POST['selected'] ?? [];
@@ -127,11 +129,11 @@ VUE;
         }
 
         #form label.line {
-            display: block;
+            /*display: block;*/
         }
 
         #form label.line input {
-            width: calc(100% - 65px);
+            width: calc(100% - 165px);
         }
 
         form input[type="submit"] {
@@ -145,11 +147,18 @@ VUE;
             max-height: 500px;
             overflow-y: auto;
         }
+
         ol.files-list li label {
             display: flex;
         }
-        ol.files-list li label input:checked + span {background-color: #f1cd9d;}
-        ol.files-list li:nth-child(odd){background-color: #f2f2f2;}
+
+        ol.files-list li label input:checked + span {
+            background-color: #f1cd9d;
+        }
+
+        ol.files-list li:nth-child(odd) {
+            background-color: #f2f2f2;
+        }
 
     </style>
 </head>
@@ -159,7 +168,11 @@ VUE;
         <form method="get" id="form">
             <label for="directory" class="line">
                 <span>目录:</span>
-                <input type="text" id="directory" name="directory" value="<?php echo $directory ?: '.' ?>" size="40">
+                <input type="text" id="directory" name="dir" value="<?php echo $directory ?: '.' ?>" size="40">
+            </label>
+            <label for="recursive">
+                <input type="checkbox" id="recursive" name="recursive" <?php echo $recursive ? 'checked' : ''; ?>>
+                递归搜索
             </label>
             <label for="match">
                 <span>匹配:</span>
@@ -179,20 +192,34 @@ VUE;
                 文件</label>
             <input type="submit" value="搜索">
             <input type="reset">
+            <label for="">
+                <span>操作:</span>
+                <input type="text" name="url" value="<?php echo $url ?>"
+                       onchange="document.forms['files-form'].action = this.value" style="width: 410px"/>
+            </label>
         </form>
 
         <div>搜索结果:</div>
-        <form method='post' action='?act=do' target='iframe' id="files-form">
+        <form method='post' action='<?php echo $url; ?>' target='iframe' id="files-form">
             <ol class="files-list">
                 <?php
                 if ($directory) {
                     $results = array();
 
-                    $files = new RecursiveIteratorIterator(
-                        new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::SKIP_DOTS),
-                        RecursiveIteratorIterator::SELF_FIRST,
-                        RecursiveIteratorIterator::CATCH_GET_CHILD
-                    );
+                    if ($recursive) {
+                        $files = new RecursiveIteratorIterator(
+                            new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::SKIP_DOTS),
+                            RecursiveIteratorIterator::SELF_FIRST,
+                            RecursiveIteratorIterator::CATCH_GET_CHILD
+                        );
+                    } else {
+                        $files = new CallbackFilterIterator(
+                            new DirectoryIterator($directory),
+                            function ($file) {
+                                return !$file->isDot();
+                            }
+                        );
+                    }
 
                     foreach ($files as $file) {
                         $filename = $file->getFilename();
@@ -221,7 +248,7 @@ VUE;
                             } else {
                                 echo "<span class='file-icon'>{$result['path']}</span>";
                             }
-                            echo  "</label></li>";
+                            echo "</label></li>";
                         }
                     } else {
                         echo '== 无结果 ==';
@@ -232,7 +259,7 @@ VUE;
 
             <label><input type='checkbox' id='select-all' onclick='toggleAll()'>全选</label>
             <label><input type='checkbox' id='select-invert' onclick="invertSelection()">反选</label>
-            (<span id="select"></span> / <span id="total"></span>)
+            (<span id="selected-count">0</span>/<span id="total"></span>)
             <input type='submit' name='submit' value='处理选中项'>
         </form>
     </div>
@@ -242,11 +269,33 @@ VUE;
 </div>
 
 <script>
+    const checkboxes = document.querySelectorAll('#files-form .files-list input[type="checkbox"]');
+    const selectedCountEl = document.getElementById('selected-count');
+    const totalEl = document.getElementById('total');
+
+    function updateCount() {
+        const checkedBoxes = document.querySelectorAll('#files-form .files-list input[type="checkbox"]:checked');
+        selectedCountEl.textContent = checkedBoxes.length; // 排除提交按钮
+    }
+
+    window.addEventListener('DOMContentLoaded', function () {
+
+        // 初始化总文件数
+        totalEl.textContent = checkboxes.length; // 排除全选按钮
+
+        // 监听所有 checkbox 的变化
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateCount);
+        });
+
+    });
+
     function toggleAll() {
         var checkboxes = document.querySelectorAll('#files-form input[type="checkbox"]');
         for (var i = 0; i < checkboxes.length; i++) {
             checkboxes[i].checked = document.getElementById('select-all').checked;
         }
+        updateCount()
     }
 
     function invertSelection() {
@@ -254,6 +303,7 @@ VUE;
         for (var i = 0; i < checkboxes.length; i++) {
             checkboxes[i].checked = !checkboxes[i].checked;
         }
+        updateCount()
     }
 </script>
 </body>
