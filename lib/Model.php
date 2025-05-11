@@ -39,7 +39,7 @@ class Model
 
     public function dbInstance($dbConfig, $key, $forceReplace = false)
     {
-        if ($forceReplace || empty($this->dbInstances[$key])) {
+        if ($forceReplace || empty(App::$caches['dbInstances'][$this->link][$key])) {
             try {
                 $dsn = isset($dbConfig['DSN'])
                     ? $dbConfig['DSN']
@@ -48,12 +48,12 @@ class Model
                     . (($db = !empty($this->db) ? $this->db : (isset($dbConfig['NAME']) ? $dbConfig['NAME'] : '')) ? ';dbname=' . $db : '')
                     . (isset($dbConfig['CHAR']) ? ';charset=' . $dbConfig['CHAR'] : '');
 
-                $this->dbInstances[$key] = new PDO($dsn, $dbConfig['USER'], $dbConfig['PASS']);
+                App::$caches['dbInstances'][$this->link][$key] = new PDO($dsn, $dbConfig['USER'], $dbConfig['PASS']);
             } catch (PDOException $e) {
                 throw new Exception('Database Err: ' . $e->getMessage());
             }
         }
-        return $this->dbInstances[$key];
+        return App::$caches['dbInstances'][$this->link][$key];
     }
 
     public function execute($sql, $params = array(), $readonly = false)
