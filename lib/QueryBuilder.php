@@ -161,6 +161,6 @@ class QueryBuilder extends Model
             $sql .= " LIMIT 1";
         }
         $result = $this->query($sql, $this->bindParams);
-        return !empty($result) ? array_shift($result)[array_key_first($result[0])] : null;
+        return !empty($result) ? current(current($result)) : null;
     }
 }

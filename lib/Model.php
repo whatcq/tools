@@ -5,7 +5,7 @@ class Model
     public $page;
 
     protected $dbInstances; // 缓存master/slave的
-    public $link;           // 初始化就确定了
+    public $link;           // key of App::$configs['my_diary_db']
     public $db;
     public $table;
 
@@ -183,7 +183,7 @@ class Model
      * @param array $columns 字段s 注意与 $rows 保持一致，包括顺序!!!
      * @return bool
      */
-    public function batchInsert(array $rows, array $columns = []): bool
+    public function batchInsert(array $rows, array $columns = [])
     {
         $columns = $columns ?: array_keys(current($rows));
         $columnNames = implode(',', $columns);
@@ -196,18 +196,17 @@ class Model
         }
 
         $sql = "INSERT INTO `$this->table` ($columnNames) VALUES " . implode(',', $placeholders);
-        _log($sql, $values);
         return $this->execute($sql, $values);
     }
 
     /**
-     * 实现 upsert 操作
+     * 实现 upsert 操作（有pk/unique key才行）
      *
      * @param array $insertColumns 插入的字段和值
      * @param array $updateColumns 更新的字段和值
      * @return int 影响的行数
      */
-    public function upsert(array $insertColumns, array $updateColumns): int
+    public function upsert(array $insertColumns, array $updateColumns)
     {
         // 构造插入字段和占位符
         $allColumns = $insertColumns + $updateColumns;
@@ -227,8 +226,6 @@ class Model
 
         // 合并绑定值
         $values = array_merge(array_values($allColumns), array_values($updateColumns));
-
-        //_log($sql, $values);
 
         // 执行 SQL
         _log($sql, $values);
