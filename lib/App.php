@@ -16,7 +16,7 @@ if (APP_DEBUG) {
     ini_set('display_errors', 'Off');
     ini_set('log_errors', 'On');
 }
-set_error_handler(['App', 'errorHandler']);
+//set_error_handler(['App', 'errorHandler']);
 
 /**
  * 配置文件: .env/.ini; config.php; db-config;
@@ -59,13 +59,20 @@ defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 
 class App
 {
+    static $configs = array(
+        'defaultController' => 'Index',
+        'defaultAction' => 'index',
+    );
+
     static $module = null;
 
-    public static function run()
+    public static function run($configs)
     {
+        // @todo use yii\helpers\ArrayHelper::merge
+        static::$configs = array_merge(static::$configs, $configs);
         // route: r=module.controller/action
-        $controller = 'index';
-        $action = 'index';
+        $controller = static::$configs['defaultController'];
+        $action = static::$configs['defaultAction'];
         if (isset($_REQUEST['r'])) {
             $parts = explode('/', trim($_REQUEST['r'], '/'), 2);
             isset($parts[1]) && $action = $parts[1];
@@ -152,4 +159,4 @@ class App
     }
 }
 
-App::run();
+App::run(isset($configs) ? $configs : []);

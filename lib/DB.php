@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class DB (https://github.com/nikic/DB)
  * Simple database wrapper for PDO
@@ -61,30 +62,6 @@ class DB
 
         $args = func_get_args();
         return self::instance()->exec(self::autoQuote(array_shift($args), $args));
-    }
-
-    /**
-     * 批量插入数据
-     *
-     * @param string $table 表名
-     * @param array $columns 字段数组
-     * @param array $rows 数据数组
-     * @return int 影响的行数
-     */
-    public static function batchInsert(string $table, array $rows, array $columns = []): int
-    {
-        $columns = $columns ?: array_keys(current($rows));
-        $columnNames = implode(',', $columns);
-        $placeholders = [];
-        $values = [];
-
-        foreach ($rows as $row) {
-            $placeholders[] = '(' . implode(',', array_fill(0, count($columns), '?')) . ')';
-            $values = array_merge($values, array_values($row));
-        }
-
-        $sql = "INSERT INTO `$table` ($columnNames) VALUES " . implode(',', $placeholders);
-        return self::instance()->prepare($sql)->execute($values);
     }
 
     public static function autoQuote($query, array $args)

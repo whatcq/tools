@@ -101,12 +101,15 @@ class Model
      * @param $limit int|array($page, $pageSize, $scope 显示页数)
      * @return array|false|int|null
      */
-    public function findAll($conditions = array(), $sort = null, $fields = '*', $limit = null)
+    public function findAll($conditions = array(), $sort = null, $fields = '*', $limit = null, $groupBy  = null)
     {
         $sort = !empty($sort) ? ' ORDER BY ' . $sort : '';
         $conditions = $this->_where($conditions);
 
         $sql = ' FROM ' . $this->table . $conditions["_where"];
+        if (!empty($groupBy)) {
+            $sql .= ' GROUP BY ' . $groupBy;
+        }
         if (is_array($limit)) {
             $total = $this->query('SELECT COUNT(*) as M_COUNTER ' . $sql, $conditions["_bindParams"]);
             if (!isset($total[0]['M_COUNTER']) || $total[0]['M_COUNTER'] == 0) return array();
