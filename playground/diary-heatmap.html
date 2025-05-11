@@ -244,7 +244,14 @@
                 data.forEach(item => {
                     content += `<div class="card">
                         <h4>${item.title}</h4>
-                        <p>${item.content.replace(/\n/g, '<br>').replace(/\\(.)/g, '$1')}</p>
+                        <p>${item.content
+                        .replace(/\\(.)/g, '$1')
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#039;')
+                        .replace(/\n/g, '<br>')}</p>
                     </div>`;
                 })
                 document.getElementById('content').innerHTML = content;

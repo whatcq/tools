@@ -64,6 +64,8 @@ class App
         'defaultAction' => 'index',
     );
 
+    static $caches = array();
+
     static $module = null;
 
     public static function run($configs)
