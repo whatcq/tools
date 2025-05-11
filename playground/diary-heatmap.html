@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day-day-up</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/cal-heatmap/dist/cal-heatmap.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cal-heatmap/dist/cal-heatmap.css">
+    <!--<script src="https://unpkg.com/cal-heatmap/dist/plugins/Legend.min.js"></script>-->
+    <script src="https://unpkg.com/cal-heatmap/dist/plugins/LegendLite.min.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/cal-heatmap/dist/plugins/Tooltip.min.js"></script>
+    <style>
+        body {
+            margin: unset;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cfcfcf;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ced5ce;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 5px;
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+            border-radius: 5px;
+        }
+
+        .button--secondary {
+            background-color: #6c757d;
+        }
+
+        .margin-top--sm {
+            margin-top: 5px;
+        }
+
+        .margin-left--xs {
+            margin-left: 5px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            overflow: hidden; /* 防止内部元素影响整体滚动 */
+        }
+
+        .left-panel {
+            flex: 1;
+            max-height: 100vh; /* 限制最大高度为视口高度 */
+            overflow-y: auto; /* 超出时显示垂直滚动条 */
+            padding-right: 10px; /* 可选：增加一点右边距，防止贴边 */
+        }
+        .left-panel > * {
+            margin: 10px;
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 0;
+            background-color: #f9f9f9;
+            border-left: 1px solid #ddd;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .card {
+            background-color: white;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #eee;
+        }
+
+        .card h4 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .card p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #555;
+        }
+        .mode-option {
+            display: inline-block;
+            margin: 5px;
+            padding: 2px 4px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .active {
+            background-color: #31a354;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="left-panel">
+        <div id="ex-stock" class="margin-bottom--md"></div>
+        <a
+                class="button button--sm button--secondary"
+                href="#"
+                onclick="cal.previous(); return false;"
+        >
+            ←
+        </a>
+        <a
+                class="button button--sm button--secondary margin-left--xs"
+                href="#"
+                onclick="cal.next(); return false;"
+        >
+            →
+        </a>
+        <div style="float: right; font-size: 11px; margin-top: 5px;">
+            Calm
+            <div
+                    id="ex-stock-legend"
+                    style="display: inline-block; margin: 0 8px;"
+            ></div>
+            Busy
+        </div>
+        <div id="mode-container"></div>
+    </div>
+    <div id="content" class="right-panel"></div>
+</div>
+
+
+<script>
+    const modes = ['year', 'month', 'week'];
+    const container = document.getElementById('mode-container');
+
+    // 获取上次保存的模式，默认是 month
+    const viewMode = localStorage.getItem('diary-view-mode') || 'month';
+
+    // 动态生成按钮
+    modes.forEach(mode => {
+        const btn = document.createElement('div');
+        btn.className = 'mode-option' + (mode === viewMode ? ' active' : '');
+        btn.innerText = mode;
+        btn.onclick = () => {
+            localStorage.setItem('diary-view-mode', mode);
+            location.reload();
+            document.querySelectorAll('.mode-option').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            console.log('切换到模式:', mode);
+        };
+        container.appendChild(btn);
+    });
+
+    // @todo 想要实现月份分隔线，需要自定义一个插件
+    class AfterPaintPlugin {
+        constructor() {
+        }
+
+        setup(cal) {
+            cal.on('after:paint', ([svg, elements]) => {
+                const drawnMonths = new Set();
+
+                elements.forEach(d => {
+                    const date = new Date(d.t);
+                    const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+                    if (!drawnMonths.has(monthKey)) {
+                        drawnMonths.add(monthKey);
+
+                        const x = d.x * 14; // 取决于你 subDomain 的大小 + 间距
+                        svg
+                            .append('line')
+                            .attr('x1', x)
+                            .attr('x2', x)
+                            .attr('y1', 0)
+                            .attr('y2', 7 * 14)
+                            .attr('stroke', 'white')
+                            .attr('stroke-width', 1);
+                    }
+                });
+            });
+        }
+    }
+
+    const weekDaysTemplate = DateHelper => ({
+        name: 'weekday',
+        parent: 'day',
+        rowsCount: () => 7,
+        columnsCount: () => 54,
+        mapping: (startTimestamp, endTimestamp) => {
+            let weekNumber = 0;
+            let x = -1;
+
+            return DateHelper.intervals(
+                'day',
+                startTimestamp,
+                DateHelper.date(endTimestamp)
+            )
+                .map(ts => {
+                    const date = DateHelper.date(ts);
+
+                    if (weekNumber !== date.week()) {
+                        weekNumber = date.week();
+                        x += 1;
+                    }
+
+                    return {
+                        t: ts,
+                        x,
+                        y: date.format('d') - 1,
+                    };
+                })
+                .filter(n => n !== null);
+        },
+    });
+
+    const cal = new CalHeatmap();
+    cal.addTemplates(weekDaysTemplate);
+    cal.on('click', (event, timestamp, value) => {
+        if (value < 1) return;
+        fetch(
+            'mempad-data.php?r=index/view&date=' + new Date(timestamp).toLocaleDateString()
+        )
+            .then(response => response.json())
+            .then(data => {
+                let content = '';
+                data.forEach(item => {
+                    content += `<div class="card">
+                        <h4>${item.title}</h4>
+                        <p>${item.content.replace(/\n/g, '<br>').replace(/\\(.)/g, '$1')}</p>
+                    </div>`;
+                })
+                document.getElementById('content').innerHTML = content;
+            })
+            .catch(err => {
+                console.error('Error fetching diary:', err);
+                document.getElementById('content').innerHTML = '<p>加载内容失败</p>';
+            });
+    });
+
+    const yearView = {
+        range: 15,
+        date: {
+            start: new Date('2011-01-01'),
+            min: new Date('2011-05-01'),
+            max: new Date('2025-12-31'),
+            timezone: 'utc',
+        },
+        data: {
+            source: 'mempad-data.php?r=index/heatmap',
+            type: 'csv',
+            x: 'date',
+            y: d => +d['count'],
+        },
+        domain: {
+            type: 'year',
+            label: {
+                position: 'left',
+                textAlign: 'end',
+                width: 50,
+                offset: {x: -10, y: 5},
+            },
+        },
+        legend: {
+            show: true,
+            label: 'Daily Volume',
+            width: 150,
+            marginLeft: 10,
+            marginRight: 10,
+        },
+        verticalOrientation: true,
+        subDomain: {
+            type: 'day',
+            radius: 2
+        },
+        scale: {
+            color: {
+                type: 'quantize',
+                domain: [0, 5],
+                scheme: 'Greens', // YlOrRd
+            },
+        },
+        itemSelector: '#ex-stock',
+    };
+    const monthView = {
+        data: {
+            source: 'mempad-data.php?r=index/heatmap',
+            type: 'csv',
+            x: 'date',
+            y: d => +d['count'],
+        },
+        date: { /*locale: 'zh-cn',*/ start: new Date('2025-01-01') },
+        range: 12,
+        scale: {
+            color: {
+                type: 'quantize',
+                scheme: 'Greens', //'Oranges',
+                domain: [0, 1, 2, 3, 4, 5, 6, 7],
+            },
+        },
+        domain: {
+            type: 'month',
+        },
+        subDomain: { type: 'day', radius: 2 },
+        itemSelector: '#ex-stock',
+    };
+    cal.paint(
+        viewMode  === 'year' ? yearView : monthView,
+        [
+            [LegendLite, {itemSelector: '#ex-stock-legend', includeBlank: true}],
+            [
+                Tooltip,
+                {
+                    text: function (date, value, dayjsDate) {
+                        return (
+                            (value ? d3.format(',')(value) : '0') +
+                            ' - ' +
+                            dayjsDate.format('YYYY-MM-DD')
+                        );
+                    },
+                },
+            ],
+            // [AfterPaintPlugin]
+        ]
+    );
+</script>
+</body>
+</html>
