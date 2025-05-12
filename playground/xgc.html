@@ -212,7 +212,7 @@
             const row = document.createElement('tr');
             row.innerHTML = `
               <td>${i + 1}</td>
-              <td>${imageIndex[instance.image_id]?.name || instance.image_id.substring(0, 8)}</td>
+              <td title="${instance.image_id}">${imageIndex[instance.image_id]?.name || instance.image_id.substring(0, 8)}</td>
               <td>${instance.id}</td>
               <td>${new Date(instance.create_timestamp * 1000).toLocaleString().replace(today, '今天')}</td>
               <td><span class="${instance.status}">${statusMap[instance.status]}</span></td>

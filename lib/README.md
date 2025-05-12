@@ -26,7 +26,7 @@ php 灵活，每个人容易按自己需求和喜好弄一套自己的框架。
   - env
   - test(unit/functional/acceptance/fixture)
 - db
-  - adapter(db/redis/mongodb/es)/query-builder
+  - dao/adapter/(db/redis/mongodb/es)/query-builder
   - orm/ar/model/schema/entity/repository
 - web
   - request/response
