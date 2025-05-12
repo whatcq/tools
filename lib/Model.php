@@ -101,7 +101,7 @@ class Model
      * @param $limit int|array($page, $pageSize, $scope 显示页数)
      * @return array|false|int|null
      */
-    public function findAll($conditions = array(), $sort = null, $fields = '*', $limit = null, $groupBy  = null)
+    public function findAll($conditions = array(), $sort = null, $fields = '*', $limit = null, $groupBy = null)
     {
         $sort = !empty($sort) ? ' ORDER BY ' . $sort : '';
         $conditions = $this->_where($conditions);
@@ -172,7 +172,8 @@ class Model
             $values[":" . $k] = $v;
             $marks[] = ":" . $k;
         }
-        $this->execute("INSERT INTO " . $this->table . " (" . implode(', ', $keys) . ") VALUES (" . implode(', ', $marks) . ")", $values);
+        $this->execute("INSERT INTO $this->table (" . implode(', ', $keys)
+            . ") VALUES (" . implode(', ', $marks) . ")", $values);
         return $this->dbInstance(App::$configs[$this->link], 'master')->lastInsertId();
     }
 
@@ -271,7 +272,7 @@ class Model
     }
 
     /**
-     * @param array $conditions 支持 rawWhere+...params 以及 key=>value
+     * @param array $conditions 复杂用 rawWhere+...params ; 简单用 key=>value
      * @return array
      */
     private function _where($conditions)

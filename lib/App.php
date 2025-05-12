@@ -68,7 +68,7 @@ class App
 
     static $module = null;
 
-    public static function run($configs)
+    public static function run($configs = [])
     {
         // @todo use yii\helpers\ArrayHelper::merge
         static::$configs = array_merge(static::$configs, $configs);
@@ -160,5 +160,3 @@ class App
         }
     }
 }
-
-App::run(isset($configs) ? $configs : []);
