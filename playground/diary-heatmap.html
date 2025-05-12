@@ -99,6 +99,7 @@
             font-size: 14px;
             line-height: 1.5;
             color: #555;
+            white-space: pre-wrap;
         }
         .mode-option {
             display: inline-block;
@@ -236,7 +237,7 @@
     cal.on('click', (event, timestamp, value) => {
         if (value < 1) return;
         fetch(
-            'mempad-data.php?r=index/view&date=' + new Date(timestamp).toLocaleDateString()
+            'mempad-data.php?_=view&date=' + new Date(timestamp).toLocaleDateString()
         )
             .then(response => response.json())
             .then(data => {
@@ -249,7 +250,7 @@
                         .replace(/&/g, '&amp;')
                         .replace(/</g, '&lt;')
                         .replace(/>/g, '&gt;')
-                        .replace(/\n/g, '<br>')}</p>
+                        /*.replace(/\n/g, '<br>')*/}</p>
                     </div>`;
                 })
                 document.getElementById('content').innerHTML = content;
@@ -269,7 +270,7 @@
             timezone: 'utc',
         },
         data: {
-            source: 'mempad-data.php?r=index/heatmap',
+            source: 'mempad-data.php?_=heatmap',
             type: 'csv',
             x: 'date',
             y: d => +d['count'],

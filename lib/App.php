@@ -82,6 +82,8 @@ class App
             isset($parts0[1])
                 ? ($controller = $parts0[1]) && (static::$module = $parts0[0])
                 : $controller = $parts0[0];
+        } elseif (isset($_REQUEST['_'])) {
+            $action = $_REQUEST['_'];
         }
         _log(static::$module, $controller, $action);
 

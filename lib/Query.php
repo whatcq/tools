@@ -3,7 +3,6 @@
 class Query extends Model
 {
     protected $select = '*';
-    protected $from = '';
     protected $alias = '';
     protected $where = '';
     protected $groupBy = '';
@@ -13,6 +12,11 @@ class Query extends Model
     protected $indexBy = null;
     protected $bindParams = [];
     protected $joins = [];
+
+    public function from($table)
+    {
+        $this->table = $table;
+    }
 
     public function select($fields)
     {
