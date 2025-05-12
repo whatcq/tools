@@ -74,8 +74,8 @@
         }
         .shutdown{color: gray}
         .running{color: white; background:green;border-radius: 5px;padding: 3px}
+        .deploying, .booting, .replacing_image{color: orange}
         .freezing{color: orange}
-        .replacing_image{color: orange}
         .destroyed{font-style: oblique}
     </style>
 </head>
@@ -206,16 +206,17 @@
 
         const imageIndex = fetchImages();
 
+        const today = new Date().toLocaleDateString();
         // 填充表格数据
         instanceData.forEach((instance,i) => {
             const row = document.createElement('tr');
             row.innerHTML = `
               <td>${i + 1}</td>
-              <td>${imageIndex[instance.image_id]?.name || instance.image_id.substring(0, 8)}</td>
+              <td title="${instance.image_id}">${imageIndex[instance.image_id]?.name || instance.image_id.substring(0, 8)}</td>
               <td>${instance.id}</td>
-              <td>${new Date(instance.create_timestamp * 1000).toLocaleString()}</td>
+              <td>${new Date(instance.create_timestamp * 1000).toLocaleString().replace(today, '今天')}</td>
               <td><span class="${instance.status}">${statusMap[instance.status]}</span></td>
-              <td>${new Date(instance.start_timestamp * 1000).toLocaleString()}</td>
+              <td>${new Date(instance.start_timestamp * 1000).toLocaleString().replace(today, '今天')}</td>
               <td><a href="${instance.web_url}" target="_blank">🔗</a><span id="instance-${instance.id}" onclick="isUrlAccessible('${instance.web_url}')"></span>`;
             tableBody.appendChild(row);
 
