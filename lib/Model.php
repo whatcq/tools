@@ -56,6 +56,13 @@ class Model
         return App::$caches['dbInstances'][$this->link][$key];
     }
 
+    /**
+     * @param $sql
+     * @param $params
+     * @param $readonly
+     * @return PDOStatement
+     * @throws Exception
+     */
     public function execute($sql, $params = array(), $readonly = false)
     {
         //echo 'SQL: ' . $sql . PHP_EOL;
@@ -84,14 +91,34 @@ class Model
             }
         }
 
-        if ($sth->execute()) return $readonly ? $sth->fetchAll(PDO::FETCH_ASSOC) : $sth->rowCount();
-        $err = $sth->errorInfo();
-        throw new Exception('Database SQL: "' . $sql . '", ErrorInfo: ' . $err[2]);
+        if (!$sth->execute()) {
+            $err = $sth->errorInfo();
+            throw new Exception('Database SQL: "' . $sql . '", ErrorInfo: ' . $err[2]);
+        }
+        return $sth;
+        return $readonly ? $sth : $sth->rowCount();
     }
 
     public function query($sql, $params = array())
     {
-        return $this->execute($sql, $params, true);
+        return $this->execute($sql, $params, true)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function queryColumn($sql, $params = array())
+    {
+        return $this->execute($sql, $params, true)->fetchColumn();
+    }
+
+    public function queryOne($sql, $params = array())
+    {
+        $sql .= ' LIMIT 1';
+        return $this->execute($sql, $params, true)->fetch();
+    }
+
+    public function queryScalar($sql, $params = array())
+    {
+        $sql .= ' LIMIT 1';
+        return $this->execute($sql, $params, true)->fetchColumn();
     }
 
     /**
@@ -120,7 +147,8 @@ class Model
         } else {
             $limit = !empty($limit) ? ' LIMIT ' . $limit : '';
         }
-        return $this->query('SELECT ' . $fields . $sql . $sort . $limit, $conditions["_bindParams"]);
+        $sql = 'SELECT ' . $fields . $sql . $sort . $limit;
+        return $this->query($sql, $conditions["_bindParams"]);
     }
 
     public function find($conditions = array(), $sort = null, $fields = '*')
