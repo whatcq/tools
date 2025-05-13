@@ -1,5 +1,6 @@
 <?php
 include_once '../php-analysis.php';
+require_once '../lib/App.php';
 
 $configFile = './config2.database.php';
 $configs = [
@@ -7,7 +8,7 @@ $configs = [
         'defaultAction' => 'index',
     ] + include $configFile;
 
-require_once '../lib/App.php';
+App::run($configs);
 
 class IndexController
 {

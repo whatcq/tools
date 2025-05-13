@@ -106,7 +106,7 @@ if (!empty($_COOKIE['_trace']) || !empty($_REQUEST['_trace'])) {
  */
 function _log()
 {
-    static $logs = [];
+    static $logs = [], $prevTime = 0;
     if (!func_num_args()) {
         return $logs;
     }
@@ -121,14 +121,18 @@ function _log()
     // 这个请您别换行:)
     preg_match('#_log\((.*)\);#i', $files[$caller['file']][$caller['line'] - 1], $params);
 
-    $key = $caller['file'] . ': ' . $caller['line'] . ': ' . microtime(1);
-    $logs[$key] = var_export(array_combine(explode(',', $params[1], func_num_args()), func_get_args()), 1);
+    $now = microtime(1);
+    $key = $caller['file'] . ': ' . $caller['line'] . ': ' . round($now - $prevTime, 3) . 's';
+    $vars = array_map(function($item){return trim($item);}, explode(',', $params[1], func_num_args()));
+    $logs[$key] = var_export(array_combine($vars, func_get_args()), 1);
+    $prevTime = $now;
 }
 
 //---------------------------------
 $debugOptions = isset($_GET['_t']) ? $_GET['_t'] : (isset($_COOKIE['_t']) ? $_COOKIE['_t'] : '__');
 
 register_shutdown_function(function () use ($debugOptions) {
+    _log($debugOptions);
     $logs = _log();
     if ($logs && defined('LOG_TO')) {
         $logString = '';
@@ -181,6 +185,7 @@ register_shutdown_function(function () use ($debugOptions) {
     $logs && $traces['vars'] = $logs;
     empty($GLOBALS['_']) or $traces['vars2'] = $GLOBALS['_'];
 ?>
+</style></pre>
 <style>
 small{font-size: 60%}
 #debugBar{padding:0;position:fixed;bottom:0;right:0;font-size:14px;width:100%;z-index:999999;color:#000;text-align:left;font-family:'微软雅黑',serif}
@@ -222,7 +227,9 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
                         if (is_array($info)) {
                             foreach ($info as $k => $val) {
                                 echo '<li>';
+                                $val = print_r($val, true);
                                 if ($key === 'vars') {
+                                    $val = stripcslashes($val);
                                     list($file, $line, $time) = explode(': ', $k);
                                     $fileEscape = urlencode($file);
                                     echo "<a href=\"ide://open?url=file://{$file}&line={$line}\">$file:$line</a><i>$time</i>"
@@ -231,7 +238,7 @@ span.trace-title{text-transform:capitalize;color:#000;padding-right:12px;height:
                                         . '<pre>';
                                 }
                                 else echo $k . ' : ';
-                                echo htmlentities(print_r($val, true), ENT_COMPAT, 'utf-8');
+                                echo htmlentities($val, ENT_COMPAT, 'utf-8');
                                 if ($key === 'vars')echo '</pre>';
                                 echo '</li>';
                             }

@@ -35,6 +35,7 @@ class Model
     public function dbInstance($dbConfig, $key, $forceReplace = false): PDO
     {
         if ($forceReplace || empty(App::$caches['dbInstances'][$this->link][$key])) {
+            _log('init db instance');
             try {
                 $dsn = $dbConfig['DSN']
                     ?? 'mysql:host=' . $dbConfig['HOST']
@@ -74,6 +75,9 @@ class Model
 
     public function execute(string $sql, array $params = [], bool $readonly = false): PDOStatement
     {
+        echo $sql, "\n";
+        $rawSql = $this->replacePlaceholders($sql, $params);
+        _log($sql, $params, $rawSql);
         $this->sqls[] = $sql;
 
         $stmt = $this->getDbInstance($readonly);
@@ -168,9 +172,10 @@ class Model
         return $this->queryOne($sql, $bindParams);
     }
 
-    public function findCount($conditions)
+    public function findCount($conditions = array())
     {
-        list($sql, $bindParams) = $this->buildQuery($conditions);
+        list($sql, $bindParams) = $this->buildQuery($conditions, null, 'COUNT(*)');
+        //_log($sql, $bindParams);
         return $this->queryScalar($sql, $bindParams) ?: 0;
     }
 
@@ -267,6 +272,33 @@ class Model
         $values = array_merge(array_values($allColumns), array_values($updateColumns));
 
         return $this->execute($sql, $values)->rowCount();
+    }
+
+    /**
+     * 替换 SQL 语句中的占位符为参数值
+     *
+     * @param string $sql SQL 语句
+     * @param array $params 参数数组
+     * @return string 替换后的 SQL 语句
+     */
+    public function replacePlaceholders($sql, $params)
+    {
+        // 处理 ? 占位符
+        if (strpos($sql, '?') !== false) {
+            foreach ($params as $value) {
+                $escapedValue = is_string($value) ? "'" . addslashes($value) . "'" : $value;
+                $sql = preg_replace('/\?/', $escapedValue, $sql, 1);
+            }
+        }
+
+        // 处理命名占位符 :name
+        foreach ($params as $key => $value) {
+            if (!is_string($key)) continue;
+            $escapedValue = is_string($value) ? "'" . addslashes($value) . "'" : $value;
+            $sql = str_replace("$key", $escapedValue, $sql);
+        }
+
+        return $sql;
     }
 
     public function dumpSql()
