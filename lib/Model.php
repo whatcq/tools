@@ -6,13 +6,11 @@ class Model
     public $db;
     public $table;
 
-    private $sql = array();
+    private $sqls = array();
 
     public function __construct($targetTable = null)
     {
-        if (is_null($targetTable)) {
-            return;
-        }
+        if (is_null($targetTable)) return;
         $p = explode('.', $targetTable);
         // link.db.table
         // .db.table
@@ -52,43 +50,40 @@ class Model
         return App::$caches['dbInstances'][$this->link][$key];
     }
 
-    /**
-     * @param string $sql
-     * @param array $params
-     * @param bool $readonly
-     * @return PDOStatement
-     * @throws PDOException
-     */
-    public function execute(string $sql, array $params = [], bool $readonly = false): PDOStatement
+    public function getDbInstance(bool $readonly = false): PDO
     {
-        // echo 'SQL: ' . $sql . PHP_EOL;
-        $this->sql[] = $sql;
-
         if ($readonly && !empty(App::$configs[$this->link]['SLAVE']) && is_array(App::$configs[$this->link]['SLAVE'])) {
             if (isset(App::$configs[$this->link]['SLAVE'][0])) {
                 $slaveIndex = array_rand(App::$configs[$this->link]['SLAVE']);
-                $stmt = $this->dbInstance(App::$configs[$this->link]['SLAVE'][$slaveIndex], 'slave_' . $slaveIndex);
+                return $this->dbInstance(App::$configs[$this->link]['SLAVE'][$slaveIndex], 'slave_' . $slaveIndex);
             } else {
-                $stmt = $this->dbInstance(App::$configs[$this->link]['SLAVE'], 'slave');
+                return $this->dbInstance(App::$configs[$this->link]['SLAVE'], 'slave');
             }
         } else {
-            $stmt = $this->dbInstance(App::$configs[$this->link], 'master');
+            return $this->dbInstance(App::$configs[$this->link], 'master');
         }
+    }
+
+    private function getDataType($value): int
+    {
+        if (is_int($value)) return PDO::PARAM_INT;
+        if (is_bool($value)) return PDO::PARAM_BOOL;
+        if (is_null($value)) return PDO::PARAM_NULL;
+        return PDO::PARAM_STR;
+    }
+
+    public function execute(string $sql, array $params = [], bool $readonly = false): PDOStatement
+    {
+        $this->sqls[] = $sql;
+
+        $stmt = $this->getDbInstance($readonly);
         $stmt = $stmt->prepare($sql);
 
         if (is_array($params) && !empty($params)) {
-            foreach ($params as $k => &$v) {
-                if (is_int($v)) {
-                    $data_type = PDO::PARAM_INT;
-                } elseif (is_bool($v)) {
-                    $data_type = PDO::PARAM_BOOL;
-                } elseif (is_null($v)) {
-                    $data_type = PDO::PARAM_NULL;
-                } else {
-                    $data_type = PDO::PARAM_STR;
-                }
+            foreach ($params as $k => $v) {
+                $data_type = $this->getDataType($v);
                 if (is_int($k)) $k = $k + 1;
-                $stmt->bindParam($k, $v, $data_type);
+                $stmt->bindValue($k, $v, $data_type);
             }
         }
 
@@ -148,7 +143,7 @@ class Model
         return $result;
     }
 
-    private function buildQuery($conditions = array(), $sort = null, $fields = '*', $limit = null, $extra = array())
+    public function buildQuery($conditions = array(), $sort = null, $fields = '*', $limit = null, $extra = array())
     {
         $conditions = $this->_where($conditions);
         $sql = "SELECT $fields FROM `$this->table`"
@@ -191,16 +186,16 @@ class Model
         return $this->execute($sql, $conditions['_bindParams'] + $values)->rowCount();
     }
 
-    public function incr($conditions, $field, $optval = 1)
+    public function incr($conditions, $field, $val = 1)
     {
         $conditions = $this->_where($conditions);
         $sql = "UPDATE `$this->table` SET `{$field}` = `{$field}` + :M_INCR_VAL{$conditions['_where']}";
-        return $this->execute($sql, $conditions['_bindParams'] + array(":M_INCR_VAL" => $optval))->rowCount();
+        return $this->execute($sql, $conditions['_bindParams'] + array(":M_INCR_VAL" => $val))->rowCount();
     }
 
-    public function decr($conditions, $field, $optval = 1)
+    public function decr($conditions, $field, $val = 1)
     {
-        return $this->incr($conditions, $field, -$optval);
+        return $this->incr($conditions, $field, -$val);
     }
 
     public function delete($conditions)
@@ -211,15 +206,16 @@ class Model
 
     public function create($row)
     {
-        $values = array();
+        if (!$row) return false;
+        $values = $keys = $marks = array();
         foreach ($row as $k => $v) {
             $keys[] = "`{$k}`";
-            $values[":" . $k] = $v;
-            $marks[] = ":" . $k;
+            $marks[] = ":$k";
+            $values[":$k"] = $v;
         }
         $sql = "INSERT INTO `$this->table` (" . implode(', ', $keys) . ') VALUES (' . implode(', ', $marks) . ")";
         $this->execute($sql, $values);
-        return $this->dbInstance(App::$configs[$this->link], 'master')->lastInsertId();
+        return $this->getDbInstance()->lastInsertId();
     }
 
     /**
@@ -231,6 +227,8 @@ class Model
      */
     public function batchInsert(array $rows, array $columns = [])
     {
+        if (empty($rows)) return 0;
+
         $columns = $columns ?: array_keys(current($rows));
         $columnNames = implode(',', $columns);
         $placeholders = [];
@@ -238,7 +236,7 @@ class Model
 
         foreach ($rows as $row) {
             $placeholders[] = '(' . implode(',', array_fill(0, count($columns), '?')) . ')';
-            $values = array_merge($values, array_values($row));// @todo 兼容不一致问题
+            $values = array_merge($values, array_values($row));
         }
 
         $sql = "INSERT INTO `$this->table` ($columnNames) VALUES " . implode(',', $placeholders);
@@ -257,13 +255,13 @@ class Model
         $allColumns = $insertColumns + $updateColumns;
         $columns = array_keys($allColumns);
         $placeholders = array_fill(0, count($allColumns), '?');
-        $insertSql = "INSERT INTO `$this->table` (`" . implode('`, `', $columns) . "`) VALUES (" . implode(', ', $placeholders) . ")";
+        $insertSql = "INSERT INTO `$this->table` (`" . implode('`, `', $columns) . '`) VALUES (' . implode(', ', $placeholders) . ')';
 
         $updatePairs = [];
         foreach ($updateColumns as $column => $value) {
             $updatePairs[] = "`$column` = ?";
         }
-        $updateSql = "ON DUPLICATE KEY UPDATE " . implode(', ', $updatePairs);
+        $updateSql = 'ON DUPLICATE KEY UPDATE ' . implode(', ', $updatePairs);
 
         $sql = $insertSql . ' ' . $updateSql;
         $values = array_merge(array_values($allColumns), array_values($updateColumns));
@@ -273,6 +271,6 @@ class Model
 
     public function dumpSql()
     {
-        return $this->sql;
+        return $this->sqls;
     }
 }
