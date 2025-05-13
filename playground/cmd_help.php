@@ -9,7 +9,7 @@ $cmd = $_REQUEST['cmd'] ?? 'wget';
 <html>
 <head>
     <title><?= $cmd ?> Command Generator</title>
-    <link rel="stylesheet" type="text/css" href="../lib/base.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/base.css"/>
     <link rel="stylesheet" type="text/css" href="../DBQ/dbq.css"/>
     <style>
         ol {

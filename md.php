@@ -101,7 +101,7 @@ if ($content) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
     <title><?= basename($p) ?></title>
-    <link rel="stylesheet" href="<?= dirname($_SERVER['PHP_SELF']) ?>/lib/github-markdown.css">
+    <link rel="stylesheet" href="<?= dirname($_SERVER['PHP_SELF']) ?>/static/github-markdown.css">
     <?php //= '<base href="' . $base . '/"/>' ?>
 
     <style>
