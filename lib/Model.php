@@ -2,10 +2,7 @@
 
 class Model
 {
-    public $page;
-
-    protected $dbInstances; // 缓存master/slave的
-    public $link;           // key of App::$configs['my_diary_db']
+    public $link; // key of App::$configs like ['my_diary_db']
     public $db;
     public $table;
 
@@ -37,43 +34,47 @@ class Model
         }
     }
 
-    public function dbInstance($dbConfig, $key, $forceReplace = false)
+    public function dbInstance($dbConfig, $key, $forceReplace = false): PDO
     {
         if ($forceReplace || empty(App::$caches['dbInstances'][$this->link][$key])) {
             try {
-                $dsn = isset($dbConfig['DSN'])
-                    ? $dbConfig['DSN']
-                    : 'mysql:host=' . $dbConfig['HOST']
+                $dsn = $dbConfig['DSN']
+                    ?? 'mysql:host=' . $dbConfig['HOST']
                     . (isset($dbConfig['PORT']) ? ':' . $dbConfig['PORT'] : '')
-                    . (($db = !empty($this->db) ? $this->db : (isset($dbConfig['NAME']) ? $dbConfig['NAME'] : '')) ? ';dbname=' . $db : '')
+                    . (($db = !empty($this->db) ? $this->db : ($dbConfig['NAME'] ?? '')) ? ';dbname=' . $db : '')
                     . (isset($dbConfig['CHAR']) ? ';charset=' . $dbConfig['CHAR'] : '');
 
                 App::$caches['dbInstances'][$this->link][$key] = new PDO($dsn, $dbConfig['USER'], $dbConfig['PASS']);
             } catch (PDOException $e) {
-                throw new Exception('Database Err: ' . $e->getMessage());
+                throw new PDOException('Database connection error: ' . $e->getMessage());
             }
         }
         return App::$caches['dbInstances'][$this->link][$key];
     }
 
     /**
-     * @param $sql
-     * @param $params
-     * @param $readonly
+     * @param string $sql
+     * @param array $params
+     * @param bool $readonly
      * @return PDOStatement
-     * @throws Exception
+     * @throws PDOException
      */
-    public function execute($sql, $params = array(), $readonly = false)
+    public function execute(string $sql, array $params = [], bool $readonly = false): PDOStatement
     {
-        //echo 'SQL: ' . $sql . PHP_EOL;
+        // echo 'SQL: ' . $sql . PHP_EOL;
         $this->sql[] = $sql;
 
-        if ($readonly && !empty(App::$configs[$this->link]['MYSQL_SLAVE'])) {
-            $slave_key = array_rand(App::$configs[$this->link]['MYSQL_SLAVE']);
-            $sth = $this->dbInstance(App::$configs[$this->link]['MYSQL_SLAVE'][$slave_key], 'slave_' . $slave_key)->prepare($sql);
+        if ($readonly && !empty(App::$configs[$this->link]['SLAVE']) && is_array(App::$configs[$this->link]['SLAVE'])) {
+            if (isset(App::$configs[$this->link]['SLAVE'][0])) {
+                $slaveIndex = array_rand(App::$configs[$this->link]['SLAVE']);
+                $stmt = $this->dbInstance(App::$configs[$this->link]['SLAVE'][$slaveIndex], 'slave_' . $slaveIndex);
+            } else {
+                $stmt = $this->dbInstance(App::$configs[$this->link]['SLAVE'], 'slave');
+            }
         } else {
-            $sth = $this->dbInstance(App::$configs[$this->link], 'master')->prepare($sql);
+            $stmt = $this->dbInstance(App::$configs[$this->link], 'master');
         }
+        $stmt = $stmt->prepare($sql);
 
         if (is_array($params) && !empty($params)) {
             foreach ($params as $k => &$v) {
@@ -87,16 +88,16 @@ class Model
                     $data_type = PDO::PARAM_STR;
                 }
                 if (is_int($k)) $k = $k + 1;
-                $sth->bindParam($k, $v, $data_type);
+                $stmt->bindParam($k, $v, $data_type);
             }
         }
 
-        if (!$sth->execute()) {
-            $err = $sth->errorInfo();
-            throw new Exception('Database SQL: "' . $sql . '", ErrorInfo: ' . $err[2]);
+        if (!$stmt->execute()) {
+            $err = $stmt->errorInfo();
+            throw new PDOException('Database SQL: "' . $sql . '", ErrorInfo: ' . $err[2]);
         }
-        return $sth;
-        return $readonly ? $sth : $sth->rowCount();
+
+        return $stmt;
     }
 
     public function query($sql, $params = array())
@@ -122,46 +123,60 @@ class Model
     }
 
     /**
-     * @param $conditions
-     * @param $sort
-     * @param $fields
-     * @param $limit int|array($page, $pageSize, $scope 显示页数)
-     * @return array|false|int|null
+     * @param array $conditions 复杂用 rawWhere+...params ; 简单用 key=>value
+     * @return array
      */
-    public function findAll($conditions = array(), $sort = null, $fields = '*', $limit = null, $groupBy = null)
+    private function _where($conditions)
     {
-        $sort = !empty($sort) ? ' ORDER BY ' . $sort : '';
-        $conditions = $this->_where($conditions);
+        $result = array('_where' => " ", '_bindParams' => array());
+        if (is_array($conditions) && !empty($conditions)) {
+            $sql = null;
+            $join = array();
+            if (isset($conditions[0]) && $sql = $conditions[0]) unset($conditions[0]);
+            foreach ($conditions as $key => $condition) {
+                if (substr($key, 0, 1) != ':') {
+                    unset($conditions[$key]);
+                    $conditions[":$key"] = $condition;
+                }
+                $join[] = "`{$key}` = :{$key}";
+            }
+            if (!$sql) $sql = join(' AND ', $join);
 
-        $sql = ' FROM ' . $this->table . $conditions["_where"];
-        if (!empty($groupBy)) {
-            $sql .= ' GROUP BY ' . $groupBy;
+            $result['_where'] = " WHERE $sql";
+            $result['_bindParams'] = $conditions;
         }
-        if (is_array($limit)) {
-            $total = $this->query('SELECT COUNT(*) as M_COUNTER ' . $sql, $conditions["_bindParams"]);
-            if (!isset($total[0]['M_COUNTER']) || $total[0]['M_COUNTER'] == 0) return array();
-
-            $limit = $limit + array(1, 10, 10);
-            $pager = $this->pager($limit[0], $limit[1], $limit[2], $total[0]['M_COUNTER']);
-            $limit = empty($pager) ? '' : ' LIMIT ' . $pager['offset'] . ',' . $pager['limit'];
-        } else {
-            $limit = !empty($limit) ? ' LIMIT ' . $limit : '';
-        }
-        $sql = 'SELECT ' . $fields . $sql . $sort . $limit;
-        return $this->query($sql, $conditions["_bindParams"]);
+        return $result;
     }
 
-    public function find($conditions = array(), $sort = null, $fields = '*')
+    private function buildQuery($conditions = array(), $sort = null, $fields = '*', $limit = null, $extra = array())
     {
-        $res = $this->findAll($conditions, $sort, $fields, 1);
-        return !empty($res) ? array_pop($res) : false;
+        $conditions = $this->_where($conditions);
+        $sql = "SELECT $fields FROM `$this->table`"
+            . (isset($extra['alias']) ? " AS {$extra['alias']}" : '')
+            . (isset($extra['join']) ? " {$extra['join']}" : '')
+            . $conditions['_where']
+            . (isset($extra['groupBy']) ? " GROUP BY {$extra['groupBy']}" : '')
+            . (!empty($sort) ? " ORDER BY $sort" : '')
+            . (!empty($limit) ? " LIMIT $limit" : '');
+        return array($sql, $conditions['_bindParams']);
+    }
+
+    public function findAll($conditions = array(), $sort = null, $fields = '*', $limit = null, $extra = array())
+    {
+        list($sql, $bindParams) = $this->buildQuery($conditions, $sort, $fields, $limit, $extra);
+        return $this->query($sql, $bindParams);
+    }
+
+    public function find($conditions = array(), $sort = null, $fields = '*', $extra = array())
+    {
+        list($sql, $bindParams) = $this->buildQuery($conditions, $sort, $fields, null, $extra);
+        return $this->queryOne($sql, $bindParams);
     }
 
     public function findCount($conditions)
     {
-        $conditions = $this->_where($conditions);
-        $count = $this->query("SELECT COUNT(*) AS M_COUNTER FROM " . $this->table . $conditions["_where"], $conditions["_bindParams"]);
-        return isset($count[0]['M_COUNTER']) && $count[0]['M_COUNTER'] ? $count[0]['M_COUNTER'] : 0;
+        list($sql, $bindParams) = $this->buildQuery($conditions);
+        return $this->queryScalar($sql, $bindParams) ?: 0;
     }
 
     public function update($conditions, $row)
@@ -172,13 +187,15 @@ class Model
             $sets[] = "`{$k}` = " . ":M_UPDATE_" . $k;
         }
         $conditions = $this->_where($conditions);
-        return $this->execute("UPDATE " . $this->table . " SET " . implode(', ', $sets) . $conditions["_where"], $conditions["_bindParams"] + $values);
+        $sql = "UPDATE `$this->table` SET " . implode(', ', $sets) . $conditions['_where'];
+        return $this->execute($sql, $conditions['_bindParams'] + $values)->rowCount();
     }
 
     public function incr($conditions, $field, $optval = 1)
     {
         $conditions = $this->_where($conditions);
-        return $this->execute("UPDATE " . $this->table . " SET `{$field}` = `{$field}` + :M_INCR_VAL " . $conditions["_where"], $conditions["_bindParams"] + array(":M_INCR_VAL" => $optval));
+        $sql = "UPDATE `$this->table` SET `{$field}` = `{$field}` + :M_INCR_VAL{$conditions['_where']}";
+        return $this->execute($sql, $conditions['_bindParams'] + array(":M_INCR_VAL" => $optval))->rowCount();
     }
 
     public function decr($conditions, $field, $optval = 1)
@@ -189,7 +206,7 @@ class Model
     public function delete($conditions)
     {
         $conditions = $this->_where($conditions);
-        return $this->execute("DELETE FROM " . $this->table . $conditions["_where"], $conditions["_bindParams"]);
+        return $this->execute("DELETE FROM `$this->table`{$conditions['_where']}", $conditions['_bindParams'])->rowCount();
     }
 
     public function create($row)
@@ -200,8 +217,8 @@ class Model
             $values[":" . $k] = $v;
             $marks[] = ":" . $k;
         }
-        $this->execute("INSERT INTO $this->table (" . implode(', ', $keys)
-            . ") VALUES (" . implode(', ', $marks) . ")", $values);
+        $sql = "INSERT INTO `$this->table` (" . implode(', ', $keys) . ') VALUES (' . implode(', ', $marks) . ")";
+        $this->execute($sql, $values);
         return $this->dbInstance(App::$configs[$this->link], 'master')->lastInsertId();
     }
 
@@ -210,7 +227,7 @@ class Model
      *
      * @param array $rows 数据数组
      * @param array $columns 字段s 注意与 $rows 保持一致，包括顺序!!!
-     * @return bool
+     * @return int 影响的行数
      */
     public function batchInsert(array $rows, array $columns = [])
     {
@@ -225,7 +242,7 @@ class Model
         }
 
         $sql = "INSERT INTO `$this->table` ($columnNames) VALUES " . implode(',', $placeholders);
-        return $this->execute($sql, $values);
+        return $this->execute($sql, $values)->rowCount();
     }
 
     /**
@@ -237,91 +254,25 @@ class Model
      */
     public function upsert(array $insertColumns, array $updateColumns)
     {
-        // 构造插入字段和占位符
         $allColumns = $insertColumns + $updateColumns;
         $columns = array_keys($allColumns);
         $placeholders = array_fill(0, count($allColumns), '?');
         $insertSql = "INSERT INTO `$this->table` (`" . implode('`, `', $columns) . "`) VALUES (" . implode(', ', $placeholders) . ")";
 
-        // 构造更新字段
         $updatePairs = [];
         foreach ($updateColumns as $column => $value) {
             $updatePairs[] = "`$column` = ?";
         }
         $updateSql = "ON DUPLICATE KEY UPDATE " . implode(', ', $updatePairs);
 
-        // 合并 SQL 语句
         $sql = $insertSql . ' ' . $updateSql;
-
-        // 合并绑定值
         $values = array_merge(array_values($allColumns), array_values($updateColumns));
 
-        // 执行 SQL
-        _log($sql, $values);
-        return $this->execute($sql, $values);
+        return $this->execute($sql, $values)->rowCount();
     }
 
     public function dumpSql()
     {
         return $this->sql;
-    }
-
-    public function pager($page, $pageSize = 10, $scope = 10, $total = 0)
-    {
-        $this->page = null;
-        if ($total > $pageSize) {
-            $total_page = ceil($total / $pageSize);
-            $page = min(intval(max($page, 1)), $total_page);
-            $this->page = array(
-                'total_count' => $total,
-                'page_size' => $pageSize,
-                'total_page' => $total_page,
-                'first_page' => 1,
-                'prev_page' => ((1 == $page) ? 1 : ($page - 1)),
-                'next_page' => (($page == $total_page) ? $total_page : ($page + 1)),
-                'last_page' => $total_page,
-                'current_page' => $page,
-                'offset' => ($page - 1) * $pageSize,
-                'limit' => $pageSize,
-            );
-            $scope = (int)$scope;
-            if ($total_page <= $scope) {
-                $this->page['all_pages'] = range(1, $total_page);
-            } elseif ($page <= $scope / 2) {
-                $this->page['all_pages'] = range(1, $scope);
-            } elseif ($page <= $total_page - $scope / 2) {
-                $right = $page + (int)($scope / 2);
-                $this->page['all_pages'] = range($right - $scope + 1, $right);
-            } else {
-                $this->page['all_pages'] = range($total_page - $scope + 1, $total_page);
-            }
-        }
-        return $this->page;
-    }
-
-    /**
-     * @param array $conditions 复杂用 rawWhere+...params ; 简单用 key=>value
-     * @return array
-     */
-    private function _where($conditions)
-    {
-        $result = array("_where" => " ", "_bindParams" => array());
-        if (is_array($conditions) && !empty($conditions)) {
-            $sql = null;
-            $join = array();
-            if (isset($conditions[0]) && $sql = $conditions[0]) unset($conditions[0]);
-            foreach ($conditions as $key => $condition) {
-                if (substr($key, 0, 1) != ":") {
-                    unset($conditions[$key]);
-                    $conditions[":" . $key] = $condition;
-                }
-                $join[] = "`{$key}` = :{$key}";
-            }
-            if (!$sql) $sql = join(" AND ", $join);
-
-            $result["_where"] = " WHERE " . $sql;
-            $result["_bindParams"] = $conditions;
-        }
-        return $result;
     }
 }
