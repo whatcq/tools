@@ -122,7 +122,7 @@ function _log()
     preg_match('#_log\((.*)\);#i', $files[$caller['file']][$caller['line'] - 1], $params);
 
     $now = microtime(1);
-    $key = $caller['file'] . ': ' . $caller['line'] . ': ' . round($now - $prevTime, 3) . 's';
+    $key = $caller['file'] . ': ' . $caller['line'] . ': ' . round($now - $prevTime, 6) . 's';
     $vars = array_map(function($item){return trim($item);}, explode(',', $params[1], func_num_args()));
     $logs[$key] = var_export(array_combine($vars, func_get_args()), 1);
     $prevTime = $now;
