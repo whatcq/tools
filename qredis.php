@@ -6,7 +6,7 @@
 
 ### commands data list
 if (isset($_GET['redis_commands'])) {
-	$data = file('lib/redis_commands.txt');
+	$data = file('other/redis_commands.txt');
 	foreach ($data as &$line) {
 		$line = explode('||', rtrim($line));
 	}
