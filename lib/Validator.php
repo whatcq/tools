@@ -21,6 +21,7 @@ class Validator
             $rules = is_string($ruleSet) ? explode('|', $ruleSet) : $ruleSet;
 
             foreach ($rules as $rule) {
+                if ($rule === 'nullable' && empty($this->data[$field])) break;
                 $this->validateRule($field, $rule);
             }
         }
@@ -44,9 +45,22 @@ class Validator
             $ruleName = $rule;
         }
 
-        $value = $this->data[$field] ?? null;
-        if (!$this->judge($value, $ruleName, $params)) {
-            $this->addError($field, $ruleName, $value, $params);
+        // 数组元素
+        if (str_contains($field, '.')) {
+            [$field, $subField] = explode('.', $field, 2);
+            $values = $this->data[$field] ?? null;
+            if ($subField === '*') {
+                foreach ($values as $key => $value) {
+                    if (!$this->judge($value, $ruleName, $params)) {
+                        $this->addError("$field.$key", $ruleName, $value, $params);
+                    }
+                }
+            }
+        } else {
+            $value = $this->data[$field] ?? null;
+            if (!$this->judge($value, $ruleName, $params)) {
+                $this->addError($field, $ruleName, $value, $params);
+            }
         }
     }
 
@@ -79,7 +93,6 @@ class Validator
 
     protected function judge($value, string $rule, $params): bool
     {
-        _log($value, $rule, $params);
         return match ($rule) {
             'required' => !empty($value),
             'string' => is_string($value),
@@ -94,7 +107,7 @@ class Validator
         };
     }
 }
-
+/*
 include '../php-analysis.php';
 
 // 正向测试用例
@@ -109,11 +122,10 @@ $rules = [
     'name' => 'required|string',
     'email' => 'required|email',
     'password' => 'required|min:6|max:20',
-    'colors' => 'array:string',
+    'colors.*' => 'string',
 ];
 
 $customMessages = [
-    // 'required' => 'The :param1 field is required.',
     'email.email' => 'The email must be a valid email address.',
     'password.min' => 'The password must be at least :param1 characters.',
     'password.max' => 'The password must be at most :param1 characters.',
@@ -124,7 +136,7 @@ $validator = new Validator($data, $rules, $customMessages);
 if ($validator->passes()) {
     echo "Positive Test Passed!\n";
 } else {
-    echo "Positive Test Failed:\n";
+    echo "<pre>Positive Test Failed:\n";
     print_r($validator->errors());
 }
 
@@ -141,13 +153,6 @@ $rules = [
     'password' => 'required|min:6|max:20',
 ];
 
-$customMessages = [
-    // 'required' => 'The :param1 field is required.',
-    'email.email' => 'The email must be a valid email address.',
-    'password.min' => 'The password must be at least :param1 characters.',
-    'password.max' => 'The password must be at most :param1 characters.',
-];
-
 $validator = new Validator($data, $rules, $customMessages);
 
 if (!$validator->passes()) {
@@ -156,3 +161,5 @@ if (!$validator->passes()) {
 } else {
     echo "Negative Test Failed:\n";
 }
+echo '</pre>';
+*/
