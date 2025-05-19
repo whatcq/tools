@@ -1,7 +1,5 @@
 <?php
 /**
- * @phpversion 5.4
- *
  * 简单分析php程序的状况
  * - use _COOKIE['_t']/ajax click=>document.cookie='_t=_';//start debug bar
  * - _err('msg');//trace
@@ -132,7 +130,6 @@ function _log()
 $debugOptions = isset($_GET['_t']) ? $_GET['_t'] : (isset($_COOKIE['_t']) ? $_COOKIE['_t'] : '__');
 
 register_shutdown_function(function () use ($debugOptions) {
-    _log($debugOptions);
     $logs = _log();
     if ($logs && defined('LOG_TO')) {
         $logString = '';

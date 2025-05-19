@@ -83,6 +83,7 @@
         }*/
         voiceSelect.innerHTML = "";
         voiceSelect.onchange = function () {
+            if (voiceSelect.selectedIndex > -1)
             this.style.backgroundColor = voiceSelect.options[voiceSelect.selectedIndex].style.backgroundColor;
         };
         for (let i = 0; i < voices.length; i++) {
