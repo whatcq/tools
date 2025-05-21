@@ -17,6 +17,16 @@ class IndexController
         echo 'hello world';
     }
 
+    public function actionAudios()
+    {
+        // 获取所有音频文件
+        $files = glob(APP_DIR.'/../data/*');
+        foreach($files as &$file){
+            $file = str_replace(APP_DIR.'/', '', $file);
+        }
+        return $files;
+    }
+
     // 接收提交表单
     function actionHeatmap()
     {

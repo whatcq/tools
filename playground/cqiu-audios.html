@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的录音和歌词</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: left;
+            position: fixed; /* 添加固定定位 */
+            top: 0; /* 固定在顶部 */
+            width: 100%; /* 占满宽度 */
+            z-index: 1000; /* 确保覆盖其他内容 */
+        }
+        main {
+            padding: 20px;
+            margin-top: 80px; /* 为固定头部留出空间 */
+        }
+        .month-section {
+            margin-bottom: 20px; /* 减少间距 */
+        }
+        .month-section h2 {
+            margin-top: 0;
+        }
+        .file-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .file-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px; /* 减少内边距 */
+            border-bottom: 1px solid #ccc;
+        }
+        .file-list li:hover {
+            background-color: #f5f5f5;
+        }
+        .file-list li button {
+            margin-left: 5px; /* 减少按钮间距 */
+        }
+        @media (max-width: 767px) {
+            .file-list li {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .file-list li button {
+                margin-top: 5px; /* 减少按钮间距 */
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <audio id="player" src="" controls></audio>
+    <u onclick="document.querySelector('audio').playbackRate=1">x1</u>
+    <u onclick="document.querySelector('audio').playbackRate=1.5">x1.5</u>
+    <u onclick="document.querySelector('audio').playbackRate=2">x2</u>
+    <div id="lyrics"></div>
+</header>
+<main id="container">
+</main>
+<script>
+
+    function groupFilesByMonth(fileList) {
+        const grouped = {};
+        fileList.forEach(file => {
+            const match = file.match(/(\d{6})\d{6}\.(mp3|lrc)/);
+            if (match) {
+                const month = match[1];
+                if (!grouped[month]) grouped[month] = {};
+                const timeKey = file.substr(8, 12);
+                if (!grouped[month][timeKey]) grouped[month][timeKey] = {};
+                grouped[month][timeKey][file.endsWith('.mp3') ? 'mp3' : 'lrc'] = file;
+            }
+        });
+        return grouped;
+    }
+
+    function createUI(files) {
+        const grouped = groupFilesByMonth(files);
+        const container = document.getElementById('container');
+        for (const month in grouped) {
+            const monthDiv = document.createElement('div');
+            monthDiv.innerHTML = `<h2>${month.slice(0, 4)}年${month.slice(4, 6)}月</h2>`;
+            const list = document.createElement('ul');
+            list.className = 'file-list';
+            for (const time in grouped[month]) {
+                const item = document.createElement('li');
+                const label = `${time.slice(0, 4)}-${time.slice(4, 6)}-${time.slice(6, 8)} ${time.slice(8, 10)}:${time.slice(10, 12)}`;
+                item.innerHTML = `
+                <span>${label}</span>
+                <button onclick="myPlay('${grouped[month][time]['mp3']}', '${grouped[month][time]['lrc']}')">播放</button>
+          `;
+                list.appendChild(item);
+            }
+            monthDiv.appendChild(list);
+            container.appendChild(monthDiv);
+        }
+    }
+
+    function loadLyrics(fileName, elementId) {
+        fetch(fileName)
+            .then(res => res.text())
+            .then(text => {
+                document.getElementById(elementId).innerText = text;
+            })
+            .catch(err => {
+                document.getElementById(elementId).innerText = "无法加载歌词";
+            });
+    }
+
+    function myPlay(mp3File, lrcFile) {
+        document.querySelector('audio').src = '../data/'+mp3File;
+        document.querySelector('audio').play();
+        loadLyrics(lrcFile, 'lyrics');
+        console.log(`正在播放: ${mp3File} 和 ${lrcFile}`);
+    }
+
+    function bindPlayButton() {
+        // 添加播放功能
+        const playButtons = document.querySelectorAll('.file-list button');
+        playButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const mp3File = button.previousElementSibling.previousElementSibling.textContent;
+                const lrcFile = button.previousElementSibling.textContent;
+                // 在此处添加播放逻辑
+                document.querySelector('audio').src = '../data/'+mp3File;
+                document.querySelector('audio').play();
+                loadLyrics(lrcFile, lrcFile.replace('.lrc', ''));
+                console.log(`正在播放: ${mp3File} 和 ${lrcFile}`);
+            });
+        });
+    }
+
+    // fetch mempad-data?_=audios
+    fetch('mempad-data.php?_=audios')
+        .then(response => response.json())
+        .then(files => {
+            createUI(files)
+            // bindPlayButton()
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+</script>
+</body>
+</html>

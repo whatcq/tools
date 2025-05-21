@@ -96,7 +96,11 @@ class App
         if (!class_exists($controllerName)) throw new Exception("Err: Controller '$controllerName' is not exists!");
         if (!method_exists($controllerName, $actionName)) throw new Exception("Err: Method '$actionName' of '$controllerName' is not exists!");
 
-        (new $controllerName())->$actionName();
+        $results = (new $controllerName())->$actionName();
+        if (is_array($results)) {
+            header("Content-type: application/json; charset=utf-8");
+            echo json_encode($results);
+        }
     }
 
     public static function innerAutoload($class)
