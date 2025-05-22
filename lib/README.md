@@ -17,27 +17,27 @@ php 灵活，每个人容易按自己需求和喜好弄一套自己的框架。
 * micro framework
 * autoload：这个不能不用
 - container/IoC：至少singleton需要。
-- filter/validation
+* filter/validation
 - middleware/event/hook
-- cache: adapter/driver/cache-pool
-- config
-- utils/helper: laravel的Arr/Str不经济，但引入yii就不需要我了！
+* cache: adapter/driver/cache-pool
+* config
+* utils/helper: laravel的Arr/Str不经济，但引入yii就不需要我了！
   - array
   - string
   - file
-- debug
+* debug
   - log
   - debug-bar:error/exception
   - env
   - test(unit/functional/acceptance/fixture)
-- db
+* db
   - dao/adapter/(db/redis/mongodb/es)/query-builder
   - orm/ar/model/schema/entity/repository
 - web
   - request/response
   - security(auth/permission/rate-limit)
   - session/cookie/jwt
-  - route: 默认默认，简单，快；
+  * route: 默认默认，简单，快；
   - restful
   - crud
   - view(url/template/asset/html/widget/form)
