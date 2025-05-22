@@ -267,7 +267,7 @@ if ($var && (!isset($_GET['table']) || $_GET['table'] != $table)) {
 }
 
 QQ:
-include './lib/SqlFormatter.php';
+include './lib/util/SqlFormatter.php';
 $sql = DB::autoQuote($sql, $params);
 echo '<details ><summary>sql</summary>';
 echo SqlFormatter::format(SqlFormatter::removeComments($sql), true);

@@ -29,7 +29,7 @@ if (!empty($_REQUEST['f']) && file_exists($file = "$path{$_REQUEST['f']}.php")) 
     {
         $source = file_get_contents($file);
         if (!empty($_REQUEST['format']) || isset($_REQUEST['ff'])) {
-            include 'lib/php-formatter.php';
+            include 'lib/util/php-formatter.php';
             $formatter = new Formatter();//配置：['braceNewline' => [T_FUNCTION, T_CLASS]]
             $source = $formatter->format($source);
         }

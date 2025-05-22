@@ -76,12 +76,12 @@ if (is_file($p)) {
 }
 if ($content) {
     /*
-    include 'lib/Parsedown.php';
+    include 'lib/util/Parsedown.php';
     $parsedown = new Parsedown();
     $content = $parsedown->text($content);
     # 某些解析不是github的方式。。
     /*/
-    include 'lib/Parser.php';
+    include 'lib/util/Parser.php';
     $parsedown = new Parser;
     $parsedown->enableHtml();
     $content = $parsedown->makeHtml($content);
