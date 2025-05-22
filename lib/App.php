@@ -129,6 +129,9 @@ class App
         if (file_exists($file = LIB_DIR . "/$class.php")) {
             include $file;
         }
+        if (file_exists($file = LIB_DIR . "/util/$class.php")) {
+            include $file;
+        }
     }
 
     public static function log($module, $controller, $action)

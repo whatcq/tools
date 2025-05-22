@@ -32,6 +32,6 @@ if ('bing' === $engine) {
     $content = preg_replace('#<cite>(.*?)</cite>#i', '<a href="$1" target="bing">$1</a>', $content);
     $content = preg_replace('#<link rel="stylesheet" href="/.*?\.css" type="text/css"/>#i', '', $content);
 }
-$outHtml = '<link rel="stylesheet" href="../lib/base.css" />' . $content;
+$outHtml = '<link rel="stylesheet" href="../static/base.css" />' . $content;
 
 return $result;
