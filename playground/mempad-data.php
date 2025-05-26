@@ -75,16 +75,18 @@ class IndexController
             //'D:\mysoft\fuer\jianguoyun\pc-i11.lsf',
             'D:\mysoft\mempad64\pc-i11.lsf',
         ];
-        //$files = $_REQUEST['selected'] ?? [
-        //    'D:\mysoft\mempad64\67hang.lsf',
-        //    'D:\mysoft\mempad64\2025yy.lsf',
-        //    'D:\mysoft\mempad64\pc-i11.lsf',
-        //];
+        $files = $_REQUEST['selected'] ?? [
+            'D:\mysoft\mempad64\67hang.lsf',
+            'D:\mysoft\mempad64\2025yy.lsf',
+            'D:\mysoft\mempad64\pc-i11.lsf',
+        ];
         $files or die('no file selected');
 
-        $table = 'log';
+        $table = 'log2';
 
         //die('are you sure?');
+        include_once '../lib/functions2.php';
+        confirmPost();
         echo '<pre>';
         $GLOBALS['model'] = new Model("local.cqiu.$table");
         $GLOBALS['model']->execute("SET FOREIGN_KEY_CHECKS=0;TRUNCATE TABLE `$table`;");

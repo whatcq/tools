@@ -260,7 +260,7 @@ VUE;
             <label><input type='checkbox' id='select-all' onclick='toggleAll()'>全选</label>
             <label><input type='checkbox' id='select-invert' onclick="invertSelection()">反选</label>
             (<span id="selected-count">0</span>/<span id="total"></span>)
-            <input type='submit' name='submit' value='处理选中项'>
+            <input type='submit' value='处理选中项'>
         </form>
     </div>
     <div id="content" class="right-panel">

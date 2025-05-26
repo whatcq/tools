@@ -97,3 +97,30 @@ function cache_getOrSet($key, $value, $expire = 0)
 
     return $value;
 }
+
+function confirmPost()
+{
+    if (time() - ($_POST['confirm'] ?? 0) < 100) {
+        return true;
+    }
+    ?>
+    <style>label{width: 100px; display: inline-block;}input{width: 500px;}</style>
+    <form action="<?= $_SERVER['REQUEST_URI'] ?>" method="post" enctype="<?=
+        $_SERVER['CONTENT_TYPE'] ?? 'application/x-www-form-urlencoded' ?>">
+        <input type="hidden" name="confirm" value="<?= time() ?>">
+        <?php
+        foreach ($_POST as $k => $v) {
+            if (is_array($v)) {
+                foreach ($v as $k1 => $v1) {
+                    echo "<label>{$k}[{$k1}]:</label><input type=\"text\" name=\"{$k}[{$k1}]\" value=\"" . htmlspecialchars($v1) . '"></label><br />';
+                }
+            } else {
+                echo "<label>{$k}:</label><input type=\"text\" name=\"{$k}\" value=\"" . htmlspecialchars($v) . '"></label><br />';
+            }
+        }
+        ?>
+        <input type="submit" value="== 确认 ==">
+    </form>
+    <?php
+    exit;
+}
