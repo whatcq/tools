@@ -227,12 +227,12 @@ VUE;
                         if (!$ok) continue;
                         $ok = !$pattern || strpos($filename, $pattern) !== false;
                         if (!$ok) continue;
-                        if ($file->isDir() && $include_folders) {
+                        if ($include_folders && $file->isDir()) {
                             $results[] = array(
                                 'type' => 'folder',
                                 'path' => $file->getPathname(),
                             );
-                        } elseif ($file->isFile() && $include_files) {
+                        } elseif ($include_files && $file->isFile()) {
                             $results[] = array(
                                 'type' => 'file',
                                 'path' => $file->getPathname(),

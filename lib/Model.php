@@ -75,9 +75,9 @@ class Model
 
     public function execute(string $sql, array $params = [], bool $readonly = false): PDOStatement
     {
-        echo $sql, "\n";
-        $rawSql = $this->replacePlaceholders($sql, $params);
-        _log($sql, $params, $rawSql);
+        //echo $sql, "\n";
+        //$rawSql = $this->replacePlaceholders($sql, $params);
+        //_log($sql, $params, $rawSql);
         $this->sqls[] = $sql;
 
         $stmt = $this->getDbInstance($readonly);

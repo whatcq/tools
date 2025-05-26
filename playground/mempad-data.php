@@ -1,4 +1,6 @@
 <?php
+define('SP', chr(0));
+
 include_once '../php-analysis.php';
 require_once '../lib/App.php';
 
@@ -20,9 +22,9 @@ class IndexController
     public function actionAudios()
     {
         // 获取所有音频文件
-        $files = glob(APP_DIR.'/../data/*');
-        foreach($files as &$file){
-            $file = str_replace(APP_DIR.'/', '', $file);
+        $files = glob(APP_DIR . '/../data/*');
+        foreach ($files as &$file) {
+            $file = str_replace(APP_DIR . '/', '', $file);
         }
         return $files;
     }
@@ -34,7 +36,7 @@ class IndexController
         header("Content-type: text/plain; charset=utf-8");
         $table = 'log';
         $model = new Model("local.cqiu.$table");
-        $r = $model->findAll([], null, 'date(`created_at`) as `date`, count(*) as `count`', null, 'created_at');
+        $r = $model->findAll([], null, 'date(`created_at`) as `date`, count(*) as `count`', null, ['groupBy' => 'created_at']);
         echo "date,count\n";
         while ($row = current($r)) {
             echo $row['date'] . ',' . $row['count'] . "\n";
@@ -53,7 +55,7 @@ class IndexController
         echo json_encode($r);
     }
 
-    function actionUpdate2Bb()
+    function actionUpdate2Db()
     {
         $files = [
             'D:\mysoft\fuer\jianguoyun\mempad\2011-cqiu_diary.lsf',
@@ -68,12 +70,16 @@ class IndexController
             'D:\mysoft\fuer\jianguoyun\home.hp.lsf',
             //'D:\mysoft\fuer\jianguoyun\67hang.lsf',
             'D:\mysoft\mempad64\67hang.lsf',
-            'D:\mysoft\fuer\jianguoyun\2025yy.lsf',
+            //'D:\mysoft\fuer\jianguoyun\2025yy.lsf',
+            'D:\mysoft\mempad64\2025yy.lsf',
             //'D:\mysoft\fuer\jianguoyun\pc-i11.lsf',
             'D:\mysoft\mempad64\pc-i11.lsf',
         ];
-        // 'D:\mysoft\fuer\jianguoyun\67hang.lsf'
-        $files = $_REQUEST['selected'] ?? ['D:\mysoft\mempad64\67hang.lsf'];
+        //$files = $_REQUEST['selected'] ?? [
+        //    'D:\mysoft\mempad64\67hang.lsf',
+        //    'D:\mysoft\mempad64\2025yy.lsf',
+        //    'D:\mysoft\mempad64\pc-i11.lsf',
+        //];
         $files or die('no file selected');
 
         $table = 'log';
@@ -86,14 +92,13 @@ class IndexController
             echo $file, '<br>';
             $fp = new mempad2db($file);
             //$fp->write2db();
-            //$fp->batchInsert();
-            $fp->update();
+            $fp->batchInsert();
+            //$fp->update();
         }
         echo '</pre>';
     }
 }
 
-define('SP', chr(0));
 
 /*
 CREATE TABLE `log` (
