@@ -6,7 +6,7 @@
 // @author       Cqiu
 // @match        https://poe.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=poe.com
-// @connect      http://localhost
+// @connect      localhost
 // @grant        unsafeWindow
 // @grant        GM_xmlhttpRequest
 // @run-at       document-start
