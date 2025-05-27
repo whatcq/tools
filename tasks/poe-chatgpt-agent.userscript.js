@@ -102,14 +102,20 @@
 
     // 输入问题:如何操作react的界面元素？触发方法。
     setTimeout(() => {
-        var chat = new window.EventSource(myService + "?act=get_question");
+        // fix CSP:
+        // Tampermonkey > 设置 > 配置模式：高级 > 安全:找到 "Modify existing content security policy (CSP) headers" (修改现有内容安全策略 (CSP) 头部)，将其设置为 "Remove entirely (possibly unsecure)" (完全移除 (可能不安全)) 或 "Yes" (是)。保存！
+        // pub_sub.exe -port 1985
+        var chat = new window.EventSource('http://127.0.0.1:1985/subscribe?channel=question');//(myService + "?act=get_question");
         chat.onmessage = function (e) {
-            // @todo 改为json格式，内容可以更丰富
             console.log(e.data);
+            const data = JSON.parse(e.data);
+            // return;
+            // #__next > div > div.AnnouncementWrapper_container__Z51yh > div > main > div > div > div > div:nth-child(1) > div > div.ChatHomeMain_inputContainer__9mgRh > div > div.GrowingTextArea_growWrap__im5W3.ChatMessageInputContainer_textArea__fNi6E > textarea
             document.querySelector('#__next > div.PageWithSidebarLayout_centeringDiv___L9br > div > section > div.PageWithSidebarLayout_scrollSection__IRP9Y.PageWithSidebarLayout_startAtBottom__wKtfz > div > div > footer > div > div > div.GrowingTextArea_growWrap___1PZM.ChatMessageInputContainer_textArea__kxuJi > textarea')
-                .value = e.data;
+                .value = data.message;
+            // #__next > div > div.AnnouncementWrapper_container__Z51yh > div > main > div > div > div > div:nth-child(1) > div > div.ChatHomeMain_inputContainer__9mgRh > div > div.ChatMessageInputContainer_actionContainerRight__fyfsX.ChatMessageInputContainer_actionContainerBase__8BKrX > button
             document.querySelector('#__next > div.PageWithSidebarLayout_centeringDiv___L9br > div > section > div.PageWithSidebarLayout_scrollSection__IRP9Y.PageWithSidebarLayout_startAtBottom__wKtfz > div > div > footer > div > div > button.Button_buttonBase__0QP_m.Button_primary__pIDjn.ChatMessageSendButton_sendButton__OMyK1.ChatMessageInputContainer_sendButton__s7XkP')
                 .click();
         };
-    }, 500);
+    }, 500); /**/
 })();
