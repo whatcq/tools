@@ -28,7 +28,7 @@ Cqiu's script tools
 - autoF5.ahk  -- hot key to auto reload bowser, for development
 - hackerVisions -- simple script to hacker visions
 - cqiu-note + enter.ahk
-- so -- multi search
+- so -- multi search; tools search
 - tasks -- 任务执行system(ants)
 - talk.php -- 人机(bots, contains gpt)对话
 - talk -- voice-recorder
