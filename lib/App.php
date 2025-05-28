@@ -70,7 +70,6 @@ class App
 
     public static function run($configs = [])
     {
-        // @todo use yii\helpers\ArrayHelper::merge
         static::$configs = array_merge(static::$configs, $configs);
         // route: r=module.controller/action
         $controller = static::$configs['defaultController'];
@@ -97,6 +96,27 @@ class App
         if (!method_exists($controllerName, $actionName)) throw new Exception("Err: Method '$actionName' of '$controllerName' is not exists!");
 
         $results = (new $controllerName())->$actionName();
+        static::handleResponse($results);
+    }
+
+    // 单文件
+    public static function run1($configs = [])
+    {
+        static::$configs = array_merge(static::$configs, $configs);
+        spl_autoload_register(['App', 'innerAutoload'], true, true);
+        // route: _=action
+        $action = $_REQUEST['_'] ?? static::$configs['defaultAction'];
+        if (!$action) return;
+
+        $actionName = 'action' . $action;
+        if (!function_exists($actionName)) throw new Exception("Err: Method '$actionName' is not exists!");
+
+        $results = $actionName();
+        static::handleResponse($results);
+    }
+
+    public static function handleResponse($results)
+    {
         if (is_array($results)) {
             header("Content-type: application/json; charset=utf-8");
             echo json_encode($results);

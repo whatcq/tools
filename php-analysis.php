@@ -24,6 +24,7 @@
  */
 
 //---------------------------------
+// debug-list @todo 记录包括非页面输出的信息，重构成Debug类
 // pjax 注释/删除 掉测试代码
 if (
     !empty($_GET['_t'])
@@ -146,7 +147,9 @@ register_shutdown_function(function () use ($debugOptions) {
         || (isset($_SERVER['HTTP_REQUEST_TYPE']) && $_SERVER['HTTP_REQUEST_TYPE'] === 'ajax')
         || array_search('XMLHttpRequest', getallheaders()) === 'X-Requested-With'
         || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'fetch')
-        || false !== stripos(implode('', headers_list()), 'Content-Type: application/json')
+        || false !== stripos($headers = implode('', headers_list()), 'Content-Type: application/json')
+        || false !== stripos($headers, 'Content-Type: text/plain')
+        || false !== stripos($headers, 'Content-Type: text/csv')
         //|| false === stripos(implode('', headers_list()), 'Content-Type: text/html')
     ) {
         return;

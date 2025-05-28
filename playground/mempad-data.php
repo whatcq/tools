@@ -5,102 +5,90 @@ include_once '../php-analysis.php';
 require_once '../lib/App.php';
 
 $configFile = './config2.database.php';
-$configs = [
-        'defaultController' => 'Index',
-        'defaultAction' => 'index',
-    ] + include $configFile;
+$configs = ['defaultAction' => ''] + include $configFile;
 
-App::run($configs);
+App::run1($configs);
 
-class IndexController
+function actionAudios()
 {
-    public function actionIndex()
-    {
-        echo 'hello world';
+    // 获取所有音频文件
+    $files = glob(APP_DIR . '/../data/*');
+    foreach ($files as &$file) {
+        $file = str_replace(APP_DIR . '/', '', $file);
     }
+    return $files;
+}
 
-    public function actionAudios()
-    {
-        // 获取所有音频文件
-        $files = glob(APP_DIR . '/../data/*');
-        foreach ($files as &$file) {
-            $file = str_replace(APP_DIR . '/', '', $file);
-        }
-        return $files;
-    }
-
-    // 接收提交表单
-    function actionHeatmap()
-    {
-        $GLOBALS['__no_debug_bar'] = 1;
-        header("Content-type: text/plain; charset=utf-8");
-        $table = 'log';
-        $model = new Model("local.cqiu.$table");
-        $r = $model->findAll([], null, 'date(`created_at`) as `date`, count(*) as `count`', null, ['groupBy' => 'created_at']);
-        echo "date,count\n";
-        while ($row = current($r)) {
-            echo $row['date'] . ',' . $row['count'] . "\n";
-            next($r);
-        }
-    }
-
-    function actionView()
-    {
-        $date = date('Y-m-d', strtotime($_REQUEST['date']));
-
-        $table = 'log';
-        $model = new Model("local.cqiu.$table");
-        $r = $model->findAll(['`created_at` BETWEEN :a AND :b', ':a' => $date, ':b' => $date . ' 23:59:59']);
-        header("Content-type: application/json; charset=utf-8");
-        echo json_encode($r);
-    }
-
-    function actionUpdate2Db()
-    {
-        $files = [
-            'D:\mysoft\fuer\jianguoyun\mempad\2011-cqiu_diary.lsf',
-            'D:\mysoft\fuer\jianguoyun\mempad\2012-dairy.lsf',
-            'D:\mysoft\fuer\jianguoyun\mempad\2016-meishi.lsf',
-            'D:\mysoft\fuer\jianguoyun\mempad\2017-txz.lsf',
-            'D:\mysoft\fuer\jianguoyun\mempad\2020-mdwl.lsf',
-            'D:\mysoft\fuer\jianguoyun\mempad\2021-cqgg.lsf',
-
-            'D:\mysoft\fuer\jianguoyun\mempad\2022-fmcw.lst',
-            'D:\mysoft\fuer\jianguoyun\mempad\2024wxh.lsf',
-            'D:\mysoft\fuer\jianguoyun\home.hp.lsf',
-            //'D:\mysoft\fuer\jianguoyun\67hang.lsf',
-            'D:\mysoft\mempad64\67hang.lsf',
-            //'D:\mysoft\fuer\jianguoyun\2025yy.lsf',
-            'D:\mysoft\mempad64\2025yy.lsf',
-            //'D:\mysoft\fuer\jianguoyun\pc-i11.lsf',
-            'D:\mysoft\mempad64\pc-i11.lsf',
-        ];
-        $files = $_REQUEST['selected'] ?? [
-            'D:\mysoft\mempad64\67hang.lsf',
-            'D:\mysoft\mempad64\2025yy.lsf',
-            'D:\mysoft\mempad64\pc-i11.lsf',
-        ];
-        $files or die('no file selected');
-
-        $table = 'log2';
-
-        //die('are you sure?');
-        include_once '../lib/functions2.php';
-        confirmPost();
-        echo '<pre>';
-        $GLOBALS['model'] = new Model("local.cqiu.$table");
-        $GLOBALS['model']->execute("SET FOREIGN_KEY_CHECKS=0;TRUNCATE TABLE `$table`;");
-        foreach ($files as $file) {
-            echo $file, '<br>';
-            $fp = new mempad2db($file);
-            //$fp->write2db();
-            $fp->batchInsert();
-            //$fp->update();
-        }
-        echo '</pre>';
+// 接收提交表单
+function actionHeatmap()
+{
+    // $GLOBALS['__no_debug_bar'] = 1;
+    $table = 'log';
+    $model = new Model("local.cqiu.$table");
+    $r = $model->findAll([], null, 'date(`created_at`) as `date`, count(*) as `count`', null, ['groupBy' => 'created_at']);
+    header("Content-type: text/plain; charset=utf-8");
+    echo "date,count\n";
+    while ($row = current($r)) {
+        echo $row['date'] . ',' . $row['count'] . "\n";
+        next($r);
     }
 }
 
+function actionView()
+{
+    $date = date('Y-m-d', strtotime($_REQUEST['date']));
+
+    $table = 'log';
+    $model = new Model("local.cqiu.$table");
+    $r = $model->findAll(['`created_at` BETWEEN :a AND :b', ':a' => $date, ':b' => $date . ' 23:59:59']);
+    header("Content-type: application/json; charset=utf-8");
+    echo json_encode($r);
+}
+
+function actionUpdate2Db()
+{
+    $files = [
+        'D:\mysoft\fuer\jianguoyun\mempad\2011-cqiu_diary.lsf',
+        'D:\mysoft\fuer\jianguoyun\mempad\2012-dairy.lsf',
+        'D:\mysoft\fuer\jianguoyun\mempad\2016-meishi.lsf',
+        'D:\mysoft\fuer\jianguoyun\mempad\2017-txz.lsf',
+        'D:\mysoft\fuer\jianguoyun\mempad\2020-mdwl.lsf',
+        'D:\mysoft\fuer\jianguoyun\mempad\2021-cqgg.lsf',
+
+        'D:\mysoft\fuer\jianguoyun\mempad\2022-fmcw.lst',
+        'D:\mysoft\fuer\jianguoyun\mempad\2024wxh.lsf',
+        'D:\mysoft\fuer\jianguoyun\home.hp.lsf',
+        //'D:\mysoft\fuer\jianguoyun\67hang.lsf',
+        'D:\mysoft\mempad64\67hang.lsf',
+        //'D:\mysoft\fuer\jianguoyun\2025yy.lsf',
+        'D:\mysoft\mempad64\2025yy.lsf',
+        //'D:\mysoft\fuer\jianguoyun\pc-i11.lsf',
+        'D:\mysoft\mempad64\pc-i11.lsf',
+    ];
+    $files = $_REQUEST['selected'] ?? [
+        'D:\mysoft\mempad64\67hang.lsf',
+        'D:\mysoft\mempad64\2025yy.lsf',
+        'D:\mysoft\mempad64\pc-i11.lsf',
+    ];
+    $files or die('no file selected');
+
+    $table = 'log2';
+
+    //die('are you sure?');
+    include_once '../lib/functions2.php';
+    confirmPost();
+    echo '<pre>';
+    $GLOBALS['model'] = new Model("local.cqiu.$table");
+    $GLOBALS['model']->execute("SET FOREIGN_KEY_CHECKS=0;TRUNCATE TABLE `$table`;");
+    foreach ($files as $file) {
+        echo $file, '<br>';
+        $fp = new mempad2db($file);
+        //$fp->write2db();
+        $fp->batchInsert();
+        //$fp->update();
+    }
+    echo '</pre>';
+}
 
 /*
 CREATE TABLE `log` (
