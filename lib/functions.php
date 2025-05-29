@@ -1,25 +1,40 @@
 <?php
 
-function curl_post($url, $postFields = [], $headers = [], $timeout = 20, $file = 0)
+function curl_post($url, $postFields = [], $headers = [], $options = [])
 {
+    $options += [
+        // 'proxy' => 'http://127.0.0.1:33210',
+        'connect_timeout' => 2,
+        'timeout' => 5,
+        // 'write_timeout' => 5,
+        'file' => 0,
+        'json' => 0,
+    ];
     $ch = curl_init();
-    $options = array(
+    $curlOptions = array(
         CURLOPT_URL => $url,
         CURLOPT_HEADER => false,
         CURLOPT_NOBODY => false,
         CURLOPT_POST => true,
-        CURLOPT_TIMEOUT => $timeout,
+        CURLOPT_TIMEOUT => $options['timeout'],
+        CURLOPT_CONNECTTIMEOUT => $options['connect_timeout'],
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_SSL_VERIFYHOST => 0,
-        CURLOPT_SSL_VERIFYPEER => 0
+        CURLOPT_SSL_VERIFYPEER => 0,
     );
-    if ($postFields && $file == 0) {
-        $options[CURLOPT_POSTFIELDS] = http_build_query($postFields);
-    } else {
-        $options[CURLOPT_POSTFIELDS] = $postFields;
+    if ($postFields) {
+        if ($options['json'] == 1) {
+            $headers[] = 'Content-Type: application/json';
+            $curlOptions[CURLOPT_POSTFIELDS] = json_encode($postFields);
+        }
+        elseif ($options['file'] == 1) $curlOptions[CURLOPT_POSTFIELDS] = $postFields;
+        else $curlOptions[CURLOPT_POSTFIELDS] = http_build_query($postFields);
     }
-    curl_setopt_array($ch, $options);
+    if (isset($options['proxy'])){
+        $curlOptions[CURLOPT_PROXY] = $options['proxy'];
+    }
+    curl_setopt_array($ch, $curlOptions);
     if ($headers) {
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     }
@@ -31,24 +46,34 @@ function curl_post($url, $postFields = [], $headers = [], $timeout = 20, $file =
     return $returnData;
 }
 
-function curl_get($url, $headers = [], $timeout = 3)
+function curl_get($url, $headers = [], $options = [])
 {
+    $options += [
+        // 'proxy' => 'http://127.0.0.1:33210',
+        'connect_timeout' => 2,
+        'timeout' => 5,
+        // 'write_timeout' => 5,
+    ];
     $ch = curl_init();
-    $options = array(
+    $curlOptions = array(
         CURLOPT_URL => $url,
         CURLOPT_HEADER => false,
         CURLOPT_NOBODY => false,
         CURLOPT_POST => false,
-        CURLOPT_TIMEOUT => $timeout,
+        CURLOPT_TIMEOUT => $options['timeout'],
+        CURLOPT_CONNECTTIMEOUT => $options['connect_timeout'],
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_SSL_VERIFYHOST => 0,
-        CURLOPT_SSL_VERIFYPEER => 0
+        CURLOPT_SSL_VERIFYPEER => 0,
     );
-    curl_setopt_array($ch, $options);
-    if ($headers) {
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    if (isset($options['proxy'])){
+        $curlOptions[CURLOPT_PROXY] = $options['proxy'];
     }
+    if ($headers) {
+        $curlOptions[CURLOPT_HTTPHEADER] = $headers;
+    }
+    curl_setopt_array($ch, $curlOptions);
     $returnData = curl_exec($ch);
     if (curl_errno($ch)) {
         $returnData = curl_error($ch);
@@ -125,7 +150,7 @@ function clearHtml($content)
         '#<style[\s\S\r]*?</style>#i',
         '#<script[\s\S\r]*?</script>#i',
         // '#<div style="display:none">[\s\S\r]*?</div>#im',
-        '#^[ \t\r]*\n#im'
+        '#^[ \t\r]*\n#im',
     ], '', $content);
 }
 
@@ -159,17 +184,20 @@ function parseCurl($str)
 // source: Laravel Framework
 // https://github.com/laravel/framework/blob/8.x/src/Illuminate/Support/Str.php
 if (!function_exists('str_starts_with')) {
-    function str_starts_with($haystack, $needle) {
+    function str_starts_with($haystack, $needle)
+    {
         return (string)$needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0;
     }
 }
 if (!function_exists('str_ends_with')) {
-    function str_ends_with($haystack, $needle) {
+    function str_ends_with($haystack, $needle)
+    {
         return $needle !== '' && substr($haystack, -strlen($needle)) === (string)$needle;
     }
 }
 if (!function_exists('str_contains')) {
-    function str_contains($haystack, $needle) {
+    function str_contains($haystack, $needle)
+    {
         return $needle !== '' && mb_strpos($haystack, $needle) !== false;
     }
 }

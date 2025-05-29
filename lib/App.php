@@ -62,6 +62,7 @@ class App
     static $configs = array(
         'defaultController' => 'Index',
         'defaultAction' => 'index',
+        'timezone' => 'Asia/Chongqing',
     );
 
     static $caches = array();
@@ -70,7 +71,7 @@ class App
 
     public static function run($configs = [])
     {
-        static::$configs = array_merge(static::$configs, $configs);
+        static::init($configs);
         // route: r=module.controller/action
         $controller = static::$configs['defaultController'];
         $action = static::$configs['defaultAction'];
@@ -102,7 +103,7 @@ class App
     // 单文件
     public static function run1($configs = [])
     {
-        static::$configs = array_merge(static::$configs, $configs);
+        static::init($configs);
         spl_autoload_register(['App', 'innerAutoload'], true, true);
         // route: _=action
         $action = $_REQUEST['_'] ?? static::$configs['defaultAction'];
@@ -113,6 +114,12 @@ class App
 
         $results = $actionName();
         static::handleResponse($results);
+    }
+
+    public static function init($configs = [])
+    {
+        static::$configs = array_merge(static::$configs, $configs);
+        date_default_timezone_set(static::$configs['timezone']);
     }
 
     public static function handleResponse($results)
